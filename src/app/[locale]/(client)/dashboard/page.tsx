@@ -1,0 +1,44 @@
+import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth/auth";
+import { prisma } from "@/lib/prisma";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Link } from "@/i18n/navigation";
+
+export default async function ClientDashboardPage() {
+  const [session, t, tNav] = await Promise.all([
+    auth(),
+    getTranslations("client"),
+    getTranslations("nav"),
+  ]);
+
+  const [requestCount, bookingCount] = await Promise.all([
+    prisma.bookingRequest.count({ where: { clientId: session!.user.id } }),
+    prisma.booking.count({ where: { clientId: session!.user.id } }),
+  ]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-zinc-900">{t("dashboardTitle")}</h1>
+        <Link href="/requests/new">
+          <Button>{t("newRequest")}</Button>
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link href="/requests">
+          <Card className="transition-shadow hover:shadow-md">
+            <p className="text-sm text-zinc-600">{tNav("requests")}</p>
+            <p className="mt-1 text-3xl font-semibold text-zinc-900">{requestCount}</p>
+          </Card>
+        </Link>
+        <Link href="/bookings">
+          <Card className="transition-shadow hover:shadow-md">
+            <p className="text-sm text-zinc-600">{tNav("bookings")}</p>
+            <p className="mt-1 text-3xl font-semibold text-zinc-900">{bookingCount}</p>
+          </Card>
+        </Link>
+      </div>
+    </div>
+  );
+}

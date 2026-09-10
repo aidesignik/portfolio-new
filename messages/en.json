@@ -1,0 +1,180 @@
+{
+  "common": {
+    "appName": "Atlas",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "loading": "Loading…",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "reject": "Reject",
+    "accept": "Accept",
+    "download": "Download",
+    "generate": "Generate",
+    "yes": "Yes",
+    "no": "No",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "phone": "Phone",
+    "city": "City",
+    "status": "Status",
+    "actions": "Actions",
+    "createdAt": "Created",
+    "currency": "RSD"
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "requests": "Requests",
+    "bookings": "Bookings",
+    "fleet": "Fleet",
+    "drivers": "Drivers",
+    "calendar": "Calendar",
+    "carriers": "Carriers"
+  },
+  "home": {
+    "title": "Less administration. More rides.",
+    "subtitle": "One platform to organize bus and coach transport — from request to confirmed booking — without endless phone calls and emails.",
+    "ctaClient": "Request transport",
+    "ctaCarrier": "Register your company"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginSubtitle": "Welcome back.",
+    "registerTitle": "Create a client account",
+    "registerCarrierTitle": "Register your transport company",
+    "registerSubtitle": "Book transport without phone calls.",
+    "registerCarrierSubtitle": "Your carrier account will be reviewed before approval.",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "clientOrCarrier": "Are you a client or a carrier?",
+    "asClient": "I need transport",
+    "asCarrier": "I'm a carrier",
+    "invalidCredentials": "Invalid email or password.",
+    "emailInUse": "This email is already registered.",
+    "companyName": "Company name",
+    "taxId": "Tax ID (PIB)",
+    "contactEmail": "Contact email",
+    "contactPhone": "Contact phone",
+    "description": "Description",
+    "licenseInfo": "License information"
+  },
+  "carrierStatus": {
+    "PENDING": "Awaiting approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "SUSPENDED": "Suspended",
+    "pendingNotice": "Your carrier account is awaiting admin approval. You can finish setting up your profile, fleet and drivers in the meantime."
+  },
+  "client": {
+    "dashboardTitle": "Client dashboard",
+    "newRequest": "New request",
+    "myRequests": "My requests",
+    "myBookings": "My bookings",
+    "noRequests": "You haven't submitted any requests yet.",
+    "noBookings": "No confirmed bookings yet.",
+    "requestForm": {
+      "title": "Request transport",
+      "pickupAddress": "Pickup address",
+      "destinationAddress": "Destination",
+      "departureAt": "Departure date & time",
+      "passengerCount": "Number of passengers",
+      "specialRequests": "Special requests (optional)",
+      "submit": "Send request"
+    },
+    "offersTitle": "Offers",
+    "noOffers": "No offers yet — the carrier hasn't responded.",
+    "offerFrom": "Offer from {carrier}",
+    "acceptConfirm": "Accept this offer? This will confirm your booking.",
+    "requestStatus": {
+      "PENDING": "Pending",
+      "OFFERED": "Offer received",
+      "CONFIRMED": "Confirmed",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    }
+  },
+  "carrier": {
+    "dashboardTitle": "Carrier dashboard",
+    "onboardingTitle": "Company profile",
+    "onboardingSubtitle": "Tell clients who you are.",
+    "profileSaved": "Profile saved.",
+    "fleetTitle": "Fleet",
+    "addVehicle": "Add vehicle",
+    "noVehicles": "No vehicles yet.",
+    "driversTitle": "Drivers",
+    "addDriver": "Add driver",
+    "noDrivers": "No drivers yet.",
+    "calendarTitle": "Availability calendar",
+    "requestsTitle": "Incoming requests",
+    "noIncomingRequests": "No incoming requests right now.",
+    "bookingsTitle": "Bookings",
+    "vehicleForm": {
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "seats": "Seats",
+      "amenities": "Amenities",
+      "status": "Status"
+    },
+    "driverForm": {
+      "name": "Driver name",
+      "phone": "Phone",
+      "isAvailable": "Available",
+      "assignedVehicles": "Assigned vehicles"
+    },
+    "offerForm": {
+      "title": "Send an offer",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "distanceKm": "Distance (km)",
+      "suggestedPrice": "System-suggested price",
+      "finalPrice": "Your price",
+      "notes": "Notes (optional)",
+      "submit": "Send offer",
+      "unavailable": "This vehicle or driver is already booked for this date. Choose another."
+    }
+  },
+  "amenities": {
+    "AC": "A/C",
+    "WIFI": "Wi-Fi",
+    "USB": "USB",
+    "TOILET": "Toilet"
+  },
+  "vehicleStatus": {
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive"
+  },
+  "offerStatus": {
+    "PENDING": "Pending",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected",
+    "WITHDRAWN": "Withdrawn",
+    "EXPIRED": "Expired"
+  },
+  "bookingStatus": {
+    "CONFIRMED": "Confirmed",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "documents": {
+    "CONTRACT": "Contract",
+    "CONFIRMATION": "Confirmation",
+    "INVOICE": "Invoice",
+    "generateAll": "Generate documents",
+    "notGenerated": "Not generated yet"
+  },
+  "admin": {
+    "carriersTitle": "Carrier approvals",
+    "noPending": "No carriers awaiting review.",
+    "approve": "Approve",
+    "reject": "Reject"
+  }
+}

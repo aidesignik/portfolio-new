@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  CLIENT
+  CARRIER
+  ADMIN
+}
+
+enum CarrierStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum VehicleStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum VehicleAmenity {
+  AC
+  WIFI
+  USB
+  TOILET
+}
+
+enum RequestStatus {
+  PENDING
+  OFFERED
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DocumentType {
+  CONTRACT
+  CONFIRMATION
+  INVOICE
+}
+
+enum DocumentStatus {
+  PENDING
+  GENERATED
+  FAILED
+}
+
+// ---------- Models ----------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CLIENT)
+  name         String?
+  phone        String?
+  locale       String   @default("sr")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  carrier         Carrier?
+  bookingRequests BookingRequest[] @relation("ClientRequests")
+  bookings        Booking[]        @relation("ClientBookings")
+}
+
+model Carrier {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  companyName  String
+  taxId        String   @unique
+  contactEmail String
+  contactPhone String
+  city         String
+  description  String?
+  licenseInfo  String?
+  photos       String[] @default([])
+
+  ratePerKm Decimal? @db.Decimal(10, 2)
+  fixedFee  Decimal? @db.Decimal(10, 2)
+
+  status    CarrierStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  vehicles Vehicle[]
+  drivers  Driver[]
+  offers   Offer[]
+  bookings Booking[]
+}
+
+model Vehicle {
+  id        String  @id @default(cuid())
+  carrierId String
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  make      String
+  model     String
+  year      Int
+  seats     Int
+  amenities VehicleAmenity[] @default([])
+  photos    String[]         @default([])
+  status    VehicleStatus    @default(ACTIVE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  drivers  DriverVehicle[]
+  offers   Offer[]
+  bookings Booking[]
+
+  @@index([carrierId])
+}
+
+model Driver {
+  id        String  @id @default(cuid())
+  carrierId String
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  name        String
+  phone       String
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicles DriverVehicle[]
+  offers   Offer[]
+  bookings Booking[]
+
+  @@index([carrierId])
+}
+
+model DriverVehicle {
+  driverId  String
+  vehicleId String
+  driver    Driver  @relation(fields: [driverId], references: [id])
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@id([driverId, vehicleId])
+}
+
+model BookingRequest {
+  id       String @id @default(cuid())
+  clientId String
+  client   User   @relation("ClientRequests", fields: [clientId], references: [id])
+
+  pickupAddress      String
+  pickupLat          Float?
+  pickupLng          Float?
+  destinationAddress String
+  destinationLat     Float?
+  destinationLng     Float?
+
+  departureAt     DateTime
+  passengerCount  Int
+  specialRequests String?
+
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  offers  Offer[]
+  booking Booking?
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model Offer {
+  id        String         @id @default(cuid())
+  requestId String
+  request   BookingRequest @relation(fields: [requestId], references: [id])
+
+  carrierId String
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  driverId  String
+  driver    Driver  @relation(fields: [driverId], references: [id])
+
+  distanceKm     Float
+  suggestedPrice Decimal @db.Decimal(10, 2)
+  finalPrice     Decimal @db.Decimal(10, 2)
+  currency       String  @default("RSD")
+  notes          String?
+
+  status    OfferStatus @default(PENDING)
+  expiresAt DateTime?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  booking Booking?
+
+  @@index([requestId])
+  @@index([carrierId])
+  @@index([vehicleId])
+  @@index([driverId])
+}
+
+model Booking {
+  id        String         @id @default(cuid())
+  requestId String         @unique
+  request   BookingRequest @relation(fields: [requestId], references: [id])
+  offerId   String         @unique
+  offer     Offer          @relation(fields: [offerId], references: [id])
+
+  clientId  String
+  client    User    @relation("ClientBookings", fields: [clientId], references: [id])
+  carrierId String
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  driverId  String
+  driver    Driver  @relation(fields: [driverId], references: [id])
+
+  price     Decimal       @db.Decimal(10, 2)
+  currency  String        @default("RSD")
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  documents Document[]
+
+  @@index([clientId])
+  @@index([carrierId])
+  @@index([vehicleId])
+  @@index([driverId])
+}
+
+model Document {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  type      DocumentType
+  status    DocumentStatus @default(PENDING)
+  number    String?
+  fileUrl   String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([bookingId, type])
+  @@index([bookingId])
+}

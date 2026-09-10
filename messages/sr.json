@@ -1,0 +1,180 @@
+{
+  "common": {
+    "appName": "Atlas",
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "submit": "Pošalji",
+    "back": "Nazad",
+    "loading": "Učitavanje…",
+    "edit": "Izmeni",
+    "delete": "Obriši",
+    "confirm": "Potvrdi",
+    "reject": "Odbij",
+    "accept": "Prihvati",
+    "download": "Preuzmi",
+    "generate": "Generiši",
+    "yes": "Da",
+    "no": "Ne",
+    "email": "Email",
+    "password": "Lozinka",
+    "name": "Ime",
+    "phone": "Telefon",
+    "city": "Grad",
+    "status": "Status",
+    "actions": "Akcije",
+    "createdAt": "Kreirano",
+    "currency": "RSD"
+  },
+  "nav": {
+    "home": "Početna",
+    "login": "Prijava",
+    "register": "Registracija",
+    "logout": "Odjava",
+    "dashboard": "Kontrolna tabla",
+    "requests": "Zahtevi",
+    "bookings": "Rezervacije",
+    "fleet": "Vozni park",
+    "drivers": "Vozači",
+    "calendar": "Kalendar",
+    "carriers": "Prevoznici"
+  },
+  "home": {
+    "title": "Manje administracije. Više vožnji.",
+    "subtitle": "Jedna platforma za organizaciju autobuskog prevoza — od zahteva do potvrđene rezervacije — bez beskonačnih poziva i mejlova.",
+    "ctaClient": "Zatraži prevoz",
+    "ctaCarrier": "Registruj svoju firmu"
+  },
+  "auth": {
+    "loginTitle": "Prijava",
+    "loginSubtitle": "Dobrodošli nazad.",
+    "registerTitle": "Kreiraj klijentski nalog",
+    "registerCarrierTitle": "Registruj prevozničku firmu",
+    "registerSubtitle": "Rezerviši prevoz bez telefonskih poziva.",
+    "registerCarrierSubtitle": "Vaš nalog prevoznika biće pregledan pre odobrenja.",
+    "haveAccount": "Već imate nalog?",
+    "noAccount": "Nemate nalog?",
+    "clientOrCarrier": "Da li ste klijent ili prevoznik?",
+    "asClient": "Treba mi prevoz",
+    "asCarrier": "Ja sam prevoznik",
+    "invalidCredentials": "Pogrešan email ili lozinka.",
+    "emailInUse": "Ovaj email je već registrovan.",
+    "companyName": "Naziv firme",
+    "taxId": "PIB",
+    "contactEmail": "Kontakt email",
+    "contactPhone": "Kontakt telefon",
+    "description": "Opis",
+    "licenseInfo": "Podaci o licenci"
+  },
+  "carrierStatus": {
+    "PENDING": "Čeka odobrenje",
+    "APPROVED": "Odobreno",
+    "REJECTED": "Odbijeno",
+    "SUSPENDED": "Suspendovano",
+    "pendingNotice": "Vaš nalog prevoznika čeka odobrenje administratora. U međuvremenu možete podesiti profil, vozni park i vozače."
+  },
+  "client": {
+    "dashboardTitle": "Kontrolna tabla klijenta",
+    "newRequest": "Novi zahtev",
+    "myRequests": "Moji zahtevi",
+    "myBookings": "Moje rezervacije",
+    "noRequests": "Još uvek niste poslali nijedan zahtev.",
+    "noBookings": "Nema potvrđenih rezervacija.",
+    "requestForm": {
+      "title": "Zatraži prevoz",
+      "pickupAddress": "Mesto polaska",
+      "destinationAddress": "Destinacija",
+      "departureAt": "Datum i vreme polaska",
+      "passengerCount": "Broj putnika",
+      "specialRequests": "Posebni zahtevi (opciono)",
+      "submit": "Pošalji zahtev"
+    },
+    "offersTitle": "Ponude",
+    "noOffers": "Još nema ponuda — prevoznik još nije odgovorio.",
+    "offerFrom": "Ponuda od {carrier}",
+    "acceptConfirm": "Prihvatiti ovu ponudu? Ovim se potvrđuje rezervacija.",
+    "requestStatus": {
+      "PENDING": "Na čekanju",
+      "OFFERED": "Ponuda primljena",
+      "CONFIRMED": "Potvrđeno",
+      "CANCELLED": "Otkazano",
+      "EXPIRED": "Isteklo"
+    }
+  },
+  "carrier": {
+    "dashboardTitle": "Kontrolna tabla prevoznika",
+    "onboardingTitle": "Profil firme",
+    "onboardingSubtitle": "Predstavite se klijentima.",
+    "profileSaved": "Profil sačuvan.",
+    "fleetTitle": "Vozni park",
+    "addVehicle": "Dodaj vozilo",
+    "noVehicles": "Još nema vozila.",
+    "driversTitle": "Vozači",
+    "addDriver": "Dodaj vozača",
+    "noDrivers": "Još nema vozača.",
+    "calendarTitle": "Kalendar zauzetosti",
+    "requestsTitle": "Novi zahtevi",
+    "noIncomingRequests": "Trenutno nema novih zahteva.",
+    "bookingsTitle": "Rezervacije",
+    "vehicleForm": {
+      "make": "Marka",
+      "model": "Model",
+      "year": "Godina",
+      "seats": "Broj sedišta",
+      "amenities": "Oprema",
+      "status": "Status"
+    },
+    "driverForm": {
+      "name": "Ime vozača",
+      "phone": "Telefon",
+      "isAvailable": "Dostupan",
+      "assignedVehicles": "Dodeljena vozila"
+    },
+    "offerForm": {
+      "title": "Pošalji ponudu",
+      "vehicle": "Vozilo",
+      "driver": "Vozač",
+      "distanceKm": "Udaljenost (km)",
+      "suggestedPrice": "Predložena cena sistema",
+      "finalPrice": "Vaša cena",
+      "notes": "Napomena (opciono)",
+      "submit": "Pošalji ponudu",
+      "unavailable": "Ovo vozilo ili vozač su već zauzeti tog datuma. Izaberite drugo."
+    }
+  },
+  "amenities": {
+    "AC": "Klima",
+    "WIFI": "Wi-Fi",
+    "USB": "USB",
+    "TOILET": "WC"
+  },
+  "vehicleStatus": {
+    "ACTIVE": "Aktivno",
+    "INACTIVE": "Neaktivno"
+  },
+  "offerStatus": {
+    "PENDING": "Na čekanju",
+    "ACCEPTED": "Prihvaćeno",
+    "REJECTED": "Odbijeno",
+    "WITHDRAWN": "Povučeno",
+    "EXPIRED": "Isteklo"
+  },
+  "bookingStatus": {
+    "CONFIRMED": "Potvrđeno",
+    "IN_PROGRESS": "U toku",
+    "COMPLETED": "Završeno",
+    "CANCELLED": "Otkazano"
+  },
+  "documents": {
+    "CONTRACT": "Ugovor",
+    "CONFIRMATION": "Potvrda",
+    "INVOICE": "Faktura",
+    "generateAll": "Generiši dokumentaciju",
+    "notGenerated": "Još nije generisano"
+  },
+  "admin": {
+    "carriersTitle": "Odobravanje prevoznika",
+    "noPending": "Nema prevoznika na čekanju.",
+    "approve": "Odobri",
+    "reject": "Odbij"
+  }
+}

@@ -1,0 +1,72 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { signIn, getSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Field } from "@/components/ui/Field";
+
+export function LoginForm() {
+  const t = useTranslations();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (result?.error) {
+      setError(t("auth.invalidCredentials"));
+      return;
+    }
+
+    const session = await getSession();
+    const destination =
+      session?.user.role === "ADMIN"
+        ? "/admin/carriers"
+        : session?.user.role === "CARRIER"
+          ? "/carrier/dashboard"
+          : "/dashboard";
+    router.push(destination);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-4">
+      <Field label={t("common.email")}>
+        <Input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </Field>
+      <Field label={t("common.password")}>
+        <Input
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </Field>
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? t("common.loading") : t("auth.loginTitle")}
+      </Button>
+    </form>
+  );
+}
