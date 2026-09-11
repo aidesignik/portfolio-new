@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { OfferActions } from "@/components/forms/OfferActions";
 import { findAvailableOptions } from "@/lib/matching";
+import { formatLocation } from "@/lib/location";
 
 export default async function ClientRequestDetailPage({
   params,
@@ -17,7 +18,10 @@ export default async function ClientRequestDetailPage({
 
   const bookingRequest = await prisma.bookingRequest.findFirst({
     where: { id, clientId: session!.user.id },
-    include: { offers: { include: { carrier: true, vehicle: true, driver: true } } },
+    include: {
+      stops: { orderBy: { order: "asc" } },
+      offers: { include: { carrier: true, vehicle: true, driver: true } },
+    },
   });
   if (!bookingRequest) notFound();
 
@@ -36,8 +40,20 @@ export default async function ClientRequestDetailPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
-          {bookingRequest.pickupAddress} → {bookingRequest.destinationAddress}
+          {formatLocation({ city: bookingRequest.pickupCity, location: bookingRequest.pickupLocation })}
         </h1>
+        {bookingRequest.stops.length > 0 ? (
+          <div className="mt-1 space-y-0.5">
+            {bookingRequest.stops.map((stop) => (
+              <p key={stop.id} className="text-sm text-zinc-500">
+                ↓ {formatLocation(stop)}
+              </p>
+            ))}
+          </div>
+        ) : null}
+        <p className="mt-1 text-lg font-semibold text-zinc-900">
+          → {formatLocation({ city: bookingRequest.destinationCity, location: bookingRequest.destinationLocation })}
+        </p>
         <p className="mt-1 text-sm text-zinc-600">
           {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
         </p>
@@ -98,7 +114,6 @@ export default async function ClientRequestDetailPage({
                   <p className="text-sm text-zinc-600">
                     {offer.vehicle.make} {offer.vehicle.model} · {offer.driver.name}
                   </p>
-                  <p className="text-sm text-zinc-600">{offer.distanceKm} km</p>
                 </div>
                 <Badge
                   tone={

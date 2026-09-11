@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import type { DocumentTemplateProps } from "../types";
 import { styles, formatDateTime, formatMoney } from "./shared";
+import { formatRoute } from "@/lib/location";
 
 export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
   return (
@@ -32,8 +33,7 @@ export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLabel}>Description</Text>
             <Text style={styles.tableCellValue}>
-              Transport {booking.request.pickupAddress} → {booking.request.destinationAddress} (
-              {formatDateTime(booking.request.departureAt)})
+              Transport {formatRoute(booking.request)} ({formatDateTime(booking.request.departureAt)})
             </Text>
           </View>
           <View style={styles.tableRow}>

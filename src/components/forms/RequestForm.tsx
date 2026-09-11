@@ -6,59 +6,53 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { CityLocationFields } from "@/components/forms/CityLocationFields";
+import type { CityLocation } from "@/lib/location";
 
 export interface RequestFormInitial {
-  pickupAddress: string;
-  destinationAddress: string;
+  pickupCity: string;
+  pickupLocation: string;
+  destinationCity: string;
+  destinationLocation: string;
+  stops: CityLocation[];
   departureAt: string;
   isRoundTrip: boolean;
   returnAt: string;
   passengerCount: string;
-  estimatedDistanceKm: string;
 }
 
 export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   const t = useTranslations("client.requestForm");
   const router = useRouter();
   const [form, setForm] = useState({
-    pickupAddress: initial?.pickupAddress ?? "",
-    destinationAddress: initial?.destinationAddress ?? "",
+    pickupCity: initial?.pickupCity ?? "",
+    pickupLocation: initial?.pickupLocation ?? "",
+    destinationCity: initial?.destinationCity ?? "",
+    destinationLocation: initial?.destinationLocation ?? "",
+    stops: initial?.stops ?? ([] as CityLocation[]),
     departureAt: initial?.departureAt ?? "",
     isRoundTrip: initial?.isRoundTrip ?? false,
     returnAt: initial?.returnAt ?? "",
     passengerCount: initial?.passengerCount ?? "40",
-    estimatedDistanceKm: initial?.estimatedDistanceKm ?? "",
     specialRequests: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [distanceLoading, setDistanceLoading] = useState(false);
-  const [distanceNotice, setDistanceNotice] = useState<string | null>(null);
 
-  async function onCalculateDistance() {
-    if (!form.pickupAddress || !form.destinationAddress) return;
-    setDistanceLoading(true);
-    setDistanceNotice(null);
+  function addStop() {
+    if (form.stops.length >= 5) return;
+    setForm({ ...form, stops: [...form.stops, { city: "", location: "" }] });
+  }
 
-    const res = await fetch("/api/distance/estimate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pickupAddress: form.pickupAddress,
-        destinationAddress: form.destinationAddress,
-      }),
+  function removeStop(index: number) {
+    setForm({ ...form, stops: form.stops.filter((_, i) => i !== index) });
+  }
+
+  function updateStop(index: number, patch: Partial<CityLocation>) {
+    setForm({
+      ...form,
+      stops: form.stops.map((stop, i) => (i === index ? { ...stop, ...patch } : stop)),
     });
-
-    setDistanceLoading(false);
-
-    if (!res.ok) {
-      setDistanceNotice(t("distanceNotFound"));
-      return;
-    }
-
-    const { distanceKm } = await res.json();
-    setForm((prev) => ({ ...prev, estimatedDistanceKm: String(distanceKm) }));
-    setDistanceNotice(null);
   }
 
   async function onSubmit(event: FormEvent) {
@@ -72,7 +66,6 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
       body: JSON.stringify({
         ...form,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
-        estimatedDistanceKm: form.estimatedDistanceKm || undefined,
       }),
     });
 
@@ -90,20 +83,58 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <Field label={t("pickupAddress")}>
-        <Input
-          required
-          value={form.pickupAddress}
-          onChange={(e) => setForm({ ...form, pickupAddress: e.target.value })}
-        />
-      </Field>
-      <Field label={t("destinationAddress")}>
-        <Input
-          required
-          value={form.destinationAddress}
-          onChange={(e) => setForm({ ...form, destinationAddress: e.target.value })}
-        />
-      </Field>
+      <CityLocationFields
+        idPrefix="pickup"
+        cityLabel={t("pickupCity")}
+        locationLabel={t("pickupLocation")}
+        city={form.pickupCity}
+        location={form.pickupLocation}
+        onCityChange={(v) => setForm({ ...form, pickupCity: v })}
+        onLocationChange={(v) => setForm({ ...form, pickupLocation: v })}
+      />
+
+      {form.stops.map((stop, index) => (
+        <div key={index} className="space-y-2 rounded-md border border-dashed border-zinc-300 p-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-zinc-500">
+              {t("stop")} {index + 1}
+            </span>
+            <button
+              type="button"
+              onClick={() => removeStop(index)}
+              className="text-xs font-medium text-red-600 hover:underline"
+            >
+              {t("removeStop")}
+            </button>
+          </div>
+          <CityLocationFields
+            idPrefix={`stop-${index}`}
+            cityLabel={t("pickupCity")}
+            locationLabel={t("pickupLocation")}
+            city={stop.city}
+            location={stop.location}
+            onCityChange={(v) => updateStop(index, { city: v })}
+            onLocationChange={(v) => updateStop(index, { location: v })}
+          />
+        </div>
+      ))}
+
+      {form.stops.length < 5 ? (
+        <button type="button" onClick={addStop} className="text-sm font-medium text-zinc-700 underline">
+          + {t("addStop")}
+        </button>
+      ) : null}
+
+      <CityLocationFields
+        idPrefix="destination"
+        cityLabel={t("destinationCity")}
+        locationLabel={t("destinationLocation")}
+        city={form.destinationCity}
+        location={form.destinationLocation}
+        onCityChange={(v) => setForm({ ...form, destinationCity: v })}
+        onLocationChange={(v) => setForm({ ...form, destinationLocation: v })}
+      />
+
       <Field label={t("departureAt")}>
         <Input
           type="datetime-local"
@@ -142,28 +173,6 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
           value={form.passengerCount}
           onChange={(e) => setForm({ ...form, passengerCount: e.target.value })}
         />
-      </Field>
-
-      <Field label={t("estimatedDistanceKm")}>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            min={1}
-            step="1"
-            placeholder={t("estimatedDistanceKmPlaceholder")}
-            value={form.estimatedDistanceKm}
-            onChange={(e) => setForm({ ...form, estimatedDistanceKm: e.target.value })}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={distanceLoading || !form.pickupAddress || !form.destinationAddress}
-            onClick={onCalculateDistance}
-          >
-            {distanceLoading ? "…" : t("calculateDistance")}
-          </Button>
-        </div>
-        {distanceNotice ? <p className="mt-1 text-xs text-amber-600">{distanceNotice}</p> : null}
       </Field>
 
       <Field label={t("specialRequests")}>

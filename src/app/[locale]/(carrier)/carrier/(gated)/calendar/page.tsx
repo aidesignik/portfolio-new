@@ -3,6 +3,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { formatRoute } from "@/lib/location";
 
 export default async function CalendarPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
@@ -27,9 +28,7 @@ export default async function CalendarPage() {
                 <p className="font-medium text-zinc-900">
                   {new Date(booking.request.departureAt).toLocaleString()}
                 </p>
-                <p className="text-sm text-zinc-600">
-                  {booking.request.pickupAddress} → {booking.request.destinationAddress}
-                </p>
+                <p className="text-sm text-zinc-600">{formatRoute(booking.request)}</p>
                 <p className="text-xs text-zinc-500">
                   {booking.vehicle.make} {booking.vehicle.model} · {booking.driver.name} · {booking.client.name}
                 </p>

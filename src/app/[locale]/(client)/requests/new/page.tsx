@@ -1,12 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/Card";
 import { RequestForm } from "@/components/forms/RequestForm";
+import { readTripSearchState } from "@/lib/tripQueryParams";
 
 type SearchParams = Record<string, string | string[] | undefined>;
-
-function str(value: string | string[] | undefined): string {
-  return typeof value === "string" ? value : "";
-}
 
 export default async function NewRequestPage({
   searchParams,
@@ -14,15 +11,18 @@ export default async function NewRequestPage({
   searchParams: Promise<SearchParams>;
 }) {
   const [t, params] = await Promise.all([getTranslations("client.requestForm"), searchParams]);
+  const trip = readTripSearchState(params);
 
-  const initial = {
-    pickupAddress: str(params.pickupAddress),
-    destinationAddress: str(params.destinationAddress),
-    departureAt: str(params.departureAt),
-    isRoundTrip: str(params.isRoundTrip) === "on",
-    returnAt: str(params.returnAt),
-    passengerCount: str(params.passengerCount),
-    estimatedDistanceKm: str(params.estimatedDistanceKm),
+  const initial = trip ?? {
+    pickupCity: "",
+    pickupLocation: "",
+    destinationCity: "",
+    destinationLocation: "",
+    stops: [],
+    departureAt: "",
+    isRoundTrip: false,
+    returnAt: "",
+    passengerCount: "40",
   };
 
   return (

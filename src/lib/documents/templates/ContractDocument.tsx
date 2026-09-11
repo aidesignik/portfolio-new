@@ -1,6 +1,7 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import type { DocumentTemplateProps } from "../types";
 import { styles, formatDateTime, formatMoney } from "./shared";
+import { formatLocation } from "@/lib/location";
 
 export function ContractDocument({ booking, number }: DocumentTemplateProps) {
   return (
@@ -31,10 +32,18 @@ export function ContractDocument({ booking, number }: DocumentTemplateProps) {
           <Text style={styles.sectionTitle}>Subject of the contract</Text>
           <Text>
             The Carrier undertakes to provide passenger transport service from{" "}
-            {booking.request.pickupAddress} to {booking.request.destinationAddress}, departing{" "}
-            {formatDateTime(booking.request.departureAt)}, for {booking.request.passengerCount}{" "}
-            passenger(s), using vehicle {booking.vehicle.make} {booking.vehicle.model} operated by
-            driver {booking.driver.name}.
+            {formatLocation({ city: booking.request.pickupCity, location: booking.request.pickupLocation })}
+            {booking.request.stops.length > 0
+              ? ` (via ${booking.request.stops.map((s) => formatLocation(s)).join(", ")})`
+              : ""}{" "}
+            to{" "}
+            {formatLocation({
+              city: booking.request.destinationCity,
+              location: booking.request.destinationLocation,
+            })}
+            , departing {formatDateTime(booking.request.departureAt)}, for{" "}
+            {booking.request.passengerCount} passenger(s), using vehicle {booking.vehicle.make}{" "}
+            {booking.vehicle.model} operated by driver {booking.driver.name}.
           </Text>
         </View>
 

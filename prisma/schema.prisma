@@ -168,17 +168,21 @@ model BookingRequest {
   clientId String
   client   User   @relation("ClientRequests", fields: [clientId], references: [id])
 
-  pickupAddress      String
-  pickupLat          Float?
-  pickupLng          Float?
-  destinationAddress String
-  destinationLat     Float?
-  destinationLng     Float?
+  pickupCity          String
+  pickupLocation      String
+  pickupLat           Float?
+  pickupLng           Float?
+  destinationCity     String
+  destinationLocation String
+  destinationLat      Float?
+  destinationLng      Float?
 
   departureAt         DateTime
   isRoundTrip         Boolean   @default(false)
   returnAt            DateTime?
   passengerCount      Int
+  // Computed server-side from geocoded pickup/stops/destination — never
+  // entered or seen directly by the client, only used to derive price.
   estimatedDistanceKm Float?
   specialRequests     String?
 
@@ -186,11 +190,26 @@ model BookingRequest {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
+  stops   RequestStop[]
   offers  Offer[]
   booking Booking?
 
   @@index([clientId])
   @@index([status])
+}
+
+model RequestStop {
+  id        String         @id @default(cuid())
+  requestId String
+  request   BookingRequest @relation(fields: [requestId], references: [id])
+
+  order    Int
+  city     String
+  location String
+  lat      Float?
+  lng      Float?
+
+  @@index([requestId])
 }
 
 model Offer {

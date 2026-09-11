@@ -1,45 +1,94 @@
-export interface TripQueryParams {
-  pickupAddress: string;
-  destinationAddress: string;
+import type { CityLocation } from "./location";
+
+export interface TripSearchState {
+  pickupCity: string;
+  pickupLocation: string;
+  destinationCity: string;
+  destinationLocation: string;
+  stops: CityLocation[];
   departureAt: string;
   isRoundTrip: boolean;
-  returnAt?: string;
+  returnAt: string;
   passengerCount: string;
-  estimatedDistanceKm?: string;
 }
 
-/** Reads trip search params carried in the URL (e.g. from the public landing search) into a plain object. */
-export function readTripQueryParams(
-  params: URLSearchParams,
-): TripQueryParams | null {
-  const pickupAddress = params.get("pickupAddress");
-  const destinationAddress = params.get("destinationAddress");
-  const departureAt = params.get("departureAt");
-  const passengerCount = params.get("passengerCount");
-  if (!pickupAddress || !destinationAddress || !departureAt || !passengerCount) {
+type ParamsLike = URLSearchParams | Record<string, string | string[] | undefined>;
+
+function get(params: ParamsLike, key: string): string {
+  if (params instanceof URLSearchParams) return params.get(key) ?? "";
+  const value = params[key];
+  return typeof value === "string" ? value : "";
+}
+
+/** Builds the query string carried from the public search into /register, /login, or /requests/new. */
+export function tripStateToQueryString(state: TripSearchState): string {
+  const q = new URLSearchParams();
+  q.set("pickupCity", state.pickupCity);
+  q.set("pickupLocation", state.pickupLocation);
+  q.set("destinationCity", state.destinationCity);
+  q.set("destinationLocation", state.destinationLocation);
+  q.set("departureAt", state.departureAt);
+  q.set("passengerCount", state.passengerCount);
+  if (state.isRoundTrip) {
+    q.set("isRoundTrip", "on");
+    q.set("returnAt", state.returnAt);
+  }
+  if (state.stops.length > 0) {
+    q.set("stops", JSON.stringify(state.stops));
+  }
+  return q.toString();
+}
+
+/** Reads trip search state from a URL (client `URLSearchParams` or a server `searchParams` object). */
+export function readTripSearchState(params: ParamsLike): TripSearchState | null {
+  const pickupCity = get(params, "pickupCity");
+  const destinationCity = get(params, "destinationCity");
+  const departureAt = get(params, "departureAt");
+  const passengerCount = get(params, "passengerCount");
+  if (!pickupCity || !destinationCity || !departureAt || !passengerCount) {
     return null;
   }
 
+  let stops: CityLocation[] = [];
+  const stopsRaw = get(params, "stops");
+  if (stopsRaw) {
+    try {
+      const parsed = JSON.parse(stopsRaw);
+      if (Array.isArray(parsed)) {
+        stops = parsed.filter(
+          (s): s is CityLocation =>
+            s && typeof s.city === "string" && typeof s.location === "string",
+        );
+      }
+    } catch {
+      stops = [];
+    }
+  }
+
   return {
-    pickupAddress,
-    destinationAddress,
+    pickupCity,
+    pickupLocation: get(params, "pickupLocation"),
+    destinationCity,
+    destinationLocation: get(params, "destinationLocation"),
+    stops,
     departureAt,
-    isRoundTrip: params.get("isRoundTrip") === "on",
-    returnAt: params.get("returnAt") ?? undefined,
+    isRoundTrip: get(params, "isRoundTrip") === "on",
+    returnAt: get(params, "returnAt"),
     passengerCount,
-    estimatedDistanceKm: params.get("estimatedDistanceKm") ?? undefined,
   };
 }
 
-/** Builds the request-creation payload from carried trip params. */
-export function tripQueryParamsToRequestBody(trip: TripQueryParams) {
+/** Builds the POST /api/requests payload from carried trip search state. */
+export function tripStateToRequestBody(trip: TripSearchState) {
   return {
-    pickupAddress: trip.pickupAddress,
-    destinationAddress: trip.destinationAddress,
+    pickupCity: trip.pickupCity,
+    pickupLocation: trip.pickupLocation,
+    destinationCity: trip.destinationCity,
+    destinationLocation: trip.destinationLocation,
+    stops: trip.stops,
     departureAt: trip.departureAt,
     isRoundTrip: trip.isRoundTrip,
     returnAt: trip.isRoundTrip ? trip.returnAt : undefined,
     passengerCount: trip.passengerCount,
-    estimatedDistanceKm: trip.estimatedDistanceKm,
   };
 }

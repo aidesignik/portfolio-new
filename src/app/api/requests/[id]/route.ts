@@ -16,6 +16,7 @@ export async function GET(
     where: { id },
     include: {
       client: { select: { name: true, phone: true, email: true } },
+      stops: { orderBy: { order: "asc" } },
       offers: { include: { carrier: true, vehicle: true, driver: true } },
       booking: true,
     },

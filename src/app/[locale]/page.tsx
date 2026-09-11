@@ -5,13 +5,10 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PublicSearchForm } from "@/components/forms/PublicSearchForm";
 import { findAvailableOptions } from "@/lib/matching";
-import { bookingRequestSchema } from "@/lib/validation/request.schema";
+import { estimateRouteDistance } from "@/lib/tripDistance";
+import { readTripSearchState, tripStateToQueryString } from "@/lib/tripQueryParams";
 
 type SearchParams = Record<string, string | string[] | undefined>;
-
-function str(value: string | string[] | undefined): string {
-  return typeof value === "string" ? value : "";
-}
 
 export default async function HomePage({
   searchParams,
@@ -25,55 +22,41 @@ export default async function HomePage({
     searchParams,
   ]);
 
-  const defaults = {
-    pickupAddress: str(params.pickupAddress),
-    destinationAddress: str(params.destinationAddress),
-    departureAt: str(params.departureAt),
-    isRoundTrip: str(params.isRoundTrip) === "on",
-    returnAt: str(params.returnAt),
-    passengerCount: str(params.passengerCount),
-    estimatedDistanceKm: str(params.estimatedDistanceKm),
+  const trip = readTripSearchState(params);
+  const defaults = trip ?? {
+    pickupCity: "",
+    pickupLocation: "",
+    destinationCity: "",
+    destinationLocation: "",
+    stops: [],
+    departureAt: "",
+    isRoundTrip: false,
+    returnAt: "",
+    passengerCount: "40",
   };
 
-  const hasSearch = defaults.pickupAddress.length > 0;
-  const parsed = hasSearch
-    ? bookingRequestSchema.safeParse({
-        pickupAddress: defaults.pickupAddress,
-        destinationAddress: defaults.destinationAddress,
-        departureAt: defaults.departureAt,
-        isRoundTrip: defaults.isRoundTrip,
-        returnAt: defaults.returnAt || undefined,
-        passengerCount: defaults.passengerCount,
-        estimatedDistanceKm: defaults.estimatedDistanceKm || undefined,
-      })
-    : null;
+  let results: Awaited<ReturnType<typeof findAvailableOptions>> = [];
+  if (trip) {
+    const departureAt = new Date(trip.departureAt);
+    const returnAt = trip.isRoundTrip && trip.returnAt ? new Date(trip.returnAt) : null;
 
-  const results =
-    parsed?.success
-      ? await findAvailableOptions({
-          passengerCount: parsed.data.passengerCount,
-          departureAt: parsed.data.departureAt,
-          returnAt: parsed.data.returnAt ?? null,
-          estimatedDistanceKm: parsed.data.estimatedDistanceKm ?? null,
-        })
-      : [];
+    // Distance is never shown to the client — computed here purely to drive
+    // the price estimate below.
+    const estimate = await estimateRouteDistance([
+      { city: trip.pickupCity, location: trip.pickupLocation },
+      ...trip.stops,
+      { city: trip.destinationCity, location: trip.destinationLocation },
+    ]).catch(() => null);
 
-  const carryQuery = new URLSearchParams();
-  if (parsed?.success) {
-    carryQuery.set("pickupAddress", defaults.pickupAddress);
-    carryQuery.set("destinationAddress", defaults.destinationAddress);
-    carryQuery.set("departureAt", defaults.departureAt);
-    if (defaults.isRoundTrip) {
-      carryQuery.set("isRoundTrip", "on");
-      carryQuery.set("returnAt", defaults.returnAt);
-    }
-    carryQuery.set("passengerCount", defaults.passengerCount);
-    if (defaults.estimatedDistanceKm) {
-      carryQuery.set("estimatedDistanceKm", defaults.estimatedDistanceKm);
-    }
+    results = await findAvailableOptions({
+      passengerCount: Number(trip.passengerCount),
+      departureAt,
+      returnAt,
+      estimatedDistanceKm: estimate?.distanceKm ?? null,
+    });
   }
-  const carryQueryString = carryQuery.toString();
 
+  const carryQueryString = trip ? tripStateToQueryString(trip) : "";
   const bookHref =
     session?.user.role === "CLIENT"
       ? `/requests/new?${carryQueryString}`
@@ -93,16 +76,14 @@ export default async function HomePage({
         <PublicSearchForm defaults={defaults} />
       </Card>
 
-      {hasSearch ? (
+      {trip ? (
         <div className="space-y-4">
           <div>
             <h2 className="text-lg font-medium text-zinc-900">{t("client.availableOptions.title")}</h2>
             <p className="text-sm text-zinc-600">{t("client.availableOptions.disclaimer")}</p>
           </div>
 
-          {!parsed?.success ? (
-            <p className="text-sm text-red-600">{tHome("invalidSearch")}</p>
-          ) : results.length === 0 ? (
+          {results.length === 0 ? (
             <p className="text-sm text-zinc-600">{t("client.availableOptions.none")}</p>
           ) : (
             <>

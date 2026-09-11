@@ -21,7 +21,14 @@ const TEMPLATES: Record<
 export async function generateDocument(bookingId: string, type: DocumentType) {
   const booking = (await prisma.booking.findUniqueOrThrow({
     where: { id: bookingId },
-    include: { client: true, carrier: true, vehicle: true, driver: true, request: true, offer: true },
+    include: {
+      client: true,
+      carrier: true,
+      vehicle: true,
+      driver: true,
+      request: { include: { stops: { orderBy: { order: "asc" } } } },
+      offer: true,
+    },
   })) as unknown as BookingWithRelations;
 
   const document = await prisma.document.upsert({

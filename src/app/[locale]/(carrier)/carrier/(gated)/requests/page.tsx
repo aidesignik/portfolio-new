@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Link } from "@/i18n/navigation";
+import { formatRoute } from "@/lib/location";
 
 export default async function CarrierRequestsPage() {
   const t = await getTranslations("carrier");
@@ -24,9 +25,7 @@ export default async function CarrierRequestsPage() {
             <Link key={req.id} href={`/carrier/requests/${req.id}`}>
               <Card className="flex items-center justify-between transition-shadow hover:shadow-md">
                 <div>
-                  <p className="font-medium text-zinc-900">
-                    {req.pickupAddress} → {req.destinationAddress}
-                  </p>
+                  <p className="font-medium text-zinc-900">{formatRoute(req)}</p>
                   <p className="text-sm text-zinc-600">
                     {new Date(req.departureAt).toLocaleString()} · {req.passengerCount} pax · {req.client.name}
                   </p>

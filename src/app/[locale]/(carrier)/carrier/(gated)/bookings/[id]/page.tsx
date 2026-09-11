@@ -4,6 +4,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
+import { formatRoute } from "@/lib/location";
 
 export default async function CarrierBookingDetailPage({
   params,
@@ -29,9 +30,7 @@ export default async function CarrierBookingDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">
-          {booking.request.pickupAddress} → {booking.request.destinationAddress}
-        </h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">{formatRoute(booking.request)}</h1>
         <p className="mt-1 text-sm text-zinc-600">
           {new Date(booking.request.departureAt).toLocaleString()} · {booking.request.passengerCount} pax
         </p>

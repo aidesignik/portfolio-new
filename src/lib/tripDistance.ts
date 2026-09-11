@@ -1,34 +1,37 @@
 import { geocodeAddress } from "./geocoding";
-import { distanceProvider, osrmDistanceProvider } from "./distance";
+import { osrmRouteDistanceKm, haversineRouteDistanceKm, type Coordinates } from "./distance";
+import { formatLocation, type CityLocation } from "./location";
 
-export interface TripDistanceEstimate {
+export interface RouteEstimate {
   distanceKm: number;
   provider: "osrm" | "stub-haversine";
+  /** Geocoded coordinates in the same order as the input waypoints, for callers that want to cache them. */
+  coordinates: Coordinates[];
 }
 
 /**
- * Geocodes both addresses, then tries the real OSRM road-distance provider,
- * falling back to the haversine stub if OSRM is unreachable or the route
- * can't be computed (e.g. no drivable path found). Returns null only when
- * one of the addresses can't be geocoded at all — callers should then fall
- * back to manual distance entry.
+ * Geocodes an ordered list of waypoints (pickup, any stops, destination —
+ * at least 2), then computes the real road distance across the whole route
+ * via OSRM, falling back to a haversine-based estimate if OSRM is
+ * unreachable. Returns null only if one of the waypoints can't be geocoded
+ * at all. Geocoding is sequential (not parallel) to respect Nominatim's
+ * rate limit even with several stops.
  */
-export async function estimateTripDistance(
-  pickupAddress: string,
-  destinationAddress: string,
-): Promise<TripDistanceEstimate | null> {
-  const [origin, destination] = await Promise.all([
-    geocodeAddress(pickupAddress),
-    geocodeAddress(destinationAddress),
-  ]);
-
-  if (!origin || !destination) return null;
+export async function estimateRouteDistance(
+  waypoints: CityLocation[],
+): Promise<RouteEstimate | null> {
+  const coordinates: Coordinates[] = [];
+  for (const waypoint of waypoints) {
+    const coords = await geocodeAddress(formatLocation(waypoint));
+    if (!coords) return null;
+    coordinates.push(coords);
+  }
 
   try {
-    const result = await osrmDistanceProvider.calculate(origin, destination);
-    return { distanceKm: result.distanceKm, provider: "osrm" };
+    const result = await osrmRouteDistanceKm(coordinates);
+    return { distanceKm: result.distanceKm, provider: "osrm", coordinates };
   } catch {
-    const result = await distanceProvider.calculate(origin, destination);
-    return { distanceKm: result.distanceKm, provider: "stub-haversine" };
+    const result = haversineRouteDistanceKm(coordinates);
+    return { distanceKm: result.distanceKm, provider: "stub-haversine", coordinates };
   }
 }

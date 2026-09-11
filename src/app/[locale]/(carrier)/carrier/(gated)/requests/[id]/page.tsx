@@ -4,6 +4,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { OfferForm } from "@/components/forms/OfferForm";
+import { formatLocation } from "@/lib/location";
 
 export default async function CarrierRequestDetailPage({
   params,
@@ -17,7 +18,10 @@ export default async function CarrierRequestDetailPage({
   const [bookingRequest, vehicles, drivers] = await Promise.all([
     prisma.bookingRequest.findUnique({
       where: { id },
-      include: { client: { select: { name: true, phone: true } } },
+      include: {
+        client: { select: { name: true, phone: true } },
+        stops: { orderBy: { order: "asc" } },
+      },
     }),
     prisma.vehicle.findMany({ where: { carrierId: carrier.id, status: "ACTIVE" } }),
     prisma.driver.findMany({ where: { carrierId: carrier.id, isAvailable: true } }),
@@ -29,8 +33,24 @@ export default async function CarrierRequestDetailPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
-          {bookingRequest.pickupAddress} → {bookingRequest.destinationAddress}
+          {formatLocation({ city: bookingRequest.pickupCity, location: bookingRequest.pickupLocation })}
         </h1>
+        {bookingRequest.stops.length > 0 ? (
+          <div className="mt-1 space-y-0.5">
+            {bookingRequest.stops.map((stop) => (
+              <p key={stop.id} className="text-sm text-zinc-500">
+                ↓ {formatLocation(stop)}
+              </p>
+            ))}
+          </div>
+        ) : null}
+        <p className="mt-1 text-lg font-semibold text-zinc-900">
+          →{" "}
+          {formatLocation({
+            city: bookingRequest.destinationCity,
+            location: bookingRequest.destinationLocation,
+          })}
+        </p>
         <p className="mt-1 text-sm text-zinc-600">
           {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
         </p>

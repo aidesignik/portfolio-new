@@ -8,7 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
-import { readTripQueryParams, tripQueryParamsToRequestBody } from "@/lib/tripQueryParams";
+import { readTripSearchState, tripStateToRequestBody } from "@/lib/tripQueryParams";
 
 export function RegisterClientForm() {
   const t = useTranslations();
@@ -38,12 +38,12 @@ export function RegisterClientForm() {
 
     await signIn("credentials", { email: form.email, password: form.password, redirect: false });
 
-    const trip = readTripQueryParams(searchParams);
+    const trip = readTripSearchState(searchParams);
     if (trip) {
       const tripRes = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tripQueryParamsToRequestBody(trip)),
+        body: JSON.stringify(tripStateToRequestBody(trip)),
       });
       if (tripRes.ok) {
         const { request } = await tripRes.json();
