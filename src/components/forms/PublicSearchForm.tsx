@@ -39,7 +39,6 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <CityLocationFields
-        idPrefix="pickup"
         cityLabel={t("pickupCity")}
         locationLabel={t("pickupLocation")}
         city={form.pickupCity}
@@ -63,7 +62,6 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
             </button>
           </div>
           <CityLocationFields
-            idPrefix={`stop-${index}`}
             cityLabel={t("pickupCity")}
             locationLabel={t("pickupLocation")}
             city={stop.city}
@@ -81,7 +79,6 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
       ) : null}
 
       <CityLocationFields
-        idPrefix="destination"
         cityLabel={t("destinationCity")}
         locationLabel={t("destinationLocation")}
         city={form.destinationCity}

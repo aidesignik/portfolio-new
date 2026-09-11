@@ -84,7 +84,6 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <CityLocationFields
-        idPrefix="pickup"
         cityLabel={t("pickupCity")}
         locationLabel={t("pickupLocation")}
         city={form.pickupCity}
@@ -108,7 +107,6 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
             </button>
           </div>
           <CityLocationFields
-            idPrefix={`stop-${index}`}
             cityLabel={t("pickupCity")}
             locationLabel={t("pickupLocation")}
             city={stop.city}
@@ -126,7 +124,6 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
       ) : null}
 
       <CityLocationFields
-        idPrefix="destination"
         cityLabel={t("destinationCity")}
         locationLabel={t("destinationLocation")}
         city={form.destinationCity}
