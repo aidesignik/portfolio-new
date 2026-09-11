@@ -36,13 +36,17 @@
     "fleet": "Fleet",
     "drivers": "Drivers",
     "calendar": "Calendar",
-    "carriers": "Carriers"
+    "carriers": "Carriers",
+    "forCarriers": "For carriers"
   },
   "home": {
     "title": "Less administration. More rides.",
     "subtitle": "One platform to organize bus and coach transport — from request to confirmed booking — without endless phone calls and emails.",
-    "ctaClient": "Request transport",
-    "ctaCarrier": "Register your company"
+    "ctaCarrier": "Register your company",
+    "carrierPrompt": "Run a bus or coach company?",
+    "bookNow": "Book this trip",
+    "registerToBook": "Create a free account to book",
+    "invalidSearch": "That search doesn't look complete — check the fields and try again."
   },
   "auth": {
     "loginTitle": "Log in",
@@ -91,6 +95,7 @@
       "estimatedDistanceKmPlaceholder": "e.g. 90 — leave blank if unsure",
       "calculateDistance": "Calculate",
       "distanceNotFound": "Couldn't find one or both addresses — enter the distance manually.",
+      "search": "Search",
       "specialRequests": "Special requests (optional)",
       "submit": "Send request"
     },

@@ -3,14 +3,17 @@
 import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { readTripQueryParams, tripQueryParamsToRequestBody } from "@/lib/tripQueryParams";
 
 export function RegisterClientForm() {
   const t = useTranslations();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,6 +37,23 @@ export function RegisterClientForm() {
     }
 
     await signIn("credentials", { email: form.email, password: form.password, redirect: false });
+
+    const trip = readTripQueryParams(searchParams);
+    if (trip) {
+      const tripRes = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tripQueryParamsToRequestBody(trip)),
+      });
+      if (tripRes.ok) {
+        const { request } = await tripRes.json();
+        setLoading(false);
+        router.push(`/requests/${request.id}`);
+        router.refresh();
+        return;
+      }
+    }
+
     setLoading(false);
     router.push("/dashboard");
     router.refresh();

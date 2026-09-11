@@ -3,14 +3,17 @@
 import { FormEvent, useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { readTripQueryParams, tripQueryParamsToRequestBody } from "@/lib/tripQueryParams";
 
 export function LoginForm() {
   const t = useTranslations();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +38,24 @@ export function LoginForm() {
     }
 
     const session = await getSession();
+
+    if (session?.user.role === "CLIENT") {
+      const trip = readTripQueryParams(searchParams);
+      if (trip) {
+        const tripRes = await fetch("/api/requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tripQueryParamsToRequestBody(trip)),
+        });
+        if (tripRes.ok) {
+          const { request } = await tripRes.json();
+          router.push(`/requests/${request.id}`);
+          router.refresh();
+          return;
+        }
+      }
+    }
+
     const destination =
       session?.user.role === "ADMIN"
         ? "/admin/carriers"

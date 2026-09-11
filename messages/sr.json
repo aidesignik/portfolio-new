@@ -36,13 +36,17 @@
     "fleet": "Vozni park",
     "drivers": "Vozači",
     "calendar": "Kalendar",
-    "carriers": "Prevoznici"
+    "carriers": "Prevoznici",
+    "forCarriers": "Za prevoznike"
   },
   "home": {
     "title": "Manje administracije. Više vožnji.",
     "subtitle": "Jedna platforma za organizaciju autobuskog prevoza — od zahteva do potvrđene rezervacije — bez beskonačnih poziva i mejlova.",
-    "ctaClient": "Zatraži prevoz",
-    "ctaCarrier": "Registruj svoju firmu"
+    "ctaCarrier": "Registruj svoju firmu",
+    "carrierPrompt": "Imate autobusku ili prevozničku firmu?",
+    "bookNow": "Rezerviši ovu vožnju",
+    "registerToBook": "Napravi besplatan nalog za rezervaciju",
+    "invalidSearch": "Pretraga izgleda nepotpuno — proverite polja i pokušajte ponovo."
   },
   "auth": {
     "loginTitle": "Prijava",
@@ -91,6 +95,7 @@
       "estimatedDistanceKmPlaceholder": "npr. 90 — ostavite prazno ako niste sigurni",
       "calculateDistance": "Izračunaj",
       "distanceNotFound": "Nismo pronašli jednu ili obe adrese — unesite udaljenost ručno.",
+      "search": "Pretraži",
       "specialRequests": "Posebni zahtevi (opciono)",
       "submit": "Pošalji zahtev"
     },

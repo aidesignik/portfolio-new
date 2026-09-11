@@ -7,17 +7,27 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 
-export function RequestForm() {
+export interface RequestFormInitial {
+  pickupAddress: string;
+  destinationAddress: string;
+  departureAt: string;
+  isRoundTrip: boolean;
+  returnAt: string;
+  passengerCount: string;
+  estimatedDistanceKm: string;
+}
+
+export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   const t = useTranslations("client.requestForm");
   const router = useRouter();
   const [form, setForm] = useState({
-    pickupAddress: "",
-    destinationAddress: "",
-    departureAt: "",
-    isRoundTrip: false,
-    returnAt: "",
-    passengerCount: "40",
-    estimatedDistanceKm: "",
+    pickupAddress: initial?.pickupAddress ?? "",
+    destinationAddress: initial?.destinationAddress ?? "",
+    departureAt: initial?.departureAt ?? "",
+    isRoundTrip: initial?.isRoundTrip ?? false,
+    returnAt: initial?.returnAt ?? "",
+    passengerCount: initial?.passengerCount ?? "40",
+    estimatedDistanceKm: initial?.estimatedDistanceKm ?? "",
     specialRequests: "",
   });
   const [loading, setLoading] = useState(false);

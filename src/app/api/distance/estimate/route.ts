@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth/auth";
 import { estimateTripDistance } from "@/lib/tripDistance";
 
+// Intentionally public (no auth) — used by the anonymous landing-page search,
+// not just the logged-in request form. Nominatim/OSRM calls are already
+// throttled in src/lib/geocoding.ts.
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-  }
-
   const body = await request.json().catch(() => null);
   const pickupAddress = body?.pickupAddress;
   const destinationAddress = body?.destinationAddress;
