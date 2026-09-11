@@ -85,6 +85,8 @@
       "destinationAddress": "Destination",
       "departureAt": "Departure date & time",
       "passengerCount": "Number of passengers",
+      "estimatedDistanceKm": "Approximate distance (km, optional)",
+      "estimatedDistanceKmPlaceholder": "e.g. 90 — leave blank if unsure",
       "specialRequests": "Special requests (optional)",
       "submit": "Send request"
     },
@@ -92,6 +94,12 @@
     "noOffers": "No offers yet — the carrier hasn't responded.",
     "offerFrom": "Offer from {carrier}",
     "acceptConfirm": "Accept this offer? This will confirm your booking.",
+    "availableOptions": {
+      "title": "Available now",
+      "disclaimer": "These are estimated prices based on each carrier's rates — the final price is confirmed once a carrier sends an actual offer.",
+      "none": "No matching vehicles available for this date and passenger count right now.",
+      "seats": "seats"
+    },
     "requestStatus": {
       "PENDING": "Pending",
       "OFFERED": "Offer received",

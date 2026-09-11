@@ -5,5 +5,6 @@ export const bookingRequestSchema = z.object({
   destinationAddress: z.string().min(1),
   departureAt: z.coerce.date(),
   passengerCount: z.coerce.number().int().min(1).max(200),
+  estimatedDistanceKm: z.coerce.number().positive().optional(),
   specialRequests: z.string().optional(),
 });

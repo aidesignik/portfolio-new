@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { OfferActions } from "@/components/forms/OfferActions";
+import { findAvailableOptions } from "@/lib/matching";
 
 export default async function ClientRequestDetailPage({
   params,
@@ -20,6 +21,16 @@ export default async function ClientRequestDetailPage({
   });
   if (!bookingRequest) notFound();
 
+  const showAvailableOptions =
+    bookingRequest.status === "PENDING" || bookingRequest.status === "OFFERED";
+  const availableOptions = showAvailableOptions
+    ? await findAvailableOptions({
+        passengerCount: bookingRequest.passengerCount,
+        departureAt: bookingRequest.departureAt,
+        estimatedDistanceKm: bookingRequest.estimatedDistanceKm,
+      })
+    : [];
+
   return (
     <div className="space-y-6">
       <div>
@@ -33,6 +44,40 @@ export default async function ClientRequestDetailPage({
           {t(`client.requestStatus.${bookingRequest.status}`)}
         </Badge>
       </div>
+
+      {showAvailableOptions ? (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-medium text-zinc-900">{t("client.availableOptions.title")}</h2>
+            <p className="text-sm text-zinc-600">{t("client.availableOptions.disclaimer")}</p>
+          </div>
+          {availableOptions.length === 0 ? (
+            <p className="text-sm text-zinc-600">{t("client.availableOptions.none")}</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {availableOptions.map((option) => (
+                <Card key={option.vehicleId}>
+                  <p className="font-medium text-zinc-900">{option.carrierName}</p>
+                  <p className="text-sm text-zinc-600">{option.carrierCity}</p>
+                  <p className="mt-2 text-sm text-zinc-700">
+                    {option.make} {option.model} · {option.seats} {t("client.availableOptions.seats")}
+                  </p>
+                  {option.amenities.length > 0 ? (
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {option.amenities.map((a) => t(`amenities.${a}`)).join(" · ")}
+                    </p>
+                  ) : null}
+                  {option.estimatedPrice !== null ? (
+                    <p className="mt-3 text-lg font-semibold text-zinc-900">
+                      ~{option.estimatedPrice.toLocaleString()} RSD
+                    </p>
+                  ) : null}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
 
       <div className="space-y-4">
         <h2 className="text-lg font-medium text-zinc-900">{t("client.offersTitle")}</h2>

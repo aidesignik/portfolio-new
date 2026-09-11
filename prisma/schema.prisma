@@ -175,9 +175,10 @@ model BookingRequest {
   destinationLat     Float?
   destinationLng     Float?
 
-  departureAt     DateTime
-  passengerCount  Int
-  specialRequests String?
+  departureAt         DateTime
+  passengerCount      Int
+  estimatedDistanceKm Float?
+  specialRequests     String?
 
   status    RequestStatus @default(PENDING)
   createdAt DateTime      @default(now())

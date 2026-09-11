@@ -85,6 +85,8 @@
       "destinationAddress": "Destinacija",
       "departureAt": "Datum i vreme polaska",
       "passengerCount": "Broj putnika",
+      "estimatedDistanceKm": "Približna udaljenost (km, opciono)",
+      "estimatedDistanceKmPlaceholder": "npr. 90 — ostavite prazno ako niste sigurni",
       "specialRequests": "Posebni zahtevi (opciono)",
       "submit": "Pošalji zahtev"
     },
@@ -92,6 +94,12 @@
     "noOffers": "Još nema ponuda — prevoznik još nije odgovorio.",
     "offerFrom": "Ponuda od {carrier}",
     "acceptConfirm": "Prihvatiti ovu ponudu? Ovim se potvrđuje rezervacija.",
+    "availableOptions": {
+      "title": "Trenutno dostupno",
+      "disclaimer": "Ovo su procenjene cene na osnovu cenovnika svakog prevoznika — konačna cena se potvrđuje kada prevoznik pošalje zvaničnu ponudu.",
+      "none": "Trenutno nema odgovarajućih vozila za ovaj datum i broj putnika.",
+      "seats": "sedišta"
+    },
     "requestStatus": {
       "PENDING": "Na čekanju",
       "OFFERED": "Ponuda primljena",

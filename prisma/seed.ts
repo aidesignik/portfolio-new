@@ -1,7 +1,150 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type VehicleAmenity } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+interface CarrierSeed {
+  email: string;
+  password: string;
+  ownerName: string;
+  companyName: string;
+  taxId: string;
+  city: string;
+  phone: string;
+  ratePerKm: number;
+  fixedFee: number;
+  vehicle: {
+    make: string;
+    model: string;
+    year: number;
+    seats: number;
+    amenities: VehicleAmenity[];
+  };
+  driverName: string;
+  driverPhone: string;
+}
+
+const CARRIERS: CarrierSeed[] = [
+  {
+    email: "carrier@example.com",
+    password: "carrier123",
+    ownerName: "Demo Carrier Owner",
+    companyName: "Atlas Bus d.o.o.",
+    taxId: "123456789",
+    city: "Belgrade",
+    phone: "+381601234567",
+    ratePerKm: 120,
+    fixedFee: 1500,
+    vehicle: { make: "Mercedes-Benz", model: "Tourismo", year: 2019, seats: 50, amenities: ["AC", "WIFI", "USB", "TOILET"] },
+    driverName: "Marko Marković",
+    driverPhone: "+381641234567",
+  },
+  {
+    email: "carrier2@example.com",
+    password: "carrier123",
+    ownerName: "Balkan Express Owner",
+    companyName: "Balkan Express",
+    taxId: "223456789",
+    city: "Novi Sad",
+    phone: "+381602345678",
+    ratePerKm: 110,
+    fixedFee: 1200,
+    vehicle: { make: "Setra", model: "S 415", year: 2021, seats: 55, amenities: ["AC", "WIFI"] },
+    driverName: "Nikola Nikolić",
+    driverPhone: "+381642345678",
+  },
+  {
+    email: "carrier3@example.com",
+    password: "carrier123",
+    ownerName: "Panorama Tours Owner",
+    companyName: "Panorama Tours",
+    taxId: "323456789",
+    city: "Niš",
+    phone: "+381603456789",
+    ratePerKm: 130,
+    fixedFee: 2000,
+    vehicle: { make: "MAN", model: "Lion's Coach", year: 2018, seats: 48, amenities: ["AC", "USB", "TOILET"] },
+    driverName: "Petar Petrović",
+    driverPhone: "+381643456789",
+  },
+  {
+    email: "carrier4@example.com",
+    password: "carrier123",
+    ownerName: "Via Express Owner",
+    companyName: "Via Express",
+    taxId: "423456789",
+    city: "Kragujevac",
+    phone: "+381604567890",
+    ratePerKm: 90,
+    fixedFee: 1000,
+    vehicle: { make: "Mercedes-Benz", model: "Sprinter", year: 2022, seats: 20, amenities: ["AC", "WIFI", "USB"] },
+    driverName: "Stefan Stefanović",
+    driverPhone: "+381644567890",
+  },
+];
+
+async function seedCarrier(spec: CarrierSeed) {
+  const user = await prisma.user.upsert({
+    where: { email: spec.email },
+    update: {},
+    create: {
+      email: spec.email,
+      passwordHash: await bcrypt.hash(spec.password, 10),
+      name: spec.ownerName,
+      role: "CARRIER",
+    },
+  });
+
+  const carrier = await prisma.carrier.upsert({
+    where: { userId: user.id },
+    update: {},
+    create: {
+      userId: user.id,
+      companyName: spec.companyName,
+      taxId: spec.taxId,
+      contactEmail: spec.email,
+      contactPhone: spec.phone,
+      city: spec.city,
+      description: `Demo carrier for local development (${spec.companyName}).`,
+      status: "APPROVED",
+      ratePerKm: spec.ratePerKm,
+      fixedFee: spec.fixedFee,
+    },
+  });
+
+  const vehicle =
+    (await prisma.vehicle.findFirst({ where: { carrierId: carrier.id } })) ??
+    (await prisma.vehicle.create({
+      data: {
+        carrierId: carrier.id,
+        make: spec.vehicle.make,
+        model: spec.vehicle.model,
+        year: spec.vehicle.year,
+        seats: spec.vehicle.seats,
+        amenities: spec.vehicle.amenities,
+        status: "ACTIVE",
+      },
+    }));
+
+  const driver =
+    (await prisma.driver.findFirst({ where: { carrierId: carrier.id } })) ??
+    (await prisma.driver.create({
+      data: {
+        carrierId: carrier.id,
+        name: spec.driverName,
+        phone: spec.driverPhone,
+        isAvailable: true,
+      },
+    }));
+
+  await prisma.driverVehicle.upsert({
+    where: { driverId_vehicleId: { driverId: driver.id, vehicleId: vehicle.id } },
+    update: {},
+    create: { driverId: driver.id, vehicleId: vehicle.id },
+  });
+
+  console.log(`Carrier ready: ${spec.companyName} — ${spec.email} / ${spec.password}`);
+}
 
 async function main() {
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@example.com";
@@ -19,70 +162,9 @@ async function main() {
   });
   console.log(`Admin user ready: ${adminEmail} / ${adminPassword}`);
 
-  const carrierEmail = "carrier@example.com";
-  const carrierPassword = "carrier123";
-
-  const carrierUser = await prisma.user.upsert({
-    where: { email: carrierEmail },
-    update: {},
-    create: {
-      email: carrierEmail,
-      passwordHash: await bcrypt.hash(carrierPassword, 10),
-      name: "Demo Carrier Owner",
-      role: "CARRIER",
-    },
-  });
-
-  const carrier = await prisma.carrier.upsert({
-    where: { userId: carrierUser.id },
-    update: {},
-    create: {
-      userId: carrierUser.id,
-      companyName: "Atlas Bus d.o.o.",
-      taxId: "123456789",
-      contactEmail: carrierEmail,
-      contactPhone: "+381601234567",
-      city: "Belgrade",
-      description: "Demo carrier for local development.",
-      status: "APPROVED",
-      ratePerKm: 120,
-      fixedFee: 1500,
-    },
-  });
-  console.log(`Demo carrier ready: ${carrierEmail} / ${carrierPassword}`);
-
-  const existingVehicle = await prisma.vehicle.findFirst({ where: { carrierId: carrier.id } });
-  const vehicle =
-    existingVehicle ??
-    (await prisma.vehicle.create({
-      data: {
-        carrierId: carrier.id,
-        make: "Mercedes-Benz",
-        model: "Tourismo",
-        year: 2019,
-        seats: 50,
-        amenities: ["AC", "WIFI", "USB", "TOILET"],
-        status: "ACTIVE",
-      },
-    }));
-
-  const existingDriver = await prisma.driver.findFirst({ where: { carrierId: carrier.id } });
-  const driver =
-    existingDriver ??
-    (await prisma.driver.create({
-      data: {
-        carrierId: carrier.id,
-        name: "Marko Marković",
-        phone: "+381641234567",
-        isAvailable: true,
-      },
-    }));
-
-  await prisma.driverVehicle.upsert({
-    where: { driverId_vehicleId: { driverId: driver.id, vehicleId: vehicle.id } },
-    update: {},
-    create: { driverId: driver.id, vehicleId: vehicle.id },
-  });
+  for (const spec of CARRIERS) {
+    await seedCarrier(spec);
+  }
 
   const clientEmail = "client@example.com";
   const clientPassword = "client123";

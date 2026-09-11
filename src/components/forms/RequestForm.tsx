@@ -15,6 +15,7 @@ export function RequestForm() {
     destinationAddress: "",
     departureAt: "",
     passengerCount: "40",
+    estimatedDistanceKm: "",
     specialRequests: "",
   });
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,10 @@ export function RequestForm() {
     const res = await fetch("/api/requests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        estimatedDistanceKm: form.estimatedDistanceKm || undefined,
+      }),
     });
 
     setLoading(false);
@@ -38,7 +42,8 @@ export function RequestForm() {
       return;
     }
 
-    router.push("/requests");
+    const { request } = await res.json();
+    router.push(`/requests/${request.id}`);
     router.refresh();
   }
 
@@ -73,6 +78,16 @@ export function RequestForm() {
           required
           value={form.passengerCount}
           onChange={(e) => setForm({ ...form, passengerCount: e.target.value })}
+        />
+      </Field>
+      <Field label={t("estimatedDistanceKm")}>
+        <Input
+          type="number"
+          min={1}
+          step="1"
+          placeholder={t("estimatedDistanceKmPlaceholder")}
+          value={form.estimatedDistanceKm}
+          onChange={(e) => setForm({ ...form, estimatedDistanceKm: e.target.value })}
         />
       </Field>
       <Field label={t("specialRequests")}>
