@@ -15,6 +15,7 @@ type VehicleFormValues = {
   seats: number;
   amenities: string[];
   status: string;
+  photos: string[];
 };
 
 export function VehicleForm({
@@ -27,8 +28,17 @@ export function VehicleForm({
   const t = useTranslations();
   const router = useRouter();
   const [form, setForm] = useState<VehicleFormValues>(
-    initial ?? { make: "", model: "", year: new Date().getFullYear(), seats: 50, amenities: [], status: "ACTIVE" },
+    initial ?? {
+      make: "",
+      model: "",
+      year: new Date().getFullYear(),
+      seats: 50,
+      amenities: [],
+      status: "ACTIVE",
+      photos: [],
+    },
   );
+  const [photosText, setPhotosText] = useState(initial?.photos.join("\n") ?? "");
   const [loading, setLoading] = useState(false);
 
   function toggleAmenity(amenity: string) {
@@ -43,12 +53,16 @@ export function VehicleForm({
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
+    const photos = photosText
+      .split("\n")
+      .map((url) => url.trim())
+      .filter(Boolean);
     const url = vehicleId ? `/api/carrier/vehicles/${vehicleId}` : "/api/carrier/vehicles";
     const method = vehicleId ? "PATCH" : "POST";
     await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, photos }),
     });
     setLoading(false);
     router.push("/carrier/fleet");
@@ -109,6 +123,16 @@ export function VehicleForm({
             </option>
           ))}
         </select>
+      </Field>
+
+      <Field label={t("carrier.vehicleForm.photos")}>
+        <textarea
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none"
+          rows={3}
+          placeholder={t("carrier.vehicleForm.photosPlaceholder")}
+          value={photosText}
+          onChange={(e) => setPhotosText(e.target.value)}
+        />
       </Field>
 
       <Button type="submit" disabled={loading}>

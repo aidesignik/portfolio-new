@@ -10,4 +10,5 @@ export const vehicleSchema = z.object({
   seats: z.coerce.number().int().min(1).max(200),
   amenities: z.array(z.enum(vehicleAmenities)).default([]),
   status: z.enum(vehicleStatuses).default("ACTIVE"),
+  photos: z.array(z.string().url()).max(10).default([]),
 });

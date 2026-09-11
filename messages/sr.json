@@ -23,7 +23,8 @@
     "status": "Status",
     "actions": "Akcije",
     "createdAt": "Kreirano",
-    "currency": "RSD"
+    "currency": "RSD",
+    "close": "Zatvori"
   },
   "nav": {
     "home": "Početna",
@@ -44,8 +45,7 @@
     "subtitle": "Pretražite dostupnost proverenih autobuskih prevoznika, uporedite cene i rezervišite online — bez telefonskih poziva.",
     "ctaCarrier": "Registruj svoju firmu",
     "carrierPrompt": "Imate autobusku ili prevozničku firmu?",
-    "bookNow": "Rezerviši ovu vožnju",
-    "registerToBook": "Napravi besplatan nalog za rezervaciju",
+    "requestToBook": "Zatraži rezervaciju",
     "invalidSearch": "Pretraga izgleda nepotpuno — proverite polja i pokušajte ponovo."
   },
   "auth": {
@@ -115,7 +115,8 @@
       "title": "Trenutno dostupno",
       "disclaimer": "Ovo su procenjene cene na osnovu cenovnika svakog prevoznika — konačna cena se potvrđuje kada prevoznik pošalje zvaničnu ponudu.",
       "none": "Trenutno nema odgovarajućih vozila za ovaj datum i broj putnika.",
-      "seats": "sedišta"
+      "seats": "sedišta",
+      "noPhotos": "Još nema fotografija"
     },
     "requestStatus": {
       "PENDING": "Na čekanju",
@@ -146,7 +147,9 @@
       "year": "Godina",
       "seats": "Broj sedišta",
       "amenities": "Oprema",
-      "status": "Status"
+      "status": "Status",
+      "photos": "Fotografije",
+      "photosPlaceholder": "Jedan URL slike po redu"
     },
     "driverForm": {
       "name": "Ime vozača",

@@ -23,7 +23,8 @@
     "status": "Status",
     "actions": "Actions",
     "createdAt": "Created",
-    "currency": "RSD"
+    "currency": "RSD",
+    "close": "Close"
   },
   "nav": {
     "home": "Home",
@@ -44,8 +45,7 @@
     "subtitle": "Search real-time availability from verified bus and coach carriers, compare prices, and book online — no phone calls needed.",
     "ctaCarrier": "Register your company",
     "carrierPrompt": "Run a bus or coach company?",
-    "bookNow": "Book this trip",
-    "registerToBook": "Create a free account to book",
+    "requestToBook": "Request to book",
     "invalidSearch": "That search doesn't look complete — check the fields and try again."
   },
   "auth": {
@@ -115,7 +115,8 @@
       "title": "Available now",
       "disclaimer": "These are estimated prices based on each carrier's rates — the final price is confirmed once a carrier sends an actual offer.",
       "none": "No matching vehicles available for this date and passenger count right now.",
-      "seats": "seats"
+      "seats": "seats",
+      "noPhotos": "No photos yet"
     },
     "requestStatus": {
       "PENDING": "Pending",
@@ -146,7 +147,9 @@
       "year": "Year",
       "seats": "Seats",
       "amenities": "Amenities",
-      "status": "Status"
+      "status": "Status",
+      "photos": "Photos",
+      "photosPlaceholder": "One image URL per line"
     },
     "driverForm": {
       "name": "Driver name",

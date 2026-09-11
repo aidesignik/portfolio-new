@@ -35,6 +35,7 @@ export default async function EditVehiclePage({
             seats: vehicle.seats,
             amenities: vehicle.amenities,
             status: vehicle.status,
+            photos: vehicle.photos,
           }}
         />
       </Card>

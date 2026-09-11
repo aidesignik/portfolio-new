@@ -1,15 +1,14 @@
-import { ReactNode } from "react";
+import { ComponentPropsWithoutRef } from "react";
 
 export function Card({
   children,
   className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+  ...rest
+}: ComponentPropsWithoutRef<"div">) {
   return (
     <div
       className={`rounded-lg border border-zinc-200 bg-white p-6 shadow-sm ${className}`}
+      {...rest}
     >
       {children}
     </div>

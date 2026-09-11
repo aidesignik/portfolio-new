@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PublicSearchForm } from "@/components/forms/PublicSearchForm";
+import { AvailableOptionCard } from "@/components/forms/AvailableOptionCard";
 import { findAvailableOptions } from "@/lib/matching";
 import { estimateRouteDistance } from "@/lib/tripDistance";
 import { readTripSearchState, tripStateToQueryString } from "@/lib/tripQueryParams";
@@ -88,32 +89,13 @@ export default async function HomePage({
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {results.map((option) => (
-                <Card key={option.vehicleId} className="flex flex-col justify-between">
-                  <div>
-                    <p className="font-medium text-zinc-900">{option.carrierName}</p>
-                    <p className="text-sm text-zinc-600">{option.carrierCity}</p>
-                    <p className="mt-2 text-sm text-zinc-700">
-                      {option.make} {option.model} · {option.seats} {t("client.availableOptions.seats")}
-                    </p>
-                    {option.amenities.length > 0 ? (
-                      <p className="mt-1 text-xs text-zinc-500">
-                        {option.amenities.map((a) => t(`amenities.${a}`)).join(" · ")}
-                      </p>
-                    ) : null}
-                    {option.estimatedPrice !== null ? (
-                      <p className="mt-3 text-lg font-semibold text-zinc-900">
-                        ~{option.estimatedPrice.toLocaleString()} RSD
-                      </p>
-                    ) : null}
-                  </div>
-                  {canShowBookCta ? (
-                    <Link href={bookHref} className="mt-4 block">
-                      <Button className="w-full">
-                        {session?.user.role === "CLIENT" ? tHome("bookNow") : tHome("registerToBook")}
-                      </Button>
-                    </Link>
-                  ) : null}
-                </Card>
+                <AvailableOptionCard
+                  key={option.vehicleId}
+                  option={option}
+                  bookHref={bookHref}
+                  bookLabel={tHome("requestToBook")}
+                  canBook={canShowBookCta}
+                />
               ))}
             </div>
           )}

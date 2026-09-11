@@ -5,11 +5,14 @@ export interface AvailableOption {
   carrierId: string;
   carrierName: string;
   carrierCity: string;
+  carrierDescription: string | null;
   vehicleId: string;
   make: string;
   model: string;
+  year: number;
   seats: number;
   amenities: string[];
+  photos: string[];
   estimatedPrice: number | null;
 }
 
@@ -59,11 +62,14 @@ export async function findAvailableOptions({
     carrierId: vehicle.carrierId,
     carrierName: vehicle.carrier.companyName,
     carrierCity: vehicle.carrier.city,
+    carrierDescription: vehicle.carrier.description,
     vehicleId: vehicle.id,
     make: vehicle.make,
     model: vehicle.model,
+    year: vehicle.year,
     seats: vehicle.seats,
     amenities: vehicle.amenities,
+    photos: vehicle.photos,
     estimatedPrice: priceDistanceKm
       ? suggestPrice(priceDistanceKm, {
           ratePerKm: vehicle.carrier.ratePerKm ? Number(vehicle.carrier.ratePerKm) : null,
