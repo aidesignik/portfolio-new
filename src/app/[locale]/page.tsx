@@ -86,10 +86,10 @@ export default async function HomePage({
           {results.length === 0 ? (
             <p className="text-sm text-zinc-600">{t("client.availableOptions.none")}</p>
           ) : (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {results.map((option) => (
-                  <Card key={option.vehicleId}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {results.map((option) => (
+                <Card key={option.vehicleId} className="flex flex-col justify-between">
+                  <div>
                     <p className="font-medium text-zinc-900">{option.carrierName}</p>
                     <p className="text-sm text-zinc-600">{option.carrierCity}</p>
                     <p className="mt-2 text-sm text-zinc-700">
@@ -105,19 +105,17 @@ export default async function HomePage({
                         ~{option.estimatedPrice.toLocaleString()} RSD
                       </p>
                     ) : null}
-                  </Card>
-                ))}
-              </div>
-              {canShowBookCta ? (
-                <div className="text-center">
-                  <Link href={bookHref}>
-                    <Button>
-                      {session?.user.role === "CLIENT" ? tHome("bookNow") : tHome("registerToBook")}
-                    </Button>
-                  </Link>
-                </div>
-              ) : null}
-            </>
+                  </div>
+                  {canShowBookCta ? (
+                    <Link href={bookHref} className="mt-4 block">
+                      <Button className="w-full">
+                        {session?.user.role === "CLIENT" ? tHome("bookNow") : tHome("registerToBook")}
+                      </Button>
+                    </Link>
+                  ) : null}
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       ) : null}
