@@ -34,6 +34,12 @@ export default async function CarrierRequestDetailPage({
         <p className="mt-1 text-sm text-zinc-600">
           {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
         </p>
+        {bookingRequest.isRoundTrip && bookingRequest.returnAt ? (
+          <p className="text-sm font-medium text-amber-700">
+            {t("client.requestForm.isRoundTrip")} — {t("client.requestForm.returnAt")}:{" "}
+            {new Date(bookingRequest.returnAt).toLocaleString()}
+          </p>
+        ) : null}
         <p className="text-sm text-zinc-600">
           {bookingRequest.client.name} · {bookingRequest.client.phone}
         </p>

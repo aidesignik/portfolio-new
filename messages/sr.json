@@ -84,9 +84,13 @@
       "pickupAddress": "Mesto polaska",
       "destinationAddress": "Destinacija",
       "departureAt": "Datum i vreme polaska",
+      "isRoundTrip": "Povratna vožnja",
+      "returnAt": "Datum i vreme povratka",
       "passengerCount": "Broj putnika",
       "estimatedDistanceKm": "Približna udaljenost (km, opciono)",
       "estimatedDistanceKmPlaceholder": "npr. 90 — ostavite prazno ako niste sigurni",
+      "calculateDistance": "Izračunaj",
+      "distanceNotFound": "Nismo pronašli jednu ili obe adrese — unesite udaljenost ručno.",
       "specialRequests": "Posebni zahtevi (opciono)",
       "submit": "Pošalji zahtev"
     },

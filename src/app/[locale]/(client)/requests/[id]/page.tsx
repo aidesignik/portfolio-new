@@ -27,6 +27,7 @@ export default async function ClientRequestDetailPage({
     ? await findAvailableOptions({
         passengerCount: bookingRequest.passengerCount,
         departureAt: bookingRequest.departureAt,
+        returnAt: bookingRequest.returnAt,
         estimatedDistanceKm: bookingRequest.estimatedDistanceKm,
       })
     : [];
@@ -40,6 +41,11 @@ export default async function ClientRequestDetailPage({
         <p className="mt-1 text-sm text-zinc-600">
           {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
         </p>
+        {bookingRequest.isRoundTrip && bookingRequest.returnAt ? (
+          <p className="text-sm text-zinc-600">
+            {t("client.requestForm.returnAt")}: {new Date(bookingRequest.returnAt).toLocaleString()}
+          </p>
+        ) : null}
         <Badge tone={bookingRequest.status === "CONFIRMED" ? "positive" : "neutral"}>
           {t(`client.requestStatus.${bookingRequest.status}`)}
         </Badge>

@@ -84,9 +84,13 @@
       "pickupAddress": "Pickup address",
       "destinationAddress": "Destination",
       "departureAt": "Departure date & time",
+      "isRoundTrip": "Round trip",
+      "returnAt": "Return date & time",
       "passengerCount": "Number of passengers",
       "estimatedDistanceKm": "Approximate distance (km, optional)",
       "estimatedDistanceKmPlaceholder": "e.g. 90 — leave blank if unsure",
+      "calculateDistance": "Calculate",
+      "distanceNotFound": "Couldn't find one or both addresses — enter the distance manually.",
       "specialRequests": "Special requests (optional)",
       "submit": "Send request"
     },

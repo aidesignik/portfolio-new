@@ -51,4 +51,40 @@ export class StubDistanceProvider implements DistanceProvider {
   }
 }
 
+const OSRM_URL = "https://router.project-osrm.org/route/v1/driving";
+
+/**
+ * Free, keyless real-road routing via the public OSRM demo server. Good
+ * enough for this MVP's traffic; not backed by an SLA, so callers should
+ * fall back to StubDistanceProvider if a request fails.
+ */
+export class OsrmDistanceProvider implements DistanceProvider {
+  async calculate(
+    origin: Coordinates,
+    destination: Coordinates,
+  ): Promise<DistanceResult> {
+    const url = `${OSRM_URL}/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=false`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`OSRM request failed with status ${res.status}`);
+    }
+
+    const data = (await res.json()) as {
+      code: string;
+      routes?: Array<{ distance: number; duration: number }>;
+    };
+    const route = data.routes?.[0];
+    if (data.code !== "Ok" || !route) {
+      throw new Error("OSRM returned no route");
+    }
+
+    return {
+      distanceKm: Math.round((route.distance / 1000) * 10) / 10,
+      durationMinutes: Math.round(route.duration / 60),
+      provider: "osrm",
+    };
+  }
+}
+
 export const distanceProvider: DistanceProvider = new StubDistanceProvider();
+export const osrmDistanceProvider: DistanceProvider = new OsrmDistanceProvider();

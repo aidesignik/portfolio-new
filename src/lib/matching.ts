@@ -24,16 +24,20 @@ const AVERAGE_TRIP_DURATION_HOURS = 4;
 export async function findAvailableOptions({
   passengerCount,
   departureAt,
+  returnAt,
   estimatedDistanceKm,
 }: {
   passengerCount: number;
   departureAt: Date;
+  returnAt: Date | null;
   estimatedDistanceKm: number | null;
 }): Promise<AvailableOption[]> {
+  const tripEnd =
+    returnAt ?? new Date(departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
   const windowStart = new Date(departureAt.getTime() - 3 * 60 * 60 * 1000);
-  const windowEnd = new Date(
-    departureAt.getTime() + (AVERAGE_TRIP_DURATION_HOURS + 3) * 60 * 60 * 1000,
-  );
+  const windowEnd = new Date(tripEnd.getTime() + 3 * 60 * 60 * 1000);
+  // A round trip covers roughly double the one-way distance the client gave us.
+  const priceDistanceKm = returnAt && estimatedDistanceKm ? estimatedDistanceKm * 2 : estimatedDistanceKm;
 
   const vehicles = await prisma.vehicle.findMany({
     where: {
@@ -60,8 +64,8 @@ export async function findAvailableOptions({
     model: vehicle.model,
     seats: vehicle.seats,
     amenities: vehicle.amenities,
-    estimatedPrice: estimatedDistanceKm
-      ? suggestPrice(estimatedDistanceKm, {
+    estimatedPrice: priceDistanceKm
+      ? suggestPrice(priceDistanceKm, {
           ratePerKm: vehicle.carrier.ratePerKm ? Number(vehicle.carrier.ratePerKm) : null,
           fixedFee: vehicle.carrier.fixedFee ? Number(vehicle.carrier.fixedFee) : null,
         })

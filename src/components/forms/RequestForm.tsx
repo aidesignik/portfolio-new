@@ -14,12 +14,42 @@ export function RequestForm() {
     pickupAddress: "",
     destinationAddress: "",
     departureAt: "",
+    isRoundTrip: false,
+    returnAt: "",
     passengerCount: "40",
     estimatedDistanceKm: "",
     specialRequests: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [distanceLoading, setDistanceLoading] = useState(false);
+  const [distanceNotice, setDistanceNotice] = useState<string | null>(null);
+
+  async function onCalculateDistance() {
+    if (!form.pickupAddress || !form.destinationAddress) return;
+    setDistanceLoading(true);
+    setDistanceNotice(null);
+
+    const res = await fetch("/api/distance/estimate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pickupAddress: form.pickupAddress,
+        destinationAddress: form.destinationAddress,
+      }),
+    });
+
+    setDistanceLoading(false);
+
+    if (!res.ok) {
+      setDistanceNotice(t("distanceNotFound"));
+      return;
+    }
+
+    const { distanceKm } = await res.json();
+    setForm((prev) => ({ ...prev, estimatedDistanceKm: String(distanceKm) }));
+    setDistanceNotice(null);
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -31,6 +61,7 @@ export function RequestForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        returnAt: form.isRoundTrip ? form.returnAt : undefined,
         estimatedDistanceKm: form.estimatedDistanceKm || undefined,
       }),
     });
@@ -71,6 +102,28 @@ export function RequestForm() {
           onChange={(e) => setForm({ ...form, departureAt: e.target.value })}
         />
       </Field>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.isRoundTrip}
+          onChange={(e) => setForm({ ...form, isRoundTrip: e.target.checked })}
+        />
+        {t("isRoundTrip")}
+      </label>
+
+      {form.isRoundTrip ? (
+        <Field label={t("returnAt")}>
+          <Input
+            type="datetime-local"
+            required
+            min={form.departureAt || undefined}
+            value={form.returnAt}
+            onChange={(e) => setForm({ ...form, returnAt: e.target.value })}
+          />
+        </Field>
+      ) : null}
+
       <Field label={t("passengerCount")}>
         <Input
           type="number"
@@ -80,16 +133,29 @@ export function RequestForm() {
           onChange={(e) => setForm({ ...form, passengerCount: e.target.value })}
         />
       </Field>
+
       <Field label={t("estimatedDistanceKm")}>
-        <Input
-          type="number"
-          min={1}
-          step="1"
-          placeholder={t("estimatedDistanceKmPlaceholder")}
-          value={form.estimatedDistanceKm}
-          onChange={(e) => setForm({ ...form, estimatedDistanceKm: e.target.value })}
-        />
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            min={1}
+            step="1"
+            placeholder={t("estimatedDistanceKmPlaceholder")}
+            value={form.estimatedDistanceKm}
+            onChange={(e) => setForm({ ...form, estimatedDistanceKm: e.target.value })}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={distanceLoading || !form.pickupAddress || !form.destinationAddress}
+            onClick={onCalculateDistance}
+          >
+            {distanceLoading ? "…" : t("calculateDistance")}
+          </Button>
+        </div>
+        {distanceNotice ? <p className="mt-1 text-xs text-amber-600">{distanceNotice}</p> : null}
       </Field>
+
       <Field label={t("specialRequests")}>
         <Input
           value={form.specialRequests}

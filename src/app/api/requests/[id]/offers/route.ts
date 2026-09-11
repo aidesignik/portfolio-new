@@ -41,7 +41,9 @@ export async function POST(
   }
 
   const departureAt = bookingRequest.departureAt;
-  const estimatedEnd = new Date(departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
+  const estimatedEnd =
+    bookingRequest.returnAt ??
+    new Date(departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
 
   const availability = await checkAvailability({
     vehicleId: vehicle.id,

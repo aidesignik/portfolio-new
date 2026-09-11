@@ -176,6 +176,8 @@ model BookingRequest {
   destinationLng     Float?
 
   departureAt         DateTime
+  isRoundTrip         Boolean   @default(false)
+  returnAt            DateTime?
   passengerCount      Int
   estimatedDistanceKm Float?
   specialRequests     String?
