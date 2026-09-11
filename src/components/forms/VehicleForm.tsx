@@ -40,6 +40,7 @@ export function VehicleForm({
   );
   const [photosText, setPhotosText] = useState(initial?.photos.join("\n") ?? "");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleAmenity(amenity: string) {
     setForm((prev) => ({
@@ -53,18 +54,32 @@ export function VehicleForm({
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
+    setError(null);
     const photos = photosText
       .split("\n")
       .map((url) => url.trim())
       .filter(Boolean);
     const url = vehicleId ? `/api/carrier/vehicles/${vehicleId}` : "/api/carrier/vehicles";
     const method = vehicleId ? "PATCH" : "POST";
-    await fetch(url, {
+    const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...form, photos }),
     });
+
     setLoading(false);
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      const invalidPhoto = body?.error?.fieldErrors?.photos;
+      setError(
+        invalidPhoto
+          ? t("carrier.vehicleForm.invalidPhotoUrl")
+          : t("carrier.vehicleForm.saveFailed"),
+      );
+      return;
+    }
+
     router.push("/carrier/fleet");
     router.refresh();
   }
@@ -134,6 +149,8 @@ export function VehicleForm({
           onChange={(e) => setPhotosText(e.target.value)}
         />
       </Field>
+
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}

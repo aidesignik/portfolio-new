@@ -24,7 +24,8 @@
     "actions": "Actions",
     "createdAt": "Created",
     "currency": "RSD",
-    "close": "Close"
+    "close": "Close",
+    "saveFailed": "Couldn't save — please check the fields and try again."
   },
   "nav": {
     "home": "Home",
@@ -149,7 +150,9 @@
       "amenities": "Amenities",
       "status": "Status",
       "photos": "Photos",
-      "photosPlaceholder": "One image URL per line"
+      "photosPlaceholder": "One image URL per line — must start with https://",
+      "invalidPhotoUrl": "One of the photo URLs isn't valid — make sure each one starts with https:// and points directly to an image.",
+      "saveFailed": "Couldn't save — please check the fields and try again."
     },
     "driverForm": {
       "name": "Driver name",

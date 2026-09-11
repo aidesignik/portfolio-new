@@ -29,6 +29,7 @@ export function CarrierProfileForm({ carrier }: Props) {
   });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -38,7 +39,8 @@ export function CarrierProfileForm({ carrier }: Props) {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
-    await fetch("/api/carrier/profile", {
+    setError(null);
+    const res = await fetch("/api/carrier/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -48,6 +50,11 @@ export function CarrierProfileForm({ carrier }: Props) {
       }),
     });
     setLoading(false);
+
+    if (!res.ok) {
+      setError(t("common.saveFailed"));
+      return;
+    }
     setSaved(true);
   }
 
@@ -84,6 +91,7 @@ export function CarrierProfileForm({ carrier }: Props) {
           <Input type="number" min={0} step="0.01" value={form.fixedFee} onChange={(e) => set("fixedFee", e.target.value)} />
         </Field>
       </div>
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={loading}>
           {loading ? t("common.loading") : t("common.save")}

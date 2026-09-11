@@ -29,6 +29,7 @@ export function DriverForm({
     initial ?? { name: "", phone: "", isAvailable: true, vehicleIds: [] },
   );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleVehicle(vehicleId: string) {
     setForm((prev) => ({
@@ -42,14 +43,21 @@ export function DriverForm({
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
+    setError(null);
     const url = driverId ? `/api/carrier/drivers/${driverId}` : "/api/carrier/drivers";
     const method = driverId ? "PATCH" : "POST";
-    await fetch(url, {
+    const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
     setLoading(false);
+
+    if (!res.ok) {
+      setError(t("common.saveFailed"));
+      return;
+    }
+
     router.push("/carrier/drivers");
     router.refresh();
   }
@@ -89,6 +97,8 @@ export function DriverForm({
           </div>
         )}
       </Field>
+
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}

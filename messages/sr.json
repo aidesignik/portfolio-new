@@ -24,7 +24,8 @@
     "actions": "Akcije",
     "createdAt": "Kreirano",
     "currency": "RSD",
-    "close": "Zatvori"
+    "close": "Zatvori",
+    "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
   },
   "nav": {
     "home": "Početna",
@@ -149,7 +150,9 @@
       "amenities": "Oprema",
       "status": "Status",
       "photos": "Fotografije",
-      "photosPlaceholder": "Jedan URL slike po redu"
+      "photosPlaceholder": "Jedan URL slike po redu — mora počinjati sa https://",
+      "invalidPhotoUrl": "Jedan od URL-ova slike nije ispravan — proverite da svaki počinje sa https:// i vodi direktno do slike.",
+      "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
     },
     "driverForm": {
       "name": "Ime vozača",
