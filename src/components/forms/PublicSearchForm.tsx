@@ -10,10 +10,20 @@ import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { tripStateToQueryString, type TripSearchState } from "@/lib/tripQueryParams";
 import type { CityLocation } from "@/lib/location";
 
+function formatDepartureShort(value: string): string {
+  const [datePart, timePart] = value.split("T");
+  if (!datePart || !timePart) return value;
+  const [year, month, day] = datePart.split("-");
+  return `${day}.${month}.${year}. ${timePart}`;
+}
+
 export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
   const t = useTranslations("client.requestForm");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [form, setForm] = useState<TripSearchState>(defaults);
+  const hasSearched = Boolean(defaults.pickupCity);
+  const [expanded, setExpanded] = useState(!hasSearched);
 
   function addStop() {
     if (form.stops.length >= 5) return;
@@ -34,6 +44,29 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
   function onSubmit(event: FormEvent) {
     event.preventDefault();
     router.push(`/?${tripStateToQueryString(form)}`);
+  }
+
+  if (!expanded) {
+    return (
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="flex w-full items-center justify-between gap-3 rounded-md border border-zinc-200 px-4 py-3 text-left hover:border-zinc-300 hover:bg-zinc-50"
+      >
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <span className="truncate font-medium text-zinc-900">
+            {defaults.pickupCity} → {defaults.destinationCity}
+          </span>
+          <span className="text-zinc-400">·</span>
+          <span className="text-zinc-600">{formatDepartureShort(defaults.departureAt)}</span>
+          <span className="text-zinc-400">·</span>
+          <span className="text-zinc-600">
+            {defaults.passengerCount} {t("paxSuffix")}
+          </span>
+        </div>
+        <span className="shrink-0 text-xs font-medium text-zinc-500 underline">{t("editSearch")}</span>
+      </button>
+    );
   }
 
   return (
@@ -127,9 +160,16 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
         />
       </Field>
 
-      <Button type="submit" className="w-full">
-        {t("search")}
-      </Button>
+      <div className="flex gap-2">
+        {hasSearched ? (
+          <Button type="button" variant="ghost" onClick={() => setExpanded(false)}>
+            {tCommon("cancel")}
+          </Button>
+        ) : null}
+        <Button type="submit" className="w-full">
+          {t("search")}
+        </Button>
+      </div>
     </form>
   );
 }

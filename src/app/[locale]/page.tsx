@@ -73,7 +73,7 @@ export default async function HomePage({
       </div>
 
       <Card>
-        <PublicSearchForm defaults={defaults} />
+        <PublicSearchForm key={carryQueryString || "empty"} defaults={defaults} />
       </Card>
 
       {trip ? (

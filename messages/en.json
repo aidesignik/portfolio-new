@@ -40,8 +40,8 @@
     "forCarriers": "For carriers"
   },
   "home": {
-    "title": "Less administration. More rides.",
-    "subtitle": "One platform to organize bus and coach transport — from request to confirmed booking — without endless phone calls and emails.",
+    "title": "Book group transport in minutes.",
+    "subtitle": "Search real-time availability from verified bus and coach carriers, compare prices, and book online — no phone calls needed.",
     "ctaCarrier": "Register your company",
     "carrierPrompt": "Run a bus or coach company?",
     "bookNow": "Book this trip",
@@ -55,6 +55,11 @@
     "registerCarrierTitle": "Register your transport company",
     "registerSubtitle": "Book transport without phone calls.",
     "registerCarrierSubtitle": "Your carrier account will be reviewed before approval.",
+    "carrierMarketingTitle": "Less administration. More rides.",
+    "carrierMarketingSubtitle": "Your digital dispatcher — spend less time on phone calls and paperwork, more time growing your business.",
+    "carrierBenefit1": "Manage your fleet, drivers and bookings in one place",
+    "carrierBenefit2": "Get client requests instantly — no more missed calls",
+    "carrierBenefit3": "System-suggested pricing based on your own rates",
     "haveAccount": "Already have an account?",
     "noAccount": "Don't have an account?",
     "clientOrCarrier": "Are you a client or a carrier?",
@@ -96,6 +101,8 @@
       "isRoundTrip": "Round trip",
       "returnAt": "Return date & time",
       "passengerCount": "Number of passengers",
+      "paxSuffix": "pax",
+      "editSearch": "Edit",
       "search": "Search",
       "specialRequests": "Special requests (optional)",
       "submit": "Send request"

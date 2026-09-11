@@ -40,8 +40,8 @@
     "forCarriers": "Za prevoznike"
   },
   "home": {
-    "title": "Manje administracije. Više vožnji.",
-    "subtitle": "Jedna platforma za organizaciju autobuskog prevoza — od zahteva do potvrđene rezervacije — bez beskonačnih poziva i mejlova.",
+    "title": "Rezervišite grupni prevoz za par minuta.",
+    "subtitle": "Pretražite dostupnost proverenih autobuskih prevoznika, uporedite cene i rezervišite online — bez telefonskih poziva.",
     "ctaCarrier": "Registruj svoju firmu",
     "carrierPrompt": "Imate autobusku ili prevozničku firmu?",
     "bookNow": "Rezerviši ovu vožnju",
@@ -55,6 +55,11 @@
     "registerCarrierTitle": "Registruj prevozničku firmu",
     "registerSubtitle": "Rezerviši prevoz bez telefonskih poziva.",
     "registerCarrierSubtitle": "Vaš nalog prevoznika biće pregledan pre odobrenja.",
+    "carrierMarketingTitle": "Manje administracije. Više vožnji.",
+    "carrierMarketingSubtitle": "Vaš digitalni dispečer — manje vremena na telefonu i papirologiji, više na razvoju posla.",
+    "carrierBenefit1": "Upravljajte voznim parkom, vozačima i rezervacijama na jednom mestu",
+    "carrierBenefit2": "Dobijajte zahteve klijenata odmah — bez propuštenih poziva",
+    "carrierBenefit3": "Sistem predlaže cenu na osnovu vašeg cenovnika",
     "haveAccount": "Već imate nalog?",
     "noAccount": "Nemate nalog?",
     "clientOrCarrier": "Da li ste klijent ili prevoznik?",
@@ -96,6 +101,8 @@
       "isRoundTrip": "Povratna vožnja",
       "returnAt": "Datum i vreme povratka",
       "passengerCount": "Broj putnika",
+      "paxSuffix": "put.",
+      "editSearch": "Izmeni",
       "search": "Pretraži",
       "specialRequests": "Posebni zahtevi (opciono)",
       "submit": "Pošalji zahtev"
