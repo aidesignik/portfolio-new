@@ -77,7 +77,8 @@
     "licenseInfo": "Podaci o licenci",
     "continueWithGoogle": "Nastavi sa Google nalogom",
     "orDivider": "ili",
-    "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom."
+    "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom.",
+    "googleMockNotice": "Demo režim: simulira Google prijavu — nije potreban pravi Google nalog."
   },
   "carrierStatus": {
     "PENDING": "Čeka odobrenje",

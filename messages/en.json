@@ -77,7 +77,8 @@
     "licenseInfo": "License information",
     "continueWithGoogle": "Continue with Google",
     "orDivider": "or",
-    "googleAccountTypeMismatch": "This email is already registered as a client account. Log in with email and password instead."
+    "googleAccountTypeMismatch": "This email is already registered as a client account. Log in with email and password instead.",
+    "googleMockNotice": "Demo mode: simulates a Google sign-in — no real Google account needed."
   },
   "carrierStatus": {
     "PENDING": "Awaiting approval",

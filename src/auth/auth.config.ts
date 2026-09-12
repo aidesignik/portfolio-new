@@ -43,6 +43,59 @@ export const authConfig: NextAuthConfig = {
       },
     }),
     Google,
+    // Temporary stand-in for real Google OAuth: no AUTH_GOOGLE_ID/SECRET
+    // required, so the carrier Google-signup flow can be demoed end to end.
+    // Swap the button back to signIn("google", ...) once real credentials
+    // are configured, then delete this provider.
+    Credentials({
+      id: "google-mock",
+      name: "Google (mock)",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        name: { label: "Name", type: "text" },
+      },
+      authorize: async (credentials) => {
+        const email = credentials?.email;
+        const name = credentials?.name;
+        if (typeof email !== "string") return null;
+        const lower = email.toLowerCase();
+
+        const existing = await prisma.user.findUnique({
+          where: { email: lower },
+          include: { carrier: true },
+        });
+
+        if (existing) {
+          // Mirrors the real Google signIn callback: this mock flow only
+          // creates/logs in carrier accounts.
+          if (existing.role !== "CARRIER") return null;
+          return {
+            id: existing.id,
+            email: existing.email,
+            name: existing.name,
+            role: existing.role,
+            carrierId: existing.carrier?.id ?? null,
+            carrierStatus: existing.carrier?.status ?? null,
+          };
+        }
+
+        const created = await prisma.user.create({
+          data: {
+            email: lower,
+            name: typeof name === "string" ? name : undefined,
+            role: "CARRIER",
+          },
+        });
+        return {
+          id: created.id,
+          email: created.email,
+          name: created.name,
+          role: created.role,
+          carrierId: null,
+          carrierStatus: null,
+        };
+      },
+    }),
   ],
   callbacks: {
     signIn: async ({ user, account }) => {
