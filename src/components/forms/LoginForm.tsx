@@ -8,7 +8,11 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
-import { readTripSearchState, tripStateToRequestBody } from "@/lib/tripQueryParams";
+import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
+import {
+  readTripSearchState,
+  tripStateToRequestBody,
+} from "@/lib/tripQueryParams";
 
 export function LoginForm() {
   const t = useTranslations();
@@ -16,7 +20,11 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error") === "AccessDenied"
+      ? t("auth.googleAccountTypeMismatch")
+      : null,
+  );
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: FormEvent) {
@@ -88,6 +96,13 @@ export function LoginForm() {
       <Button type="submit" disabled={loading} className="w-full">
         {loading ? t("common.loading") : t("auth.loginTitle")}
       </Button>
+
+      <div className="flex items-center gap-3 text-xs text-zinc-400">
+        <span className="h-px flex-1 bg-zinc-200" />
+        {t("auth.orDivider")}
+        <span className="h-px flex-1 bg-zinc-200" />
+      </div>
+      <GoogleSignInButton />
     </form>
   );
 }

@@ -68,12 +68,16 @@
     "asCarrier": "I'm a carrier",
     "invalidCredentials": "Invalid email or password.",
     "emailInUse": "This email is already registered.",
+    "taxIdInUse": "This Tax ID is already registered.",
     "companyName": "Company name",
     "taxId": "Tax ID (PIB)",
     "contactEmail": "Contact email",
     "contactPhone": "Contact phone",
     "description": "Description",
-    "licenseInfo": "License information"
+    "licenseInfo": "License information",
+    "continueWithGoogle": "Continue with Google",
+    "orDivider": "or",
+    "googleAccountTypeMismatch": "This email is already registered as a client account. Log in with email and password instead."
   },
   "carrierStatus": {
     "PENDING": "Awaiting approval",
@@ -131,6 +135,10 @@
     "dashboardTitle": "Carrier dashboard",
     "onboardingTitle": "Company profile",
     "onboardingSubtitle": "Tell clients who you are.",
+    "completeProfileTitle": "Complete your carrier profile",
+    "completeProfileSubtitle": "A few details about your company before you get started.",
+    "completeProfileCta": "Complete profile & continue",
+    "contactPerson": "Contact person",
     "profileSaved": "Profile saved.",
     "fleetTitle": "Fleet",
     "addVehicle": "Add vehicle",

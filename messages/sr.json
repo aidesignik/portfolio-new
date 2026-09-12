@@ -68,12 +68,16 @@
     "asCarrier": "Ja sam prevoznik",
     "invalidCredentials": "Pogrešan email ili lozinka.",
     "emailInUse": "Ovaj email je već registrovan.",
+    "taxIdInUse": "Ovaj PIB je već registrovan.",
     "companyName": "Naziv firme",
     "taxId": "PIB",
     "contactEmail": "Kontakt email",
     "contactPhone": "Kontakt telefon",
     "description": "Opis",
-    "licenseInfo": "Podaci o licenci"
+    "licenseInfo": "Podaci o licenci",
+    "continueWithGoogle": "Nastavi sa Google nalogom",
+    "orDivider": "ili",
+    "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom."
   },
   "carrierStatus": {
     "PENDING": "Čeka odobrenje",
@@ -131,6 +135,10 @@
     "dashboardTitle": "Kontrolna tabla prevoznika",
     "onboardingTitle": "Profil firme",
     "onboardingSubtitle": "Predstavite se klijentima.",
+    "completeProfileTitle": "Dovršite profil prevoznika",
+    "completeProfileSubtitle": "Još par podataka o vašoj firmi pre nego što počnete.",
+    "completeProfileCta": "Dovrši profil i nastavi",
+    "contactPerson": "Kontakt osoba",
     "profileSaved": "Profil sačuvan.",
     "fleetTitle": "Vozni park",
     "addVehicle": "Dodaj vozilo",

@@ -1,12 +1,14 @@
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { routing } from "@/i18n/routing";
 
 export const authConfig: NextAuthConfig = {
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/login",
+    signIn: `/${routing.defaultLocale}/login`,
   },
   providers: [
     Credentials({
@@ -25,7 +27,7 @@ export const authConfig: NextAuthConfig = {
           where: { email: email.toLowerCase() },
           include: { carrier: true },
         });
-        if (!user) return null;
+        if (!user || !user.passwordHash) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
@@ -40,15 +42,67 @@ export const authConfig: NextAuthConfig = {
         };
       },
     }),
+    Google,
   ],
   callbacks: {
-    jwt: async ({ token, user }) => {
+    signIn: async ({ user, account }) => {
+      if (account?.provider !== "google") return true;
+
+      const email = user.email?.toLowerCase();
+      if (!email) return false;
+
+      const existing = await prisma.user.findUnique({ where: { email } });
+      if (existing) {
+        // Google sign-in is only for carrier accounts; a client account with
+        // this email must keep using email/password login.
+        return existing.role === "CARRIER";
+      }
+
+      await prisma.user.create({
+        data: {
+          email,
+          name: user.name,
+          image: user.image,
+          role: "CARRIER",
+        },
+      });
+      return true;
+    },
+    jwt: async ({ token, user, account, trigger }) => {
+      if (account?.provider === "google" && user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email.toLowerCase() },
+          include: { carrier: true },
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.carrierId = dbUser.carrier?.id ?? null;
+          token.carrierStatus = dbUser.carrier?.status ?? null;
+        }
+        return token;
+      }
+
       if (user) {
         token.id = user.id as string;
-        token.role = user.role;
-        token.carrierId = user.carrierId;
-        token.carrierStatus = user.carrierStatus;
+        token.role = user.role as NonNullable<typeof user.role>;
+        token.carrierId = user.carrierId ?? null;
+        token.carrierStatus = user.carrierStatus ?? null;
+        return token;
       }
+
+      if (trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+          include: { carrier: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.carrierId = dbUser.carrier?.id ?? null;
+          token.carrierStatus = dbUser.carrier?.status ?? null;
+        }
+      }
+
       return token;
     },
     session: async ({ session, token }) => {

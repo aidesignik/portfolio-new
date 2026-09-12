@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
 
 const initialForm = {
   name: "",
@@ -50,56 +51,110 @@ export function RegisterCarrierForm() {
       return;
     }
 
-    await signIn("credentials", { email: form.email, password: form.password, redirect: false });
+    await signIn("credentials", {
+      email: form.email,
+      password: form.password,
+      redirect: false,
+    });
     setLoading(false);
     router.push("/carrier/onboarding");
     router.refresh();
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("common.name")}>
-          <Input required value={form.name} onChange={(e) => set("name", e.target.value)} />
-        </Field>
-        <Field label={t("common.email")}>
-          <Input type="email" required value={form.email} onChange={(e) => set("email", e.target.value)} />
-        </Field>
-        <Field label={t("common.phone")}>
-          <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} />
-        </Field>
-        <Field label={t("common.password")}>
-          <Input type="password" required minLength={8} value={form.password} onChange={(e) => set("password", e.target.value)} />
-        </Field>
+    <div className="space-y-4">
+      <GoogleSignInButton />
+      <div className="flex items-center gap-3 text-xs text-zinc-400">
+        <span className="h-px flex-1 bg-zinc-200" />
+        {t("auth.orDivider")}
+        <span className="h-px flex-1 bg-zinc-200" />
       </div>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("common.name")}>
+            <Input
+              required
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
+          </Field>
+          <Field label={t("common.email")}>
+            <Input
+              type="email"
+              required
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
+            />
+          </Field>
+          <Field label={t("common.phone")}>
+            <Input
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+            />
+          </Field>
+          <Field label={t("common.password")}>
+            <Input
+              type="password"
+              required
+              minLength={8}
+              value={form.password}
+              onChange={(e) => set("password", e.target.value)}
+            />
+          </Field>
+        </div>
 
-      <hr className="border-zinc-200" />
+        <hr className="border-zinc-200" />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("auth.companyName")}>
-          <Input required value={form.companyName} onChange={(e) => set("companyName", e.target.value)} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("auth.companyName")}>
+            <Input
+              required
+              value={form.companyName}
+              onChange={(e) => set("companyName", e.target.value)}
+            />
+          </Field>
+          <Field label={t("auth.taxId")}>
+            <Input
+              required
+              value={form.taxId}
+              onChange={(e) => set("taxId", e.target.value)}
+            />
+          </Field>
+          <Field label={t("auth.contactEmail")}>
+            <Input
+              type="email"
+              required
+              value={form.contactEmail}
+              onChange={(e) => set("contactEmail", e.target.value)}
+            />
+          </Field>
+          <Field label={t("auth.contactPhone")}>
+            <Input
+              required
+              value={form.contactPhone}
+              onChange={(e) => set("contactPhone", e.target.value)}
+            />
+          </Field>
+          <Field label={t("common.city")}>
+            <Input
+              required
+              value={form.city}
+              onChange={(e) => set("city", e.target.value)}
+            />
+          </Field>
+        </div>
+        <Field label={t("auth.description")}>
+          <Input
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
         </Field>
-        <Field label={t("auth.taxId")}>
-          <Input required value={form.taxId} onChange={(e) => set("taxId", e.target.value)} />
-        </Field>
-        <Field label={t("auth.contactEmail")}>
-          <Input type="email" required value={form.contactEmail} onChange={(e) => set("contactEmail", e.target.value)} />
-        </Field>
-        <Field label={t("auth.contactPhone")}>
-          <Input required value={form.contactPhone} onChange={(e) => set("contactPhone", e.target.value)} />
-        </Field>
-        <Field label={t("common.city")}>
-          <Input required value={form.city} onChange={(e) => set("city", e.target.value)} />
-        </Field>
-      </div>
-      <Field label={t("auth.description")}>
-        <Input value={form.description} onChange={(e) => set("description", e.target.value)} />
-      </Field>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? t("common.loading") : t("auth.registerCarrierTitle")}
-      </Button>
-    </form>
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? t("common.loading") : t("auth.registerCarrierTitle")}
+        </Button>
+      </form>
+    </div>
   );
 }

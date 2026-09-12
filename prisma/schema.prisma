@@ -74,9 +74,10 @@ enum DocumentStatus {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
-  passwordHash String
+  passwordHash String?
   role         Role     @default(CLIENT)
   name         String?
+  image        String?
   phone        String?
   locale       String   @default("sr")
   createdAt    DateTime @default(now())
@@ -95,7 +96,7 @@ model Carrier {
   companyName  String
   taxId        String   @unique
   contactEmail String
-  contactPhone String
+  contactPhone String?
   city         String
   description  String?
   licenseInfo  String?

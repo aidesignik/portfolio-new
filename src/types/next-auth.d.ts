@@ -12,9 +12,9 @@ declare module "@auth/core/types" {
   }
 
   interface User {
-    role: Role;
-    carrierId: string | null;
-    carrierStatus: CarrierStatus | null;
+    role?: Role;
+    carrierId?: string | null;
+    carrierStatus?: CarrierStatus | null;
   }
 }
 
