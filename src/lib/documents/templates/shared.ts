@@ -30,3 +30,14 @@ export function formatDateTime(date: Date) {
 export function formatMoney(amount: { toString(): string }, currency: string) {
   return `${Number(amount.toString()).toLocaleString("en-GB")} ${currency}`;
 }
+
+const VEHICLE_TYPE_LABELS: Record<string, string> = {
+  VAN: "Van",
+  MINIBUS: "Minibus",
+  MIDIBUS: "Midibus",
+  COACH: "Coach",
+};
+
+export function vehicleTypeLabel(type: string) {
+  return VEHICLE_TYPE_LABELS[type] ?? type;
+}

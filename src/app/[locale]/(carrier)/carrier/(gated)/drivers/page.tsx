@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 
 export default async function DriversPage() {
-  const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
+  const [session, t, tType] = await Promise.all([
+    auth(),
+    getTranslations("carrier"),
+    getTranslations("vehicleType"),
+  ]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const drivers = await prisma.driver.findMany({
     where: { carrierId: carrier.id },
@@ -36,7 +40,8 @@ export default async function DriversPage() {
                     <p className="font-medium text-zinc-900">{driver.name}</p>
                     <p className="text-sm text-zinc-600">{driver.phone}</p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      {driver.vehicles.map((dv) => `${dv.vehicle.make} ${dv.vehicle.model}`).join(", ") || "-"}
+                      {driver.vehicles.map((dv) => `${tType(dv.vehicle.type)} ${dv.vehicle.model}`).join(", ") ||
+                        "-"}
                     </p>
                   </div>
                   <Badge tone={driver.isAvailable ? "positive" : "neutral"}>

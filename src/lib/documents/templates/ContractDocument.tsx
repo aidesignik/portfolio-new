@@ -1,6 +1,6 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import type { DocumentTemplateProps } from "../types";
-import { styles, formatDateTime, formatMoney } from "./shared";
+import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatLocation } from "@/lib/location";
 
 export function ContractDocument({ booking, number }: DocumentTemplateProps) {
@@ -42,8 +42,9 @@ export function ContractDocument({ booking, number }: DocumentTemplateProps) {
               location: booking.request.destinationLocation,
             })}
             , departing {formatDateTime(booking.request.departureAt)}, for{" "}
-            {booking.request.passengerCount} passenger(s), using vehicle {booking.vehicle.make}{" "}
-            {booking.vehicle.model} operated by driver {booking.driver.name}.
+            {booking.request.passengerCount} passenger(s), using vehicle{" "}
+            {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} operated by driver{" "}
+            {booking.driver.name}.
           </Text>
         </View>
 

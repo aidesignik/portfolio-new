@@ -1,4 +1,4 @@
-import { PrismaClient, type VehicleAmenity } from "@prisma/client";
+import { PrismaClient, type VehicleAmenity, type VehicleType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -14,7 +14,7 @@ interface CarrierSeed {
   ratePerKm: number;
   fixedFee: number;
   vehicle: {
-    make: string;
+    type: VehicleType;
     model: string;
     year: number;
     seats: number;
@@ -35,7 +35,7 @@ const CARRIERS: CarrierSeed[] = [
     phone: "+381601234567",
     ratePerKm: 120,
     fixedFee: 1500,
-    vehicle: { make: "Mercedes-Benz", model: "Tourismo", year: 2019, seats: 50, amenities: ["AC", "WIFI", "USB", "TOILET"] },
+    vehicle: { type: "COACH", model: "Tourismo", year: 2019, seats: 50, amenities: ["AC", "WIFI", "USB", "TOILET"] },
     driverName: "Marko Marković",
     driverPhone: "+381641234567",
   },
@@ -49,7 +49,7 @@ const CARRIERS: CarrierSeed[] = [
     phone: "+381602345678",
     ratePerKm: 110,
     fixedFee: 1200,
-    vehicle: { make: "Setra", model: "S 415", year: 2021, seats: 55, amenities: ["AC", "WIFI"] },
+    vehicle: { type: "COACH", model: "S 415", year: 2021, seats: 55, amenities: ["AC", "WIFI"] },
     driverName: "Nikola Nikolić",
     driverPhone: "+381642345678",
   },
@@ -63,7 +63,7 @@ const CARRIERS: CarrierSeed[] = [
     phone: "+381603456789",
     ratePerKm: 130,
     fixedFee: 2000,
-    vehicle: { make: "MAN", model: "Lion's Coach", year: 2018, seats: 48, amenities: ["AC", "USB", "TOILET"] },
+    vehicle: { type: "COACH", model: "Lion's Coach", year: 2018, seats: 48, amenities: ["AC", "USB", "TOILET"] },
     driverName: "Petar Petrović",
     driverPhone: "+381643456789",
   },
@@ -77,7 +77,7 @@ const CARRIERS: CarrierSeed[] = [
     phone: "+381604567890",
     ratePerKm: 90,
     fixedFee: 1000,
-    vehicle: { make: "Mercedes-Benz", model: "Sprinter", year: 2022, seats: 20, amenities: ["AC", "WIFI", "USB"] },
+    vehicle: { type: "MIDIBUS", model: "Sprinter", year: 2022, seats: 20, amenities: ["AC", "WIFI", "USB"] },
     driverName: "Stefan Stefanović",
     driverPhone: "+381644567890",
   },
@@ -117,7 +117,7 @@ async function seedCarrier(spec: CarrierSeed) {
     (await prisma.vehicle.create({
       data: {
         carrierId: carrier.id,
-        make: spec.vehicle.make,
+        type: spec.vehicle.type,
         model: spec.vehicle.model,
         year: spec.vehicle.year,
         seats: spec.vehicle.seats,

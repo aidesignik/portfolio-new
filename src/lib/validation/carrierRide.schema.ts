@@ -24,7 +24,10 @@ export const carrierRideSchema = z
 
     vehicleId: z.string().min(1),
     driverId: z.string().min(1),
-    distanceKm: z.coerce.number().positive(),
+    // Optional: left blank, the server calculates it the same way the
+    // client-facing request flow does (geocode + route); only needed as a
+    // manual override/fallback when that can't resolve an address.
+    distanceKm: z.coerce.number().positive().optional(),
     finalPrice: z.coerce.number().positive(),
   })
   .refine((data) => !data.isRoundTrip || data.returnAt !== undefined, {

@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 
 export default async function FleetPage() {
-  const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
+  const [session, t, tType] = await Promise.all([
+    auth(),
+    getTranslations("carrier"),
+    getTranslations("vehicleType"),
+  ]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const vehicles = await prisma.vehicle.findMany({
     where: { carrierId: carrier.id },
@@ -33,7 +37,7 @@ export default async function FleetPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-medium text-zinc-900">
-                      {vehicle.make} {vehicle.model}
+                      {tType(vehicle.type)} {vehicle.model}
                     </p>
                     <p className="text-sm text-zinc-600">
                       {vehicle.year} · {vehicle.seats} seats

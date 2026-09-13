@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { carrierRideSchema } from "@/lib/validation/carrierRide.schema";
 import { suggestPrice } from "@/lib/pricing";
 import { checkAvailability } from "@/lib/availability";
+import { estimateRouteDistance } from "@/lib/tripDistance";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
@@ -55,7 +56,23 @@ export async function POST(request: Request) {
   }
   const clientId = client.id;
 
-  const suggestedPrice = suggestPrice(data.distanceKm, {
+  // Same distance calculation the client-facing request flow uses (geocode
+  // pickup/stops/destination, then route) — a manually entered distanceKm
+  // only serves as an override/fallback when that can't resolve an address.
+  const waypoints = [
+    { city: data.pickupCity, location: data.pickupLocation },
+    ...data.stops,
+    { city: data.destinationCity, location: data.destinationLocation },
+  ];
+  const estimate = data.distanceKm ? null : await estimateRouteDistance(waypoints).catch(() => null);
+  const distanceKm = data.distanceKm ?? estimate?.distanceKm;
+  if (!distanceKm) {
+    return NextResponse.json({ error: "DISTANCE_UNAVAILABLE" }, { status: 422 });
+  }
+  const coordinates = estimate?.coordinates ?? null;
+  const destinationCoords = coordinates?.[coordinates.length - 1];
+
+  const suggestedPrice = suggestPrice(distanceKm, {
     ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
     fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
   });
@@ -66,16 +83,27 @@ export async function POST(request: Request) {
         clientId,
         pickupCity: data.pickupCity,
         pickupLocation: data.pickupLocation,
+        pickupLat: coordinates?.[0]?.lat,
+        pickupLng: coordinates?.[0]?.lng,
         destinationCity: data.destinationCity,
         destinationLocation: data.destinationLocation,
+        destinationLat: destinationCoords?.lat,
+        destinationLng: destinationCoords?.lng,
         departureAt: data.departureAt,
         isRoundTrip: data.isRoundTrip,
         returnAt: data.returnAt,
         passengerCount: data.passengerCount,
         specialRequests: data.specialRequests,
-        estimatedDistanceKm: data.distanceKm,
+        estimatedDistanceKm: distanceKm,
         status: "CONFIRMED",
-        stops: { create: data.stops.map((stop, index) => ({ ...stop, order: index })) },
+        stops: {
+          create: data.stops.map((stop, index) => ({
+            ...stop,
+            order: index,
+            lat: coordinates?.[index + 1]?.lat,
+            lng: coordinates?.[index + 1]?.lng,
+          })),
+        },
       },
     });
 
@@ -85,7 +113,7 @@ export async function POST(request: Request) {
         carrierId: carrier.id,
         vehicleId: vehicle.id,
         driverId: driver.id,
-        distanceKm: data.distanceKm,
+        distanceKm,
         suggestedPrice,
         finalPrice: data.finalPrice,
         status: "ACCEPTED",

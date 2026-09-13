@@ -159,10 +159,13 @@
       "clientSection": "Client details",
       "tripSection": "Trip details",
       "assignmentSection": "Vehicle & price",
+      "distanceKmOptional": "Distance (km) — optional",
+      "distanceKmPlaceholder": "Leave blank to calculate automatically",
+      "distanceUnavailable": "Couldn't calculate the distance automatically for these addresses — enter it manually in the distance field.",
       "submit": "Create booking"
     },
     "vehicleForm": {
-      "make": "Make",
+      "type": "Type",
       "model": "Model",
       "year": "Year",
       "seats": "Seats",
@@ -200,6 +203,12 @@
   "vehicleStatus": {
     "ACTIVE": "Active",
     "INACTIVE": "Inactive"
+  },
+  "vehicleType": {
+    "VAN": "Van",
+    "MINIBUS": "Minibus",
+    "MIDIBUS": "Midibus",
+    "COACH": "Coach"
   },
   "offerStatus": {
     "PENDING": "Pending",

@@ -1,6 +1,6 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import type { DocumentTemplateProps } from "../types";
-import { styles, formatDateTime, formatMoney } from "./shared";
+import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatRoute } from "@/lib/location";
 
 export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
@@ -43,7 +43,7 @@ export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLabel}>Vehicle / Driver</Text>
             <Text style={styles.tableCellValue}>
-              {booking.vehicle.make} {booking.vehicle.model} / {booking.driver.name}
+              {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} / {booking.driver.name}
             </Text>
           </View>
         </View>

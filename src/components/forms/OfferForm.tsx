@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { suggestPrice } from "@/lib/pricing";
 
-type Vehicle = { id: string; make: string; model: string; seats: number };
+type Vehicle = { id: string; type: string; model: string; seats: number };
 type Driver = { id: string; name: string };
 
 export function OfferForm({
@@ -82,7 +82,7 @@ export function OfferForm({
           >
             {vehicles.map((v) => (
               <option key={v.id} value={v.id}>
-                {v.make} {v.model} ({v.seats} seats)
+                {t(`vehicleType.${v.type}`)} {v.model} ({v.seats} seats)
               </option>
             ))}
           </select>

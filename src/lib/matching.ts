@@ -7,7 +7,7 @@ export interface AvailableOption {
   carrierCity: string;
   carrierDescription: string | null;
   vehicleId: string;
-  make: string;
+  type: string;
   model: string;
   year: number;
   seats: number;
@@ -64,7 +64,7 @@ export async function findAvailableOptions({
     carrierCity: vehicle.carrier.city,
     carrierDescription: vehicle.carrier.description,
     vehicleId: vehicle.id,
-    make: vehicle.make,
+    type: vehicle.type,
     model: vehicle.model,
     year: vehicle.year,
     seats: vehicle.seats,

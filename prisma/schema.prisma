@@ -34,6 +34,13 @@ enum VehicleAmenity {
   TOILET
 }
 
+enum VehicleType {
+  VAN
+  MINIBUS
+  MIDIBUS
+  COACH
+}
+
 enum RequestStatus {
   PENDING
   OFFERED
@@ -120,7 +127,7 @@ model Vehicle {
   carrierId String
   carrier   Carrier @relation(fields: [carrierId], references: [id])
 
-  make      String
+  type      VehicleType
   model     String
   year      Int
   seats     Int

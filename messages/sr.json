@@ -159,10 +159,13 @@
       "clientSection": "Podaci o klijentu",
       "tripSection": "Podaci o vožnji",
       "assignmentSection": "Vozilo i cena",
+      "distanceKmOptional": "Udaljenost (km) — opciono",
+      "distanceKmPlaceholder": "Ostavite prazno za automatski izračun",
+      "distanceUnavailable": "Nismo mogli automatski da izračunamo udaljenost za ove adrese — unesite je ručno u polje za udaljenost.",
       "submit": "Kreiraj rezervaciju"
     },
     "vehicleForm": {
-      "make": "Marka",
+      "type": "Tip",
       "model": "Model",
       "year": "Godina",
       "seats": "Broj sedišta",
@@ -200,6 +203,12 @@
   "vehicleStatus": {
     "ACTIVE": "Aktivno",
     "INACTIVE": "Neaktivno"
+  },
+  "vehicleType": {
+    "VAN": "Kombi",
+    "MINIBUS": "Minibus",
+    "MIDIBUS": "Midibus",
+    "COACH": "Autobus"
   },
   "offerStatus": {
     "PENDING": "Na čekanju",

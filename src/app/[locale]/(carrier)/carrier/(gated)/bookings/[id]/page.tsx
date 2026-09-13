@@ -40,7 +40,7 @@ export default async function CarrierBookingDetailPage({
         <p className="text-sm text-zinc-600">{t("common.email")}: {booking.client.email}</p>
         <p className="text-sm text-zinc-600">{t("common.phone")}: {booking.client.phone}</p>
         <p className="text-sm text-zinc-600">
-          {booking.vehicle.make} {booking.vehicle.model} · {booking.driver.name}
+          {t(`vehicleType.${booking.vehicle.type}`)} {booking.vehicle.model} · {booking.driver.name}
         </p>
         <p className="text-lg font-semibold text-zinc-900">
           {Number(booking.price).toLocaleString()} {booking.currency}

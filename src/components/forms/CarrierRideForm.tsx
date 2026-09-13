@@ -10,7 +10,7 @@ import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { suggestPrice } from "@/lib/pricing";
 import type { CityLocation } from "@/lib/location";
 
-type Vehicle = { id: string; make: string; model: string; seats: number };
+type Vehicle = { id: string; type: string; model: string; seats: number };
 type Driver = { id: string; name: string };
 
 export function CarrierRideForm({
@@ -80,7 +80,7 @@ export function CarrierRideForm({
         ...form,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
-        distanceKm: Number(form.distanceKm),
+        distanceKm: form.distanceKm ? Number(form.distanceKm) : undefined,
         finalPrice: Number(form.finalPrice || suggested || 0),
       }),
     });
@@ -89,7 +89,13 @@ export function CarrierRideForm({
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      setError(body?.error === "UNAVAILABLE" ? t("carrier.offerForm.unavailable") : t("common.saveFailed"));
+      if (body?.error === "UNAVAILABLE") {
+        setError(t("carrier.offerForm.unavailable"));
+      } else if (body?.error === "DISTANCE_UNAVAILABLE") {
+        setError(t("carrier.rideForm.distanceUnavailable"));
+      } else {
+        setError(t("common.saveFailed"));
+      }
       return;
     }
 
@@ -246,7 +252,7 @@ export function CarrierRideForm({
             >
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.make} {v.model} ({v.seats} seats)
+                  {t(`vehicleType.${v.type}`)} {v.model} ({v.seats} seats)
                 </option>
               ))}
             </select>
@@ -266,12 +272,12 @@ export function CarrierRideForm({
           </Field>
         </div>
 
-        <Field label={t("carrier.offerForm.distanceKm")}>
+        <Field label={t("carrier.rideForm.distanceKmOptional")}>
           <Input
             type="number"
             min={1}
             step="0.1"
-            required
+            placeholder={t("carrier.rideForm.distanceKmPlaceholder")}
             value={form.distanceKm}
             onChange={(e) => setForm({ ...form, distanceKm: e.target.value })}
           />

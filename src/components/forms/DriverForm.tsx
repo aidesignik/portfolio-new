@@ -21,7 +21,7 @@ export function DriverForm({
 }: {
   driverId?: string;
   initial?: DriverFormValues;
-  vehicles: { id: string; make: string; model: string }[];
+  vehicles: { id: string; type: string; model: string }[];
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -91,7 +91,7 @@ export function DriverForm({
                   checked={form.vehicleIds.includes(vehicle.id)}
                   onChange={() => toggleVehicle(vehicle.id)}
                 />
-                {vehicle.make} {vehicle.model}
+                {t(`vehicleType.${vehicle.type}`)} {vehicle.model}
               </label>
             ))}
           </div>

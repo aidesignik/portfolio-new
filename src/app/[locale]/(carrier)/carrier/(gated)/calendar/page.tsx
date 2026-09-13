@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/Badge";
 import { formatRoute } from "@/lib/location";
 
 export default async function CalendarPage() {
-  const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
+  const [session, t, tType] = await Promise.all([
+    auth(),
+    getTranslations("carrier"),
+    getTranslations("vehicleType"),
+  ]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const bookings = await prisma.booking.findMany({
     where: { carrierId: carrier.id, status: { in: ["CONFIRMED", "IN_PROGRESS"] } },
@@ -30,7 +34,8 @@ export default async function CalendarPage() {
                 </p>
                 <p className="text-sm text-zinc-600">{formatRoute(booking.request)}</p>
                 <p className="text-xs text-zinc-500">
-                  {booking.vehicle.make} {booking.vehicle.model} · {booking.driver.name} · {booking.client.name}
+                  {tType(booking.vehicle.type)} {booking.vehicle.model} · {booking.driver.name} ·{" "}
+                  {booking.client.name}
                 </p>
               </div>
               <Badge tone="positive">{booking.status}</Badge>

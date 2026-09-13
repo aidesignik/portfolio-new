@@ -82,7 +82,8 @@ export default async function ClientRequestDetailPage({
                   <p className="font-medium text-zinc-900">{option.carrierName}</p>
                   <p className="text-sm text-zinc-600">{option.carrierCity}</p>
                   <p className="mt-2 text-sm text-zinc-700">
-                    {option.make} {option.model} · {option.seats} {t("client.availableOptions.seats")}
+                    {t(`vehicleType.${option.type}`)} {option.model} · {option.seats}{" "}
+                    {t("client.availableOptions.seats")}
                   </p>
                   {option.amenities.length > 0 ? (
                     <p className="mt-1 text-xs text-zinc-500">
@@ -112,7 +113,7 @@ export default async function ClientRequestDetailPage({
                 <div>
                   <p className="font-medium text-zinc-900">{offer.carrier.companyName}</p>
                   <p className="text-sm text-zinc-600">
-                    {offer.vehicle.make} {offer.vehicle.model} · {offer.driver.name}
+                    {t(`vehicleType.${offer.vehicle.type}`)} {offer.vehicle.model} · {offer.driver.name}
                   </p>
                 </div>
                 <Badge

@@ -35,7 +35,8 @@ export function AvailableOptionCard({
           <p className="font-medium text-zinc-900">{option.carrierName}</p>
           <p className="text-sm text-zinc-600">{option.carrierCity}</p>
           <p className="mt-2 text-sm text-zinc-700">
-            {option.make} {option.model} · {option.seats} {t("client.availableOptions.seats")}
+            {t(`vehicleType.${option.type}`)} {option.model} · {option.seats}{" "}
+            {t("client.availableOptions.seats")}
           </p>
           {option.amenities.length > 0 ? (
             <p className="mt-1 text-xs text-zinc-500">
@@ -85,7 +86,7 @@ export function AvailableOptionCard({
 
             <div className="mt-4 border-t border-zinc-200 pt-4">
               <p className="font-medium text-zinc-900">
-                {option.make} {option.model} ({option.year})
+                {t(`vehicleType.${option.type}`)} {option.model} ({option.year})
               </p>
               <p className="mt-1 text-sm text-zinc-600">
                 {option.seats} {t("client.availableOptions.seats")}
@@ -107,7 +108,7 @@ export function AvailableOptionCard({
                     <img
                       key={url}
                       src={url}
-                      alt={`${option.make} ${option.model}`}
+                      alt={`${option.type} ${option.model}`}
                       className="h-32 w-full rounded-md border border-zinc-200 object-cover"
                     />
                   ))}

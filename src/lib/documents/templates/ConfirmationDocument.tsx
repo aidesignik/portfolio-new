@@ -1,6 +1,6 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import type { DocumentTemplateProps } from "../types";
-import { styles, formatDateTime, formatMoney } from "./shared";
+import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatLocation } from "@/lib/location";
 
 export function ConfirmationDocument({ booking, number }: DocumentTemplateProps) {
@@ -66,7 +66,7 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
           <View style={styles.row}>
             <Text style={styles.label}>Vehicle</Text>
             <Text style={styles.value}>
-              {booking.vehicle.make} {booking.vehicle.model} ({booking.vehicle.seats} seats)
+              {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} ({booking.vehicle.seats} seats)
             </Text>
           </View>
           <View style={styles.row}>

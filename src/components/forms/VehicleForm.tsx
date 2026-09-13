@@ -6,10 +6,10 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
-import { vehicleAmenities, vehicleStatuses } from "@/lib/validation/vehicle.schema";
+import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validation/vehicle.schema";
 
 type VehicleFormValues = {
-  make: string;
+  type: string;
   model: string;
   year: number;
   seats: number;
@@ -29,7 +29,7 @@ export function VehicleForm({
   const router = useRouter();
   const [form, setForm] = useState<VehicleFormValues>(
     initial ?? {
-      make: "",
+      type: vehicleTypes[0],
       model: "",
       year: new Date().getFullYear(),
       seats: 50,
@@ -87,8 +87,18 @@ export function VehicleForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("carrier.vehicleForm.make")}>
-          <Input required value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} />
+        <Field label={t("carrier.vehicleForm.type")}>
+          <select
+            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            value={form.type}
+            onChange={(e) => setForm({ ...form, type: e.target.value })}
+          >
+            {vehicleTypes.map((type) => (
+              <option key={type} value={type}>
+                {t(`vehicleType.${type}`)}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label={t("carrier.vehicleForm.model")}>
           <Input required value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
