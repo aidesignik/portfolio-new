@@ -27,16 +27,25 @@ export async function GET(request: Request) {
       where: {
         carrierId: carrier.id,
         status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+        OR: [{ vehicleId: { not: null } }, { driverId: { not: null } }],
         departureAt: { lt: weekEnd },
-        OR: [{ returnAt: null }, { returnAt: { gte: weekStart } }],
+        AND: [{ OR: [{ returnAt: null }, { returnAt: { gte: weekStart } }] }],
       },
       include: { client: { select: { name: true, phone: true } } },
     }),
     prisma.block.findMany({
       where: { carrierId: carrier.id, startAt: { lt: weekEnd }, endAt: { gte: weekStart } },
     }),
+    // Truly untouched rides only (no vehicle AND no driver yet) — either
+    // marketplace-wide (nobody's claimed it) or this carrier's own
+    // quick-created rides still waiting on an assignment.
     prisma.ride.findMany({
-      where: { carrierId: null, status: "PENDING" },
+      where: {
+        status: "PENDING",
+        vehicleId: null,
+        driverId: null,
+        OR: [{ carrierId: null }, { carrierId: carrier.id }],
+      },
       include: { client: { select: { name: true, phone: true } } },
       orderBy: { departureAt: "asc" },
     }),

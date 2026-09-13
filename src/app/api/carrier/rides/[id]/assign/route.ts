@@ -8,10 +8,10 @@ import { estimateRouteDistance } from "@/lib/tripDistance";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
-// Assigns (or reassigns) a vehicle + driver to a ride. The first carrier to
-// assign an unclaimed ride claims it — there's no separate priced-offer/
-// accept step any more, this is a direct edit. Re-assigning a ride this
-// carrier already owns (changing vehicle/driver) goes through the same path.
+// Assigns (or reassigns) a vehicle and/or driver to a ride — either one
+// alone is fine, since the calendar's drag-and-drop assigns one resource at
+// a time. The first carrier to touch an unclaimed ride claims it. There's
+// no separate priced-offer/accept step; this is a direct edit.
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -42,18 +42,23 @@ export async function POST(
   }
 
   const [vehicle, driver] = await Promise.all([
-    prisma.vehicle.findFirst({ where: { id: data.vehicleId, carrierId: carrier.id } }),
-    prisma.driver.findFirst({ where: { id: data.driverId, carrierId: carrier.id } }),
+    data.vehicleId
+      ? prisma.vehicle.findFirst({ where: { id: data.vehicleId, carrierId: carrier.id } })
+      : null,
+    data.driverId ? prisma.driver.findFirst({ where: { id: data.driverId, carrierId: carrier.id } }) : null,
   ]);
-  if (!vehicle || !driver) {
+  if (data.vehicleId && !vehicle) {
+    return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
+  }
+  if (data.driverId && !driver) {
     return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
   }
 
   const estimatedEnd =
     ride.returnAt ?? new Date(ride.departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
   const availability = await checkAvailability({
-    vehicleId: vehicle.id,
-    driverId: driver.id,
+    vehicleId: data.vehicleId,
+    driverId: data.driverId,
     start: ride.departureAt,
     end: estimatedEnd,
     excludeRideId: ride.id,
@@ -80,14 +85,16 @@ export async function POST(
           ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
           fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
         })
-      : (ride.price ? Number(ride.price) : undefined));
+      : ride.price
+        ? Number(ride.price)
+        : undefined);
 
   const updated = await prisma.ride.update({
     where: { id: ride.id },
     data: {
       carrierId: carrier.id,
-      vehicleId: vehicle.id,
-      driverId: driver.id,
+      vehicleId: data.vehicleId ?? undefined,
+      driverId: data.driverId ?? undefined,
       estimatedDistanceKm: distanceKm ?? ride.estimatedDistanceKm,
       price,
     },
