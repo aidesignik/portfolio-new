@@ -29,30 +29,13 @@ export async function POST(request: Request) {
       },
     });
   } else {
-    const taxIdInUse = await prisma.carrier.findUnique({ where: { taxId: data.taxId } });
-    if (taxIdInUse) {
-      return NextResponse.json({ error: "TAX_ID_IN_USE" }, { status: 409 });
-    }
-
+    // Company details are collected afterward on the onboarding-completion
+    // step (same one Google sign-in uses) — see /api/carrier/profile.
     await prisma.user.create({
       data: {
         email: data.email.toLowerCase(),
         passwordHash,
-        name: data.name,
-        phone: data.phone,
         role: "CARRIER",
-        carrier: {
-          create: {
-            companyName: data.companyName,
-            taxId: data.taxId,
-            contactEmail: data.contactEmail,
-            contactPhone: data.contactPhone,
-            city: data.city,
-            description: data.description,
-            licenseInfo: data.licenseInfo,
-            status: "PENDING",
-          },
-        },
       },
     });
   }

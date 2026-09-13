@@ -8,19 +8,13 @@ export const clientRegisterSchema = z.object({
   phone: z.string().optional(),
 });
 
+// Carrier sign-up only creates the login itself; company details (contact
+// person, company name, tax ID, city, description) are collected right
+// after, on the same onboarding-completion step Google sign-in uses.
 export const carrierRegisterSchema = z.object({
   role: z.literal("CARRIER"),
-  name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(8),
-  phone: z.string().optional(),
-  companyName: z.string().min(1),
-  taxId: z.string().min(1),
-  contactEmail: z.string().email(),
-  contactPhone: z.string().min(1),
-  city: z.string().min(1),
-  description: z.string().optional(),
-  licenseInfo: z.string().optional(),
 });
 
 export const registerSchema = z.discriminatedUnion("role", [

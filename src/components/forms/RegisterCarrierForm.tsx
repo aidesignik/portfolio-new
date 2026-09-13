@@ -9,29 +9,13 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
 
-const initialForm = {
-  name: "",
-  email: "",
-  password: "",
-  phone: "",
-  companyName: "",
-  taxId: "",
-  contactEmail: "",
-  contactPhone: "",
-  city: "",
-  description: "",
-};
-
 export function RegisterCarrierForm() {
   const t = useTranslations();
   const router = useRouter();
-  const [form, setForm] = useState(initialForm);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  function set<K extends keyof typeof initialForm>(key: K, value: string) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -41,21 +25,17 @@ export function RegisterCarrierForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: "CARRIER", ...form }),
+      body: JSON.stringify({ role: "CARRIER", email, password }),
     });
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
       setLoading(false);
-      setError(body?.error === "EMAIL_IN_USE" ? t("auth.emailInUse") : "Error");
+      setError(body?.error === "EMAIL_IN_USE" ? t("auth.emailInUse") : t("common.saveFailed"));
       return;
     }
 
-    await signIn("credentials", {
-      email: form.email,
-      password: form.password,
-      redirect: false,
-    });
+    await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
     router.push("/carrier/onboarding");
     router.refresh();
@@ -70,83 +50,16 @@ export function RegisterCarrierForm() {
         <span className="h-px flex-1 bg-zinc-200" />
       </div>
       <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("common.name")}>
-            <Input
-              required
-              value={form.name}
-              onChange={(e) => set("name", e.target.value)}
-            />
-          </Field>
-          <Field label={t("common.email")}>
-            <Input
-              type="email"
-              required
-              value={form.email}
-              onChange={(e) => set("email", e.target.value)}
-            />
-          </Field>
-          <Field label={t("common.phone")}>
-            <Input
-              value={form.phone}
-              onChange={(e) => set("phone", e.target.value)}
-            />
-          </Field>
-          <Field label={t("common.password")}>
-            <Input
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={(e) => set("password", e.target.value)}
-            />
-          </Field>
-        </div>
-
-        <hr className="border-zinc-200" />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("auth.companyName")}>
-            <Input
-              required
-              value={form.companyName}
-              onChange={(e) => set("companyName", e.target.value)}
-            />
-          </Field>
-          <Field label={t("auth.taxId")}>
-            <Input
-              required
-              value={form.taxId}
-              onChange={(e) => set("taxId", e.target.value)}
-            />
-          </Field>
-          <Field label={t("auth.contactEmail")}>
-            <Input
-              type="email"
-              required
-              value={form.contactEmail}
-              onChange={(e) => set("contactEmail", e.target.value)}
-            />
-          </Field>
-          <Field label={t("auth.contactPhone")}>
-            <Input
-              required
-              value={form.contactPhone}
-              onChange={(e) => set("contactPhone", e.target.value)}
-            />
-          </Field>
-          <Field label={t("common.city")}>
-            <Input
-              required
-              value={form.city}
-              onChange={(e) => set("city", e.target.value)}
-            />
-          </Field>
-        </div>
-        <Field label={t("auth.description")}>
+        <Field label={t("common.email")}>
+          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        </Field>
+        <Field label={t("common.password")}>
           <Input
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
+            type="password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </Field>
 
