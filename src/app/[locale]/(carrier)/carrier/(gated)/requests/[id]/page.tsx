@@ -78,6 +78,7 @@ export default async function CarrierRequestDetailPage({
             ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
             fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
           }}
+          initialDistanceKm={bookingRequest.estimatedDistanceKm}
         />
       </Card>
     </div>

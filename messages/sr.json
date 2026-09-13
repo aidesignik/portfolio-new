@@ -191,7 +191,8 @@
       "finalPrice": "Vaša cena",
       "notes": "Napomena (opciono)",
       "submit": "Pošalji ponudu",
-      "unavailable": "Ovo vozilo ili vozač su već zauzeti tog datuma. Izaberite drugo."
+      "unavailable": "Ovo vozilo ili vozač su već zauzeti tog datuma. Izaberite drugo.",
+      "distanceUnavailable": "Nismo mogli automatski da izračunamo udaljenost za ovaj zahtev — unesite je ručno u polje za udaljenost."
     }
   },
   "amenities": {

@@ -16,17 +16,19 @@ export function OfferForm({
   vehicles,
   drivers,
   carrierRates,
+  initialDistanceKm,
 }: {
   requestId: string;
   vehicles: Vehicle[];
   drivers: Driver[];
   carrierRates: { ratePerKm: number | null; fixedFee: number | null };
+  initialDistanceKm?: number | null;
 }) {
   const t = useTranslations();
   const router = useRouter();
   const [vehicleId, setVehicleId] = useState(vehicles[0]?.id ?? "");
   const [driverId, setDriverId] = useState(drivers[0]?.id ?? "");
-  const [distanceKm, setDistanceKm] = useState("");
+  const [distanceKm, setDistanceKm] = useState(initialDistanceKm ? String(initialDistanceKm) : "");
   const [finalPrice, setFinalPrice] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function OfferForm({
       body: JSON.stringify({
         vehicleId,
         driverId,
-        distanceKm: Number(distanceKm),
+        distanceKm: distanceKm ? Number(distanceKm) : undefined,
         finalPrice: Number(finalPrice || suggested || 0),
         notes: notes || undefined,
       }),
@@ -59,7 +61,13 @@ export function OfferForm({
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      setError(body?.error === "UNAVAILABLE" ? t("carrier.offerForm.unavailable") : "Error");
+      if (body?.error === "UNAVAILABLE") {
+        setError(t("carrier.offerForm.unavailable"));
+      } else if (body?.error === "DISTANCE_UNAVAILABLE") {
+        setError(t("carrier.offerForm.distanceUnavailable"));
+      } else {
+        setError(t("common.saveFailed"));
+      }
       return;
     }
 
@@ -107,7 +115,7 @@ export function OfferForm({
           type="number"
           min={1}
           step="0.1"
-          required
+          placeholder={initialDistanceKm ? undefined : t("carrier.rideForm.distanceKmPlaceholder")}
           value={distanceKm}
           onChange={(e) => setDistanceKm(e.target.value)}
         />

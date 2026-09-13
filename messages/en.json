@@ -191,7 +191,8 @@
       "finalPrice": "Your price",
       "notes": "Notes (optional)",
       "submit": "Send offer",
-      "unavailable": "This vehicle or driver is already booked for this date. Choose another."
+      "unavailable": "This vehicle or driver is already booked for this date. Choose another.",
+      "distanceUnavailable": "Couldn't calculate the distance automatically for this request — enter it manually in the distance field."
     }
   },
   "amenities": {
