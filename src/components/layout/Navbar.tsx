@@ -30,6 +30,14 @@ export async function Navbar() {
               <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
                 {tNav("dashboard")}
               </Link>
+              {session.user.role === "CARRIER" ? (
+                <Link
+                  href="/carrier/onboarding"
+                  className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
+                >
+                  {tNav("profile")}
+                </Link>
+              ) : null}
               <SignOutButton label={tNav("logout")} />
             </>
           ) : (
