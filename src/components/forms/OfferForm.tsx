@@ -29,6 +29,8 @@ export function OfferForm({
   const [vehicleId, setVehicleId] = useState(vehicles[0]?.id ?? "");
   const [driverId, setDriverId] = useState(drivers[0]?.id ?? "");
   const [distanceKm, setDistanceKm] = useState(initialDistanceKm ? String(initialDistanceKm) : "");
+  const [ratePerKm, setRatePerKm] = useState(carrierRates.ratePerKm ? String(carrierRates.ratePerKm) : "");
+  const [fixedFee, setFixedFee] = useState(carrierRates.fixedFee ? String(carrierRates.fixedFee) : "");
   const [finalPrice, setFinalPrice] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +39,11 @@ export function OfferForm({
   const suggested = useMemo(() => {
     const km = Number(distanceKm);
     if (!km || km <= 0) return null;
-    return suggestPrice(km, carrierRates);
-  }, [distanceKm, carrierRates]);
+    return suggestPrice(km, {
+      ratePerKm: ratePerKm ? Number(ratePerKm) : carrierRates.ratePerKm,
+      fixedFee: fixedFee ? Number(fixedFee) : carrierRates.fixedFee,
+    });
+  }, [distanceKm, ratePerKm, fixedFee, carrierRates]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -107,6 +112,27 @@ export function OfferForm({
               </option>
             ))}
           </select>
+        </Field>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("carrier.ratePerKm")}>
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            value={ratePerKm}
+            onChange={(e) => setRatePerKm(e.target.value)}
+          />
+        </Field>
+        <Field label={t("carrier.fixedFee")}>
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            value={fixedFee}
+            onChange={(e) => setFixedFee(e.target.value)}
+          />
         </Field>
       </div>
 

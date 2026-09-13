@@ -43,6 +43,8 @@ export function CarrierRideForm({
     vehicleId: vehicles[0]?.id ?? "",
     driverId: drivers[0]?.id ?? "",
     distanceKm: "",
+    ratePerKm: carrierRates.ratePerKm ? String(carrierRates.ratePerKm) : "",
+    fixedFee: carrierRates.fixedFee ? String(carrierRates.fixedFee) : "",
     finalPrice: "",
   });
   const [loading, setLoading] = useState(false);
@@ -54,8 +56,11 @@ export function CarrierRideForm({
   const suggested = useMemo(() => {
     const km = Number(form.distanceKm);
     if (!km || km <= 0) return null;
-    return suggestPrice(km, carrierRates);
-  }, [form.distanceKm, carrierRates]);
+    return suggestPrice(km, {
+      ratePerKm: form.ratePerKm ? Number(form.ratePerKm) : carrierRates.ratePerKm,
+      fixedFee: form.fixedFee ? Number(form.fixedFee) : carrierRates.fixedFee,
+    });
+  }, [form.distanceKm, form.ratePerKm, form.fixedFee, carrierRates]);
 
   // Auto-calculate distance from the addresses as the carrier types, the
   // same way the client-facing request flow does — debounced so we're not
@@ -314,6 +319,27 @@ export function CarrierRideForm({
                 </option>
               ))}
             </select>
+          </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("carrier.ratePerKm")}>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={form.ratePerKm}
+              onChange={(e) => setForm({ ...form, ratePerKm: e.target.value })}
+            />
+          </Field>
+          <Field label={t("carrier.fixedFee")}>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={form.fixedFee}
+              onChange={(e) => setForm({ ...form, fixedFee: e.target.value })}
+            />
           </Field>
         </div>
 
