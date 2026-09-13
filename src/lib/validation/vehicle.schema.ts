@@ -7,6 +7,7 @@ export const vehicleTypes = ["VAN", "MINIBUS", "MIDIBUS", "COACH"] as const;
 export const vehicleSchema = z.object({
   type: z.enum(vehicleTypes),
   model: z.string().min(1),
+  licensePlate: z.string().min(1).optional(),
   year: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 1),
   seats: z.coerce.number().int().min(1).max(200),
   amenities: z.array(z.enum(vehicleAmenities)).default([]),

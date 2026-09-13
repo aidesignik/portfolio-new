@@ -47,10 +47,10 @@ export async function findAvailableOptions({
       status: "ACTIVE",
       seats: { gte: passengerCount },
       carrier: { status: "APPROVED" },
-      bookings: {
+      rides: {
         none: {
-          status: { in: ["CONFIRMED", "IN_PROGRESS"] },
-          request: { departureAt: { gte: windowStart, lte: windowEnd } },
+          status: "CONFIRMED",
+          departureAt: { gte: windowStart, lte: windowEnd },
         },
       },
     },

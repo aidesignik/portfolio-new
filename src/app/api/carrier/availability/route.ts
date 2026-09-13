@@ -7,14 +7,10 @@ export async function GET() {
   if (error) return error;
 
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session.user.id } });
-  const bookings = await prisma.booking.findMany({
-    where: { carrierId: carrier.id, status: { in: ["CONFIRMED", "IN_PROGRESS"] } },
-    include: {
-      vehicle: true,
-      driver: true,
-      request: true,
-    },
-    orderBy: { request: { departureAt: "asc" } },
+  const bookings = await prisma.ride.findMany({
+    where: { carrierId: carrier.id, status: "CONFIRMED" },
+    include: { vehicle: true, driver: true },
+    orderBy: { departureAt: "asc" },
   });
 
   return NextResponse.json({ bookings });

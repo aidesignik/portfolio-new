@@ -7,41 +7,40 @@ import { nextDocumentNumber } from "./numbering";
 import { ContractDocument } from "./templates/ContractDocument";
 import { ConfirmationDocument } from "./templates/ConfirmationDocument";
 import { InvoiceDocument } from "./templates/InvoiceDocument";
-import type { BookingWithRelations } from "./types";
+import type { RideWithRelations } from "./types";
 
 const TEMPLATES: Record<
   DocumentType,
-  (props: { booking: BookingWithRelations; number: string }) => ReactElement<DocumentProps>
+  (props: { ride: RideWithRelations; number: string }) => ReactElement<DocumentProps>
 > = {
   CONTRACT: ContractDocument,
   CONFIRMATION: ConfirmationDocument,
   INVOICE: InvoiceDocument,
 };
 
-export async function generateDocument(bookingId: string, type: DocumentType) {
-  const booking = (await prisma.booking.findUniqueOrThrow({
-    where: { id: bookingId },
+export async function generateDocument(rideId: string, type: DocumentType) {
+  const ride = (await prisma.ride.findUniqueOrThrow({
+    where: { id: rideId },
     include: {
       client: true,
       carrier: true,
       vehicle: true,
       driver: true,
-      request: { include: { stops: { orderBy: { order: "asc" } } } },
-      offer: true,
+      stops: { orderBy: { order: "asc" } },
     },
-  })) as unknown as BookingWithRelations;
+  })) as unknown as RideWithRelations;
 
   const document = await prisma.document.upsert({
-    where: { bookingId_type: { bookingId, type } },
+    where: { rideId_type: { rideId, type } },
     update: { status: "PENDING" },
-    create: { bookingId, type, status: "PENDING" },
+    create: { rideId, type, status: "PENDING" },
   });
 
   try {
     const number = document.number ?? (await nextDocumentNumber(type));
     const Template = TEMPLATES[type];
-    const buffer = await renderToBuffer(Template({ booking, number }));
-    const relativePath = `${bookingId}/${type}.pdf`;
+    const buffer = await renderToBuffer(Template({ ride, number }));
+    const relativePath = `${rideId}/${type}.pdf`;
     await save(relativePath, buffer);
 
     return prisma.document.update({

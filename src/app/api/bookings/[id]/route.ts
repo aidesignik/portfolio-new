@@ -12,15 +12,14 @@ export async function GET(
   }
   const { id } = await params;
 
-  const booking = await prisma.booking.findUnique({
+  const booking = await prisma.ride.findUnique({
     where: { id },
     include: {
       client: { select: { name: true, email: true, phone: true } },
       carrier: true,
       vehicle: true,
       driver: true,
-      request: true,
-      offer: true,
+      stops: { orderBy: { order: "asc" } },
       documents: true,
     },
   });

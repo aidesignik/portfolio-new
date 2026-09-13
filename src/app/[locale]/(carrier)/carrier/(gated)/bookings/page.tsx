@@ -10,9 +10,9 @@ import { formatRoute } from "@/lib/location";
 export default async function CarrierBookingsPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
-  const bookings = await prisma.booking.findMany({
+  const bookings = await prisma.ride.findMany({
     where: { carrierId: carrier.id },
-    include: { request: true, client: { select: { name: true } } },
+    include: { client: { select: { name: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -33,9 +33,9 @@ export default async function CarrierBookingsPage() {
             <Link key={booking.id} href={`/carrier/bookings/${booking.id}`}>
               <Card className="flex items-center justify-between transition-shadow hover:shadow-md">
                 <div>
-                  <p className="font-medium text-zinc-900">{formatRoute(booking.request)}</p>
+                  <p className="font-medium text-zinc-900">{formatRoute(booking)}</p>
                   <p className="text-sm text-zinc-600">
-                    {new Date(booking.request.departureAt).toLocaleString()} · {booking.client.name}
+                    {new Date(booking.departureAt).toLocaleString()} · {booking.client.name}
                   </p>
                 </div>
                 <Badge tone="positive">{booking.status}</Badge>

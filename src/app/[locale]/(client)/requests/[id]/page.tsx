@@ -4,7 +4,6 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { OfferActions } from "@/components/forms/OfferActions";
 import { findAvailableOptions } from "@/lib/matching";
 import { formatLocation } from "@/lib/location";
 
@@ -16,23 +15,24 @@ export default async function ClientRequestDetailPage({
   const { id } = await params;
   const [session, t] = await Promise.all([auth(), getTranslations()]);
 
-  const bookingRequest = await prisma.bookingRequest.findFirst({
+  const ride = await prisma.ride.findFirst({
     where: { id, clientId: session!.user.id },
     include: {
       stops: { orderBy: { order: "asc" } },
-      offers: { include: { carrier: true, vehicle: true, driver: true } },
+      carrier: true,
+      vehicle: true,
+      driver: true,
     },
   });
-  if (!bookingRequest) notFound();
+  if (!ride) notFound();
 
-  const showAvailableOptions =
-    bookingRequest.status === "PENDING" || bookingRequest.status === "OFFERED";
+  const showAvailableOptions = ride.status === "PENDING" && !ride.vehicleId;
   const availableOptions = showAvailableOptions
     ? await findAvailableOptions({
-        passengerCount: bookingRequest.passengerCount,
-        departureAt: bookingRequest.departureAt,
-        returnAt: bookingRequest.returnAt,
-        estimatedDistanceKm: bookingRequest.estimatedDistanceKm,
+        passengerCount: ride.passengerCount,
+        departureAt: ride.departureAt,
+        returnAt: ride.returnAt,
+        estimatedDistanceKm: ride.estimatedDistanceKm,
       })
     : [];
 
@@ -40,11 +40,11 @@ export default async function ClientRequestDetailPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
-          {formatLocation({ city: bookingRequest.pickupCity, location: bookingRequest.pickupLocation })}
+          {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
         </h1>
-        {bookingRequest.stops.length > 0 ? (
+        {ride.stops.length > 0 ? (
           <div className="mt-1 space-y-0.5">
-            {bookingRequest.stops.map((stop) => (
+            {ride.stops.map((stop) => (
               <p key={stop.id} className="text-sm text-zinc-500">
                 ↓ {formatLocation(stop)}
               </p>
@@ -52,18 +52,18 @@ export default async function ClientRequestDetailPage({
           </div>
         ) : null}
         <p className="mt-1 text-lg font-semibold text-zinc-900">
-          → {formatLocation({ city: bookingRequest.destinationCity, location: bookingRequest.destinationLocation })}
+          → {formatLocation({ city: ride.destinationCity, location: ride.destinationLocation })}
         </p>
         <p className="mt-1 text-sm text-zinc-600">
-          {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
+          {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} pax
         </p>
-        {bookingRequest.isRoundTrip && bookingRequest.returnAt ? (
+        {ride.isRoundTrip && ride.returnAt ? (
           <p className="text-sm text-zinc-600">
-            {t("client.requestForm.returnAt")}: {new Date(bookingRequest.returnAt).toLocaleString()}
+            {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
           </p>
         ) : null}
-        <Badge tone={bookingRequest.status === "CONFIRMED" ? "positive" : "neutral"}>
-          {t(`client.requestStatus.${bookingRequest.status}`)}
+        <Badge tone={ride.status === "CONFIRMED" ? "positive" : "neutral"}>
+          {t(`client.requestStatus.${ride.status}`)}
         </Badge>
       </div>
 
@@ -102,41 +102,25 @@ export default async function ClientRequestDetailPage({
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-medium text-zinc-900">{t("client.offersTitle")}</h2>
-        {bookingRequest.offers.length === 0 ? (
-          <p className="text-sm text-zinc-600">{t("client.noOffers")}</p>
-        ) : (
-          bookingRequest.offers.map((offer) => (
-            <Card key={offer.id} className="space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium text-zinc-900">{offer.carrier.companyName}</p>
-                  <p className="text-sm text-zinc-600">
-                    {t(`vehicleType.${offer.vehicle.type}`)} {offer.vehicle.model} · {offer.driver.name}
-                  </p>
-                </div>
-                <Badge
-                  tone={
-                    offer.status === "ACCEPTED"
-                      ? "positive"
-                      : offer.status === "REJECTED"
-                        ? "negative"
-                        : "warning"
-                  }
-                >
-                  {t(`offerStatus.${offer.status}`)}
-                </Badge>
-              </div>
+      {ride.vehicle && ride.driver && ride.carrier ? (
+        <div className="space-y-2">
+          <h2 className="text-lg font-medium text-zinc-900">{t("client.assignmentTitle")}</h2>
+          <Card className="space-y-1">
+            <p className="font-medium text-zinc-900">{ride.carrier.companyName}</p>
+            <p className="text-sm text-zinc-600">
+              {t(`vehicleType.${ride.vehicle.type}`)} {ride.vehicle.model} · {ride.driver.name}
+            </p>
+            {ride.price !== null ? (
               <p className="text-xl font-semibold text-zinc-900">
-                {Number(offer.finalPrice).toLocaleString()} {offer.currency}
+                {Number(ride.price).toLocaleString()} {ride.currency}
               </p>
-              {offer.notes ? <p className="text-sm text-zinc-600">{offer.notes}</p> : null}
-              {offer.status === "PENDING" ? <OfferActions offerId={offer.id} /> : null}
-            </Card>
-          ))
-        )}
-      </div>
+            ) : null}
+            <p className="text-sm text-zinc-600">
+              {ride.status === "CONFIRMED" ? t("client.assignmentConfirmed") : t("client.assignmentPending")}
+            </p>
+          </Card>
+        </div>
+      ) : null}
     </div>
   );
 }

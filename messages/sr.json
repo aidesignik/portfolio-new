@@ -115,23 +115,23 @@
       "specialRequests": "Posebni zahtevi (opciono)",
       "submit": "Pošalji zahtev"
     },
-    "offersTitle": "Ponude",
-    "noOffers": "Još nema ponuda — prevoznik još nije odgovorio.",
-    "offerFrom": "Ponuda od {carrier}",
-    "acceptConfirm": "Prihvatiti ovu ponudu? Ovim se potvrđuje rezervacija.",
+    "assigned": "Dodeljeno",
+    "awaitingAssignment": "Čeka dodelu",
+    "assignmentTitle": "Dodela",
+    "assignmentConfirmed": "Potvrdio prevoznik.",
+    "assignmentPending": "Dodeljeno, čeka potvrdu prevoznika.",
     "availableOptions": {
       "title": "Trenutno dostupno",
-      "disclaimer": "Ovo su procenjene cene na osnovu cenovnika svakog prevoznika — konačna cena se potvrđuje kada prevoznik pošalje zvaničnu ponudu.",
+      "disclaimer": "Ovo su procenjene cene na osnovu cenovnika svakog prevoznika — konačna cena se potvrđuje kada prevoznik dodeli vozilo.",
       "none": "Trenutno nema odgovarajućih vozila za ovaj datum i broj putnika.",
       "seats": "sedišta",
       "noPhotos": "Još nema fotografija"
     },
     "requestStatus": {
       "PENDING": "Na čekanju",
-      "OFFERED": "Ponuda primljena",
       "CONFIRMED": "Potvrđeno",
-      "CANCELLED": "Otkazano",
-      "EXPIRED": "Isteklo"
+      "COMPLETED": "Završeno",
+      "CANCELLED": "Otkazano"
     }
   },
   "carrier": {
@@ -171,6 +171,7 @@
     "vehicleForm": {
       "type": "Tip",
       "model": "Model",
+      "licensePlate": "Registarske tablice",
       "year": "Godina",
       "seats": "Broj sedišta",
       "amenities": "Oprema",
@@ -196,6 +197,7 @@
       "notes": "Napomena (opciono)",
       "submit": "Pošalji ponudu",
       "unavailable": "Ovo vozilo ili vozač su već zauzeti tog datuma. Izaberite drugo.",
+      "alreadyClaimed": "Drugi prevoznik je već preuzeo ovu vožnju.",
       "distanceUnavailable": "Nismo mogli automatski da izračunamo udaljenost za ovaj zahtev — unesite je ručno u polje za udaljenost."
     }
   },
@@ -215,16 +217,9 @@
     "MIDIBUS": "Midibus",
     "COACH": "Autobus"
   },
-  "offerStatus": {
+  "rideStatus": {
     "PENDING": "Na čekanju",
-    "ACCEPTED": "Prihvaćeno",
-    "REJECTED": "Odbijeno",
-    "WITHDRAWN": "Povučeno",
-    "EXPIRED": "Isteklo"
-  },
-  "bookingStatus": {
     "CONFIRMED": "Potvrđeno",
-    "IN_PROGRESS": "U toku",
     "COMPLETED": "Završeno",
     "CANCELLED": "Otkazano"
   },

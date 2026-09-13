@@ -12,10 +12,10 @@ export default async function CalendarPage() {
     getTranslations("vehicleType"),
   ]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
-  const bookings = await prisma.booking.findMany({
-    where: { carrierId: carrier.id, status: { in: ["CONFIRMED", "IN_PROGRESS"] } },
-    include: { vehicle: true, driver: true, request: true, client: { select: { name: true } } },
-    orderBy: { request: { departureAt: "asc" } },
+  const bookings = await prisma.ride.findMany({
+    where: { carrierId: carrier.id, status: "CONFIRMED" },
+    include: { vehicle: true, driver: true, client: { select: { name: true } } },
+    orderBy: { departureAt: "asc" },
   });
 
   return (
@@ -30,12 +30,12 @@ export default async function CalendarPage() {
             <Card key={booking.id} className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-zinc-900">
-                  {new Date(booking.request.departureAt).toLocaleString()}
+                  {new Date(booking.departureAt).toLocaleString()}
                 </p>
-                <p className="text-sm text-zinc-600">{formatRoute(booking.request)}</p>
+                <p className="text-sm text-zinc-600">{formatRoute(booking)}</p>
                 <p className="text-xs text-zinc-500">
-                  {tType(booking.vehicle.type)} {booking.vehicle.model} · {booking.driver.name} ·{" "}
-                  {booking.client.name}
+                  {booking.vehicle ? tType(booking.vehicle.type) : ""} {booking.vehicle?.model} ·{" "}
+                  {booking.driver?.name} · {booking.client.name}
                 </p>
               </div>
               <Badge tone="positive">{booking.status}</Badge>

@@ -3,7 +3,7 @@ import type { DocumentTemplateProps } from "../types";
 import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatLocation } from "@/lib/location";
 
-export function ContractDocument({ booking, number }: DocumentTemplateProps) {
+export function ContractDocument({ ride, number }: DocumentTemplateProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -14,15 +14,15 @@ export function ContractDocument({ booking, number }: DocumentTemplateProps) {
           <Text style={styles.sectionTitle}>Parties</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Carrier (Provider)</Text>
-            <Text style={styles.value}>{booking.carrier.companyName}</Text>
+            <Text style={styles.value}>{ride.carrier.companyName}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Tax ID</Text>
-            <Text style={styles.value}>{booking.carrier.taxId}</Text>
+            <Text style={styles.value}>{ride.carrier.taxId}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Client</Text>
-            <Text style={styles.value}>{booking.client.name ?? booking.client.email}</Text>
+            <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
           </View>
         </View>
 
@@ -32,19 +32,17 @@ export function ContractDocument({ booking, number }: DocumentTemplateProps) {
           <Text style={styles.sectionTitle}>Subject of the contract</Text>
           <Text>
             The Carrier undertakes to provide passenger transport service from{" "}
-            {formatLocation({ city: booking.request.pickupCity, location: booking.request.pickupLocation })}
-            {booking.request.stops.length > 0
-              ? ` (via ${booking.request.stops.map((s) => formatLocation(s)).join(", ")})`
-              : ""}{" "}
+            {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
+            {ride.stops.length > 0 ? ` (via ${ride.stops.map((s) => formatLocation(s)).join(", ")})` : ""}{" "}
             to{" "}
             {formatLocation({
-              city: booking.request.destinationCity,
-              location: booking.request.destinationLocation,
+              city: ride.destinationCity,
+              location: ride.destinationLocation,
             })}
-            , departing {formatDateTime(booking.request.departureAt)}, for{" "}
-            {booking.request.passengerCount} passenger(s), using vehicle{" "}
-            {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} operated by driver{" "}
-            {booking.driver.name}.
+            , departing {formatDateTime(ride.departureAt)}, for{" "}
+            {ride.passengerCount} passenger(s), using vehicle{" "}
+            {vehicleTypeLabel(ride.vehicle.type)} {ride.vehicle.model} operated by driver{" "}
+            {ride.driver.name}.
           </Text>
         </View>
 
@@ -52,22 +50,22 @@ export function ContractDocument({ booking, number }: DocumentTemplateProps) {
           <Text style={styles.sectionTitle}>Price</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Agreed price</Text>
-            <Text style={styles.value}>{formatMoney(booking.price, booking.currency)}</Text>
+            <Text style={styles.value}>{formatMoney(ride.price ?? 0, ride.currency)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Distance</Text>
-            <Text style={styles.value}>{booking.offer.distanceKm} km</Text>
+            <Text style={styles.value}>{ride.estimatedDistanceKm ?? "-"} km</Text>
           </View>
         </View>
 
-        {booking.request.specialRequests ? (
+        {ride.specialRequests ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Special requests</Text>
-            <Text>{booking.request.specialRequests}</Text>
+            <Text>{ride.specialRequests}</Text>
           </View>
         ) : null}
 
-        <Text style={styles.footer}>Generated automatically. Booking ID: {booking.id}</Text>
+        <Text style={styles.footer}>Generated automatically. Booking ID: {ride.id}</Text>
       </Page>
     </Document>
   );

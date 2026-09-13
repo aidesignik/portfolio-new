@@ -115,23 +115,23 @@
       "specialRequests": "Special requests (optional)",
       "submit": "Send request"
     },
-    "offersTitle": "Offers",
-    "noOffers": "No offers yet — the carrier hasn't responded.",
-    "offerFrom": "Offer from {carrier}",
-    "acceptConfirm": "Accept this offer? This will confirm your booking.",
+    "assigned": "Assigned",
+    "awaitingAssignment": "Awaiting assignment",
+    "assignmentTitle": "Assignment",
+    "assignmentConfirmed": "Confirmed by the carrier.",
+    "assignmentPending": "Assigned, awaiting confirmation from the carrier.",
     "availableOptions": {
       "title": "Available now",
-      "disclaimer": "These are estimated prices based on each carrier's rates — the final price is confirmed once a carrier sends an actual offer.",
+      "disclaimer": "These are estimated prices based on each carrier's rates — the final price is confirmed once a carrier assigns a vehicle.",
       "none": "No matching vehicles available for this date and passenger count right now.",
       "seats": "seats",
       "noPhotos": "No photos yet"
     },
     "requestStatus": {
       "PENDING": "Pending",
-      "OFFERED": "Offer received",
       "CONFIRMED": "Confirmed",
-      "CANCELLED": "Cancelled",
-      "EXPIRED": "Expired"
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
     }
   },
   "carrier": {
@@ -171,6 +171,7 @@
     "vehicleForm": {
       "type": "Type",
       "model": "Model",
+      "licensePlate": "License plate",
       "year": "Year",
       "seats": "Seats",
       "amenities": "Amenities",
@@ -196,6 +197,7 @@
       "notes": "Notes (optional)",
       "submit": "Send offer",
       "unavailable": "This vehicle or driver is already booked for this date. Choose another.",
+      "alreadyClaimed": "Another carrier already claimed this ride.",
       "distanceUnavailable": "Couldn't calculate the distance automatically for this request — enter it manually in the distance field."
     }
   },
@@ -215,16 +217,9 @@
     "MIDIBUS": "Midibus",
     "COACH": "Coach"
   },
-  "offerStatus": {
+  "rideStatus": {
     "PENDING": "Pending",
-    "ACCEPTED": "Accepted",
-    "REJECTED": "Rejected",
-    "WITHDRAWN": "Withdrawn",
-    "EXPIRED": "Expired"
-  },
-  "bookingStatus": {
     "CONFIRMED": "Confirmed",
-    "IN_PROGRESS": "In progress",
     "COMPLETED": "Completed",
     "CANCELLED": "Cancelled"
   },

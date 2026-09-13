@@ -41,27 +41,18 @@ enum VehicleType {
   COACH
 }
 
-enum RequestStatus {
+enum RideStatus {
   PENDING
-  OFFERED
   CONFIRMED
-  CANCELLED
-  EXPIRED
-}
-
-enum OfferStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  WITHDRAWN
-  EXPIRED
-}
-
-enum BookingStatus {
-  CONFIRMED
-  IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum BlockReason {
+  MAINTENANCE
+  DAY_OFF
+  VACATION
+  OTHER
 }
 
 enum DocumentType {
@@ -90,9 +81,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  carrier         Carrier?
-  bookingRequests BookingRequest[] @relation("ClientRequests")
-  bookings        Booking[]        @relation("ClientBookings")
+  carrier Carrier?
+  rides   Ride[]   @relation("ClientRides")
 }
 
 model Carrier {
@@ -118,8 +108,8 @@ model Carrier {
 
   vehicles Vehicle[]
   drivers  Driver[]
-  offers   Offer[]
-  bookings Booking[]
+  rides    Ride[]
+  blocks   Block[]
 }
 
 model Vehicle {
@@ -127,19 +117,20 @@ model Vehicle {
   carrierId String
   carrier   Carrier @relation(fields: [carrierId], references: [id])
 
-  type      VehicleType
-  model     String
-  year      Int
-  seats     Int
-  amenities VehicleAmenity[] @default([])
-  photos    String[]         @default([])
-  status    VehicleStatus    @default(ACTIVE)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  type         VehicleType
+  model        String
+  licensePlate String?
+  year         Int
+  seats        Int
+  amenities    VehicleAmenity[] @default([])
+  photos       String[]         @default([])
+  status       VehicleStatus    @default(ACTIVE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
-  drivers  DriverVehicle[]
-  offers   Offer[]
-  bookings Booking[]
+  drivers DriverVehicle[]
+  rides   Ride[]
+  blocks  Block[]
 
   @@index([carrierId])
 }
@@ -156,8 +147,8 @@ model Driver {
   updatedAt   DateTime @updatedAt
 
   vehicles DriverVehicle[]
-  offers   Offer[]
-  bookings Booking[]
+  rides    Ride[]
+  blocks   Block[]
 
   @@index([carrierId])
 }
@@ -171,10 +162,23 @@ model DriverVehicle {
   @@id([driverId, vehicleId])
 }
 
-model BookingRequest {
+// A client's trip, from first submission through to completion. Starts
+// unassigned (carrierId/vehicleId/driverId all null, status PENDING) and
+// visible to every approved carrier; the first carrier to assign a vehicle
+// and driver claims it (carrierId gets set then). Replaces what used to be
+// three separate records (BookingRequest -> Offer -> Booking) — assigning
+// a vehicle/driver is now a direct edit, not a priced offer needing accept.
+model Ride {
   id       String @id @default(cuid())
   clientId String
-  client   User   @relation("ClientRequests", fields: [clientId], references: [id])
+  client   User   @relation("ClientRides", fields: [clientId], references: [id])
+
+  carrierId String?
+  carrier   Carrier? @relation(fields: [carrierId], references: [id])
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  driverId  String?
+  driver    Driver?  @relation(fields: [driverId], references: [id])
 
   pickupCity          String
   pickupLocation      String
@@ -189,27 +193,32 @@ model BookingRequest {
   isRoundTrip         Boolean   @default(false)
   returnAt            DateTime?
   passengerCount      Int
-  // Computed server-side from geocoded pickup/stops/destination — never
-  // entered or seen directly by the client, only used to derive price.
+  // Computed server-side from geocoded pickup/stops/destination, or entered
+  // directly by the carrier when they create+assign a ride themselves.
   estimatedDistanceKm Float?
   specialRequests     String?
 
-  status    RequestStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  price    Decimal? @db.Decimal(10, 2)
+  currency String   @default("RSD")
 
-  stops   RequestStop[]
-  offers  Offer[]
-  booking Booking?
+  status    RideStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  stops     RideStop[]
+  documents Document[]
 
   @@index([clientId])
+  @@index([carrierId])
+  @@index([vehicleId])
+  @@index([driverId])
   @@index([status])
 }
 
-model RequestStop {
-  id        String         @id @default(cuid())
-  requestId String
-  request   BookingRequest @relation(fields: [requestId], references: [id])
+model RideStop {
+  id     String @id @default(cuid())
+  rideId String
+  ride   Ride   @relation(fields: [rideId], references: [id])
 
   order    Int
   city     String
@@ -217,74 +226,40 @@ model RequestStop {
   lat      Float?
   lng      Float?
 
-  @@index([requestId])
+  @@index([rideId])
 }
 
-model Offer {
-  id        String         @id @default(cuid())
-  requestId String
-  request   BookingRequest @relation(fields: [requestId], references: [id])
-
+// Non-ride unavailability on a vehicle or driver (maintenance, day off,
+// vacation) — exactly one of vehicleId/driverId is set, enforced in the API
+// layer rather than the schema, matching this app's existing pattern of
+// app-level validation over DB check constraints.
+model Block {
+  id        String  @id @default(cuid())
   carrierId String
   carrier   Carrier @relation(fields: [carrierId], references: [id])
-  vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
-  driverId  String
-  driver    Driver  @relation(fields: [driverId], references: [id])
 
-  distanceKm     Float
-  suggestedPrice Decimal @db.Decimal(10, 2)
-  finalPrice     Decimal @db.Decimal(10, 2)
-  currency       String  @default("RSD")
-  notes          String?
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  driverId  String?
+  driver    Driver?  @relation(fields: [driverId], references: [id])
 
-  status    OfferStatus @default(PENDING)
-  expiresAt DateTime?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  startAt DateTime
+  endAt   DateTime
+  reason  BlockReason
+  note    String?
 
-  booking Booking?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([requestId])
-  @@index([carrierId])
-  @@index([vehicleId])
-  @@index([driverId])
-}
-
-model Booking {
-  id        String         @id @default(cuid())
-  requestId String         @unique
-  request   BookingRequest @relation(fields: [requestId], references: [id])
-  offerId   String         @unique
-  offer     Offer          @relation(fields: [offerId], references: [id])
-
-  clientId  String
-  client    User    @relation("ClientBookings", fields: [clientId], references: [id])
-  carrierId String
-  carrier   Carrier @relation(fields: [carrierId], references: [id])
-  vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
-  driverId  String
-  driver    Driver  @relation(fields: [driverId], references: [id])
-
-  price     Decimal       @db.Decimal(10, 2)
-  currency  String        @default("RSD")
-  status    BookingStatus @default(CONFIRMED)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  documents Document[]
-
-  @@index([clientId])
   @@index([carrierId])
   @@index([vehicleId])
   @@index([driverId])
 }
 
 model Document {
-  id        String  @id @default(cuid())
-  bookingId String
-  booking   Booking @relation(fields: [bookingId], references: [id])
+  id     String @id @default(cuid())
+  rideId String
+  ride   Ride   @relation(fields: [rideId], references: [id])
 
   type      DocumentType
   status    DocumentStatus @default(PENDING)
@@ -293,6 +268,6 @@ model Document {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  @@unique([bookingId, type])
-  @@index([bookingId])
+  @@unique([rideId, type])
+  @@index([rideId])
 }

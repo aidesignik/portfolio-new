@@ -11,6 +11,7 @@ import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validatio
 type VehicleFormValues = {
   type: string;
   model: string;
+  licensePlate: string | null;
   year: number;
   seats: number;
   amenities: string[];
@@ -31,6 +32,7 @@ export function VehicleForm({
     initial ?? {
       type: vehicleTypes[0],
       model: "",
+      licensePlate: "",
       year: new Date().getFullYear(),
       seats: 50,
       amenities: [],
@@ -64,7 +66,7 @@ export function VehicleForm({
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, photos }),
+      body: JSON.stringify({ ...form, licensePlate: form.licensePlate || undefined, photos }),
     });
 
     setLoading(false);
@@ -102,6 +104,12 @@ export function VehicleForm({
         </Field>
         <Field label={t("carrier.vehicleForm.model")}>
           <Input required value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
+        </Field>
+        <Field label={t("carrier.vehicleForm.licensePlate")}>
+          <Input
+            value={form.licensePlate ?? ""}
+            onChange={(e) => setForm({ ...form, licensePlate: e.target.value })}
+          />
         </Field>
         <Field label={t("carrier.vehicleForm.year")}>
           <Input

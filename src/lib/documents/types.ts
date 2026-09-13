@@ -1,15 +1,14 @@
-import type { Booking, BookingRequest, Carrier, Driver, Offer, RequestStop, User, Vehicle } from "@prisma/client";
+import type { Carrier, Driver, Ride, RideStop, User, Vehicle } from "@prisma/client";
 
-export type BookingWithRelations = Booking & {
+export type RideWithRelations = Ride & {
   client: Pick<User, "name" | "email" | "phone">;
   carrier: Carrier;
   vehicle: Vehicle;
   driver: Driver;
-  request: BookingRequest & { stops: RequestStop[] };
-  offer: Offer;
+  stops: RideStop[];
 };
 
 export interface DocumentTemplateProps {
-  booking: BookingWithRelations;
+  ride: RideWithRelations;
   number: string;
 }

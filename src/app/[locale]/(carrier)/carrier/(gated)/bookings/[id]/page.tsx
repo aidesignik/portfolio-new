@@ -15,24 +15,23 @@ export default async function CarrierBookingDetailPage({
   const [session, t] = await Promise.all([auth(), getTranslations()]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
 
-  const booking = await prisma.booking.findFirst({
+  const booking = await prisma.ride.findFirst({
     where: { id, carrierId: carrier.id },
     include: {
       client: { select: { name: true, phone: true, email: true } },
       vehicle: true,
       driver: true,
-      request: true,
       documents: true,
     },
   });
-  if (!booking) notFound();
+  if (!booking || !booking.vehicle || !booking.driver) notFound();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">{formatRoute(booking.request)}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">{formatRoute(booking)}</h1>
         <p className="mt-1 text-sm text-zinc-600">
-          {new Date(booking.request.departureAt).toLocaleString()} · {booking.request.passengerCount} pax
+          {new Date(booking.departureAt).toLocaleString()} · {booking.passengerCount} pax
         </p>
       </div>
 
@@ -43,7 +42,7 @@ export default async function CarrierBookingDetailPage({
           {t(`vehicleType.${booking.vehicle.type}`)} {booking.vehicle.model} · {booking.driver.name}
         </p>
         <p className="text-lg font-semibold text-zinc-900">
-          {Number(booking.price).toLocaleString()} {booking.currency}
+          {Number(booking.price ?? 0).toLocaleString()} {booking.currency}
         </p>
       </Card>
 

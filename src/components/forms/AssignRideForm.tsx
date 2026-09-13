@@ -11,14 +11,14 @@ import { suggestPrice } from "@/lib/pricing";
 type Vehicle = { id: string; type: string; model: string; seats: number };
 type Driver = { id: string; name: string };
 
-export function OfferForm({
-  requestId,
+export function AssignRideForm({
+  rideId,
   vehicles,
   drivers,
   carrierRates,
   initialDistanceKm,
 }: {
-  requestId: string;
+  rideId: string;
   vehicles: Vehicle[];
   drivers: Driver[];
   carrierRates: { ratePerKm: number | null; fixedFee: number | null };
@@ -31,8 +31,7 @@ export function OfferForm({
   const [distanceKm, setDistanceKm] = useState(initialDistanceKm ? String(initialDistanceKm) : "");
   const [ratePerKm, setRatePerKm] = useState(carrierRates.ratePerKm ? String(carrierRates.ratePerKm) : "");
   const [fixedFee, setFixedFee] = useState(carrierRates.fixedFee ? String(carrierRates.fixedFee) : "");
-  const [finalPrice, setFinalPrice] = useState("");
-  const [notes, setNotes] = useState("");
+  const [price, setPrice] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -50,15 +49,14 @@ export function OfferForm({
     setLoading(true);
     setError(null);
 
-    const res = await fetch(`/api/requests/${requestId}/offers`, {
+    const res = await fetch(`/api/carrier/rides/${rideId}/assign`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         vehicleId,
         driverId,
         distanceKm: distanceKm ? Number(distanceKm) : undefined,
-        finalPrice: Number(finalPrice || suggested || 0),
-        notes: notes || undefined,
+        price: Number(price || suggested || 0) || undefined,
       }),
     });
 
@@ -68,8 +66,8 @@ export function OfferForm({
       const body = await res.json().catch(() => null);
       if (body?.error === "UNAVAILABLE") {
         setError(t("carrier.offerForm.unavailable"));
-      } else if (body?.error === "DISTANCE_UNAVAILABLE") {
-        setError(t("carrier.offerForm.distanceUnavailable"));
+      } else if (body?.error === "ALREADY_CLAIMED") {
+        setError(t("carrier.offerForm.alreadyClaimed"));
       } else {
         setError(t("common.saveFailed"));
       }
@@ -117,22 +115,10 @@ export function OfferForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("carrier.ratePerKm")}>
-          <Input
-            type="number"
-            min={0}
-            step="0.01"
-            value={ratePerKm}
-            onChange={(e) => setRatePerKm(e.target.value)}
-          />
+          <Input type="number" min={0} step="0.01" value={ratePerKm} onChange={(e) => setRatePerKm(e.target.value)} />
         </Field>
         <Field label={t("carrier.fixedFee")}>
-          <Input
-            type="number"
-            min={0}
-            step="0.01"
-            value={fixedFee}
-            onChange={(e) => setFixedFee(e.target.value)}
-          />
+          <Input type="number" min={0} step="0.01" value={fixedFee} onChange={(e) => setFixedFee(e.target.value)} />
         </Field>
       </div>
 
@@ -158,15 +144,10 @@ export function OfferForm({
           type="number"
           min={1}
           step="0.01"
-          required
           placeholder={suggested ? String(suggested) : undefined}
-          value={finalPrice}
-          onChange={(e) => setFinalPrice(e.target.value)}
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
         />
-      </Field>
-
-      <Field label={t("carrier.offerForm.notes")}>
-        <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}

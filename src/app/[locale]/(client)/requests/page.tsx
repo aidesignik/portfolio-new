@@ -8,9 +8,8 @@ import { formatRoute } from "@/lib/location";
 
 export default async function ClientRequestsPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("client")]);
-  const requests = await prisma.bookingRequest.findMany({
-    where: { clientId: session!.user.id },
-    include: { offers: true },
+  const requests = await prisma.ride.findMany({
+    where: { clientId: session!.user.id, status: { in: ["PENDING", "CANCELLED"] } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -28,10 +27,11 @@ export default async function ClientRequestsPage() {
                 <div>
                   <p className="font-medium text-zinc-900">{formatRoute(req)}</p>
                   <p className="text-sm text-zinc-600">
-                    {new Date(req.departureAt).toLocaleString()} · {req.offers.length} offer(s)
+                    {new Date(req.departureAt).toLocaleString()} ·{" "}
+                    {req.vehicleId ? t("assigned") : t("awaitingAssignment")}
                   </p>
                 </div>
-                <Badge tone={req.status === "CONFIRMED" ? "positive" : "neutral"}>
+                <Badge tone={req.status === "CANCELLED" ? "neutral" : "warning"}>
                   {t(`requestStatus.${req.status}`)}
                 </Badge>
               </Card>

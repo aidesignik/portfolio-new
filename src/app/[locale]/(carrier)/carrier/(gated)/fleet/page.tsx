@@ -38,6 +38,7 @@ export default async function FleetPage() {
                   <div>
                     <p className="font-medium text-zinc-900">
                       {tType(vehicle.type)} {vehicle.model}
+                      {vehicle.licensePlate ? ` · ${vehicle.licensePlate}` : ""}
                     </p>
                     <p className="text-sm text-zinc-600">
                       {vehicle.year} · {vehicle.seats} seats

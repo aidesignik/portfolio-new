@@ -13,14 +13,14 @@ export async function GET(
   }
   const { id } = await params;
 
-  const document = await prisma.document.findUnique({ where: { id }, include: { booking: true } });
+  const document = await prisma.document.findUnique({ where: { id }, include: { ride: true } });
   if (!document || !document.fileUrl || document.status !== "GENERATED") {
     return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
   }
 
-  const booking = document.booking;
-  const isClient = session.user.role === "CLIENT" && booking.clientId === session.user.id;
-  const isCarrier = session.user.role === "CARRIER" && booking.carrierId === session.user.carrierId;
+  const ride = document.ride;
+  const isClient = session.user.role === "CLIENT" && ride.clientId === session.user.id;
+  const isCarrier = session.user.role === "CARRIER" && ride.carrierId === session.user.carrierId;
   const isAdmin = session.user.role === "ADMIN";
   if (!isClient && !isCarrier && !isAdmin) {
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });

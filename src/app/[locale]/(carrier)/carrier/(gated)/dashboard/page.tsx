@@ -15,8 +15,8 @@ export default async function CarrierDashboardPage() {
   const [vehicleCount, driverCount, incomingCount, bookingCount] = await Promise.all([
     prisma.vehicle.count({ where: { carrierId: carrier.id } }),
     prisma.driver.count({ where: { carrierId: carrier.id } }),
-    prisma.bookingRequest.count({ where: { status: { in: ["PENDING", "OFFERED"] } } }),
-    prisma.booking.count({ where: { carrierId: carrier.id } }),
+    prisma.ride.count({ where: { carrierId: null, status: "PENDING" } }),
+    prisma.ride.count({ where: { carrierId: carrier.id } }),
   ]);
 
   const tiles = [

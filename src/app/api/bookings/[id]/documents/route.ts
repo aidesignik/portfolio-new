@@ -6,21 +6,21 @@ import type { DocumentType } from "@prisma/client";
 
 const VALID_TYPES: DocumentType[] = ["CONTRACT", "CONFIRMATION", "INVOICE"];
 
-async function authorizeForBooking(bookingId: string) {
+async function authorizeForRide(rideId: string) {
   const session = await auth();
   if (!session?.user) return { error: NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 }) };
 
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
-  if (!booking) return { error: NextResponse.json({ error: "NOT_FOUND" }, { status: 404 }) };
+  const ride = await prisma.ride.findUnique({ where: { id: rideId } });
+  if (!ride) return { error: NextResponse.json({ error: "NOT_FOUND" }, { status: 404 }) };
 
-  const isClient = session.user.role === "CLIENT" && booking.clientId === session.user.id;
-  const isCarrier = session.user.role === "CARRIER" && booking.carrierId === session.user.carrierId;
+  const isClient = session.user.role === "CLIENT" && ride.clientId === session.user.id;
+  const isCarrier = session.user.role === "CARRIER" && ride.carrierId === session.user.carrierId;
   const isAdmin = session.user.role === "ADMIN";
   if (!isClient && !isCarrier && !isAdmin) {
     return { error: NextResponse.json({ error: "FORBIDDEN" }, { status: 403 }) };
   }
 
-  return { booking };
+  return { ride };
 }
 
 export async function GET(
@@ -28,10 +28,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { error } = await authorizeForBooking(id);
+  const { error } = await authorizeForRide(id);
   if (error) return error;
 
-  const documents = await prisma.document.findMany({ where: { bookingId: id } });
+  const documents = await prisma.document.findMany({ where: { rideId: id } });
   return NextResponse.json({ documents });
 }
 
@@ -40,8 +40,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { error } = await authorizeForBooking(id);
+  const { error, ride } = await authorizeForRide(id);
   if (error) return error;
+
+  if (!ride!.vehicleId || !ride!.driverId || ride!.price === null) {
+    return NextResponse.json({ error: "RIDE_NOT_ASSIGNED" }, { status: 409 });
+  }
 
   const body = await request.json().catch(() => null);
   const type = body?.type as DocumentType | undefined;

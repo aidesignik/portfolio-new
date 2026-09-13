@@ -3,7 +3,7 @@ import type { DocumentTemplateProps } from "../types";
 import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatRoute } from "@/lib/location";
 
-export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
+export function InvoiceDocument({ ride, number }: DocumentTemplateProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -12,15 +12,15 @@ export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
 
         <View style={styles.row}>
           <Text style={styles.label}>Issued by</Text>
-          <Text style={styles.value}>{booking.carrier.companyName}</Text>
+          <Text style={styles.value}>{ride.carrier.companyName}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Tax ID</Text>
-          <Text style={styles.value}>{booking.carrier.taxId}</Text>
+          <Text style={styles.value}>{ride.carrier.taxId}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Billed to</Text>
-          <Text style={styles.value}>{booking.client.name ?? booking.client.email}</Text>
+          <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Issue date</Text>
@@ -33,27 +33,27 @@ export function InvoiceDocument({ booking, number }: DocumentTemplateProps) {
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLabel}>Description</Text>
             <Text style={styles.tableCellValue}>
-              Transport {formatRoute(booking.request)} ({formatDateTime(booking.request.departureAt)})
+              Transport {formatRoute(ride)} ({formatDateTime(ride.departureAt)})
             </Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLabel}>Distance</Text>
-            <Text style={styles.tableCellValue}>{booking.offer.distanceKm} km</Text>
+            <Text style={styles.tableCellValue}>{ride.estimatedDistanceKm ?? "-"} km</Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLabel}>Vehicle / Driver</Text>
             <Text style={styles.tableCellValue}>
-              {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} / {booking.driver.name}
+              {vehicleTypeLabel(ride.vehicle.type)} {ride.vehicle.model} / {ride.driver.name}
             </Text>
           </View>
         </View>
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total due</Text>
-          <Text style={styles.totalValue}>{formatMoney(booking.price, booking.currency)}</Text>
+          <Text style={styles.totalValue}>{formatMoney(ride.price ?? 0, ride.currency)}</Text>
         </View>
 
-        <Text style={styles.footer}>Generated automatically. Booking ID: {booking.id}</Text>
+        <Text style={styles.footer}>Generated automatically. Booking ID: {ride.id}</Text>
       </Page>
     </Document>
   );

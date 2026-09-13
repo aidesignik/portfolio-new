@@ -13,8 +13,8 @@ export default async function ClientDashboardPage() {
   ]);
 
   const [requestCount, bookingCount] = await Promise.all([
-    prisma.bookingRequest.count({ where: { clientId: session!.user.id } }),
-    prisma.booking.count({ where: { clientId: session!.user.id } }),
+    prisma.ride.count({ where: { clientId: session!.user.id, status: "PENDING" } }),
+    prisma.ride.count({ where: { clientId: session!.user.id, status: { in: ["CONFIRMED", "COMPLETED"] } } }),
   ]);
 
   return (

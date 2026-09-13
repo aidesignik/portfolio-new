@@ -32,6 +32,7 @@ export default async function EditVehiclePage({
           initial={{
             type: vehicle.type,
             model: vehicle.model,
+            licensePlate: vehicle.licensePlate,
             year: vehicle.year,
             seats: vehicle.seats,
             amenities: vehicle.amenities,

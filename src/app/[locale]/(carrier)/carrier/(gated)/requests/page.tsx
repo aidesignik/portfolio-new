@@ -7,9 +7,9 @@ import { formatRoute } from "@/lib/location";
 
 export default async function CarrierRequestsPage() {
   const t = await getTranslations("carrier");
-  const requests = await prisma.bookingRequest.findMany({
-    where: { status: { in: ["PENDING", "OFFERED"] } },
-    include: { client: { select: { name: true } }, offers: true },
+  const requests = await prisma.ride.findMany({
+    where: { carrierId: null, status: "PENDING" },
+    include: { client: { select: { name: true } } },
     orderBy: { departureAt: "asc" },
   });
 
@@ -30,7 +30,7 @@ export default async function CarrierRequestsPage() {
                     {new Date(req.departureAt).toLocaleString()} · {req.passengerCount} pax · {req.client.name}
                   </p>
                 </div>
-                <Badge tone={req.status === "PENDING" ? "warning" : "neutral"}>{req.status}</Badge>
+                <Badge tone="warning">{req.status}</Badge>
               </Card>
             </Link>
           ))}

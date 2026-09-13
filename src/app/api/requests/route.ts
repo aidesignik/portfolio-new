@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
-import { bookingRequestSchema } from "@/lib/validation/request.schema";
+import { createRideSchema } from "@/lib/validation/request.schema";
 import { estimateRouteDistance } from "@/lib/tripDistance";
 
 export async function GET() {
@@ -10,11 +10,13 @@ export async function GET() {
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
   }
 
-  const requests = await prisma.bookingRequest.findMany({
+  const requests = await prisma.ride.findMany({
     where: { clientId: session.user.id },
     include: {
       stops: { orderBy: { order: "asc" } },
-      offers: { include: { carrier: true, vehicle: true, driver: true } },
+      carrier: true,
+      vehicle: true,
+      driver: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -29,13 +31,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = bookingRequestSchema.safeParse(body);
+  const parsed = createRideSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   const { stops, ...data } = parsed.data;
 
-  const created = await prisma.bookingRequest.create({
+  const created = await prisma.ride.create({
     data: {
       ...data,
       clientId: session.user.id,
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
   // Distance drives the price the client is shown — computed server-side
   // from geocoded pickup/stops/destination, never entered by the client.
   // Best-effort: if geocoding fails, the request still stands, just without
-  // a price estimate until a carrier sends a real offer.
+  // a price estimate until a carrier assigns a vehicle.
   try {
     const waypoints = [
       { city: created.pickupCity, location: created.pickupLocation },
@@ -61,7 +63,7 @@ export async function POST(request: Request) {
       const stopCoords = rest.slice(0, -1);
 
       await prisma.$transaction([
-        prisma.bookingRequest.update({
+        prisma.ride.update({
           where: { id: created.id },
           data: {
             estimatedDistanceKm: estimate.distanceKm,
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
           },
         }),
         ...created.stops.map((stop, index) =>
-          prisma.requestStop.update({
+          prisma.rideStop.update({
             where: { id: stop.id },
             data: { lat: stopCoords[index]?.lat, lng: stopCoords[index]?.lng },
           }),

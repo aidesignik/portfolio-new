@@ -5,7 +5,7 @@ export const cityLocationSchema = z.object({
   location: z.string().min(1),
 });
 
-export const bookingRequestSchema = z
+export const createRideSchema = z
   .object({
     pickupCity: z.string().min(1),
     pickupLocation: z.string().min(1),

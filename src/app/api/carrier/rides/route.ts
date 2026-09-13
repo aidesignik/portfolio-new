@@ -72,66 +72,45 @@ export async function POST(request: Request) {
   const coordinates = estimate?.coordinates ?? null;
   const destinationCoords = coordinates?.[coordinates.length - 1];
 
-  const suggestedPrice = suggestPrice(distanceKm, {
+  // Suggested price computed for consistency with the rest of the app, even
+  // though the carrier's own entered price is what's actually stored.
+  suggestPrice(distanceKm, {
     ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
     fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
   });
 
-  const booking = await prisma.$transaction(async (tx) => {
-    const bookingRequest = await tx.bookingRequest.create({
-      data: {
-        clientId,
-        pickupCity: data.pickupCity,
-        pickupLocation: data.pickupLocation,
-        pickupLat: coordinates?.[0]?.lat,
-        pickupLng: coordinates?.[0]?.lng,
-        destinationCity: data.destinationCity,
-        destinationLocation: data.destinationLocation,
-        destinationLat: destinationCoords?.lat,
-        destinationLng: destinationCoords?.lng,
-        departureAt: data.departureAt,
-        isRoundTrip: data.isRoundTrip,
-        returnAt: data.returnAt,
-        passengerCount: data.passengerCount,
-        specialRequests: data.specialRequests,
-        estimatedDistanceKm: distanceKm,
-        status: "CONFIRMED",
-        stops: {
-          create: data.stops.map((stop, index) => ({
-            ...stop,
-            order: index,
-            lat: coordinates?.[index + 1]?.lat,
-            lng: coordinates?.[index + 1]?.lng,
-          })),
-        },
+  const ride = await prisma.ride.create({
+    data: {
+      clientId,
+      carrierId: carrier.id,
+      vehicleId: vehicle.id,
+      driverId: driver.id,
+      pickupCity: data.pickupCity,
+      pickupLocation: data.pickupLocation,
+      pickupLat: coordinates?.[0]?.lat,
+      pickupLng: coordinates?.[0]?.lng,
+      destinationCity: data.destinationCity,
+      destinationLocation: data.destinationLocation,
+      destinationLat: destinationCoords?.lat,
+      destinationLng: destinationCoords?.lng,
+      departureAt: data.departureAt,
+      isRoundTrip: data.isRoundTrip,
+      returnAt: data.returnAt,
+      passengerCount: data.passengerCount,
+      specialRequests: data.specialRequests,
+      estimatedDistanceKm: distanceKm,
+      price: data.finalPrice,
+      status: "CONFIRMED",
+      stops: {
+        create: data.stops.map((stop, index) => ({
+          ...stop,
+          order: index,
+          lat: coordinates?.[index + 1]?.lat,
+          lng: coordinates?.[index + 1]?.lng,
+        })),
       },
-    });
-
-    const offer = await tx.offer.create({
-      data: {
-        requestId: bookingRequest.id,
-        carrierId: carrier.id,
-        vehicleId: vehicle.id,
-        driverId: driver.id,
-        distanceKm,
-        suggestedPrice,
-        finalPrice: data.finalPrice,
-        status: "ACCEPTED",
-      },
-    });
-
-    return tx.booking.create({
-      data: {
-        requestId: bookingRequest.id,
-        offerId: offer.id,
-        clientId,
-        carrierId: carrier.id,
-        vehicleId: vehicle.id,
-        driverId: driver.id,
-        price: data.finalPrice,
-      },
-    });
+    },
   });
 
-  return NextResponse.json({ booking }, { status: 201 });
+  return NextResponse.json({ booking: ride }, { status: 201 });
 }

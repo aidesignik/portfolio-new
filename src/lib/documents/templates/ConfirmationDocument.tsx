@@ -3,7 +3,7 @@ import type { DocumentTemplateProps } from "../types";
 import { styles, formatDateTime, formatMoney, vehicleTypeLabel } from "./shared";
 import { formatLocation } from "@/lib/location";
 
-export function ConfirmationDocument({ booking, number }: DocumentTemplateProps) {
+export function ConfirmationDocument({ ride, number }: DocumentTemplateProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -15,10 +15,10 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
           <View style={styles.row}>
             <Text style={styles.label}>Pickup</Text>
             <Text style={styles.value}>
-              {formatLocation({ city: booking.request.pickupCity, location: booking.request.pickupLocation })}
+              {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
             </Text>
           </View>
-          {booking.request.stops.map((stop) => (
+          {ride.stops.map((stop) => (
             <View style={styles.row} key={stop.id}>
               <Text style={styles.label}>Stop</Text>
               <Text style={styles.value}>{formatLocation(stop)}</Text>
@@ -28,18 +28,18 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
             <Text style={styles.label}>Destination</Text>
             <Text style={styles.value}>
               {formatLocation({
-                city: booking.request.destinationCity,
-                location: booking.request.destinationLocation,
+                city: ride.destinationCity,
+                location: ride.destinationLocation,
               })}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Departure</Text>
-            <Text style={styles.value}>{formatDateTime(booking.request.departureAt)}</Text>
+            <Text style={styles.value}>{formatDateTime(ride.departureAt)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Passengers</Text>
-            <Text style={styles.value}>{booking.request.passengerCount}</Text>
+            <Text style={styles.value}>{ride.passengerCount}</Text>
           </View>
         </View>
 
@@ -49,11 +49,11 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
           <Text style={styles.sectionTitle}>Client</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Name</Text>
-            <Text style={styles.value}>{booking.client.name ?? "-"}</Text>
+            <Text style={styles.value}>{ride.client.name ?? "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Contact</Text>
-            <Text style={styles.value}>{booking.client.phone ?? booking.client.email ?? "-"}</Text>
+            <Text style={styles.value}>{ride.client.phone ?? ride.client.email ?? "-"}</Text>
           </View>
         </View>
 
@@ -61,17 +61,17 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
           <Text style={styles.sectionTitle}>Carrier</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Company</Text>
-            <Text style={styles.value}>{booking.carrier.companyName}</Text>
+            <Text style={styles.value}>{ride.carrier.companyName}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Vehicle</Text>
             <Text style={styles.value}>
-              {vehicleTypeLabel(booking.vehicle.type)} {booking.vehicle.model} ({booking.vehicle.seats} seats)
+              {vehicleTypeLabel(ride.vehicle.type)} {ride.vehicle.model} ({ride.vehicle.seats} seats)
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Driver</Text>
-            <Text style={styles.value}>{booking.driver.name}</Text>
+            <Text style={styles.value}>{ride.driver.name}</Text>
           </View>
         </View>
 
@@ -79,10 +79,10 @@ export function ConfirmationDocument({ booking, number }: DocumentTemplateProps)
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total price</Text>
-          <Text style={styles.totalValue}>{formatMoney(booking.price, booking.currency)}</Text>
+          <Text style={styles.totalValue}>{formatMoney(ride.price ?? 0, ride.currency)}</Text>
         </View>
 
-        <Text style={styles.footer}>Generated automatically. Booking ID: {booking.id}</Text>
+        <Text style={styles.footer}>Generated automatically. Booking ID: {ride.id}</Text>
       </Page>
     </Document>
   );

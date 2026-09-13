@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
-import { OfferForm } from "@/components/forms/OfferForm";
+import { AssignRideForm } from "@/components/forms/AssignRideForm";
 import { formatLocation } from "@/lib/location";
 
 export default async function CarrierRequestDetailPage({
@@ -15,8 +15,8 @@ export default async function CarrierRequestDetailPage({
   const [session, t] = await Promise.all([auth(), getTranslations()]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
 
-  const [bookingRequest, vehicles, drivers] = await Promise.all([
-    prisma.bookingRequest.findUnique({
+  const [ride, vehicles, drivers] = await Promise.all([
+    prisma.ride.findUnique({
       where: { id },
       include: {
         client: { select: { name: true, phone: true } },
@@ -27,17 +27,17 @@ export default async function CarrierRequestDetailPage({
     prisma.driver.findMany({ where: { carrierId: carrier.id, isAvailable: true } }),
   ]);
 
-  if (!bookingRequest) notFound();
+  if (!ride || (ride.carrierId && ride.carrierId !== carrier.id)) notFound();
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
-          {formatLocation({ city: bookingRequest.pickupCity, location: bookingRequest.pickupLocation })}
+          {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
         </h1>
-        {bookingRequest.stops.length > 0 ? (
+        {ride.stops.length > 0 ? (
           <div className="mt-1 space-y-0.5">
-            {bookingRequest.stops.map((stop) => (
+            {ride.stops.map((stop) => (
               <p key={stop.id} className="text-sm text-zinc-500">
                 ↓ {formatLocation(stop)}
               </p>
@@ -47,38 +47,38 @@ export default async function CarrierRequestDetailPage({
         <p className="mt-1 text-lg font-semibold text-zinc-900">
           →{" "}
           {formatLocation({
-            city: bookingRequest.destinationCity,
-            location: bookingRequest.destinationLocation,
+            city: ride.destinationCity,
+            location: ride.destinationLocation,
           })}
         </p>
         <p className="mt-1 text-sm text-zinc-600">
-          {new Date(bookingRequest.departureAt).toLocaleString()} · {bookingRequest.passengerCount} pax
+          {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} pax
         </p>
-        {bookingRequest.isRoundTrip && bookingRequest.returnAt ? (
+        {ride.isRoundTrip && ride.returnAt ? (
           <p className="text-sm font-medium text-amber-700">
             {t("client.requestForm.isRoundTrip")} — {t("client.requestForm.returnAt")}:{" "}
-            {new Date(bookingRequest.returnAt).toLocaleString()}
+            {new Date(ride.returnAt).toLocaleString()}
           </p>
         ) : null}
         <p className="text-sm text-zinc-600">
-          {bookingRequest.client.name} · {bookingRequest.client.phone}
+          {ride.client.name} · {ride.client.phone}
         </p>
-        {bookingRequest.specialRequests ? (
-          <p className="mt-2 text-sm text-zinc-700">{bookingRequest.specialRequests}</p>
+        {ride.specialRequests ? (
+          <p className="mt-2 text-sm text-zinc-700">{ride.specialRequests}</p>
         ) : null}
       </div>
 
       <Card>
         <h2 className="mb-4 text-lg font-medium text-zinc-900">{t("carrier.offerForm.title")}</h2>
-        <OfferForm
-          requestId={bookingRequest.id}
+        <AssignRideForm
+          rideId={ride.id}
           vehicles={vehicles}
           drivers={drivers}
           carrierRates={{
             ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
             fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
           }}
-          initialDistanceKm={bookingRequest.estimatedDistanceKm}
+          initialDistanceKm={ride.estimatedDistanceKm}
         />
       </Card>
     </div>

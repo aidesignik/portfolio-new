@@ -12,25 +12,26 @@ export async function GET(
   }
   const { id } = await params;
 
-  const bookingRequest = await prisma.bookingRequest.findUnique({
+  const ride = await prisma.ride.findUnique({
     where: { id },
     include: {
       client: { select: { name: true, phone: true, email: true } },
       stops: { orderBy: { order: "asc" } },
-      offers: { include: { carrier: true, vehicle: true, driver: true } },
-      booking: true,
+      carrier: true,
+      vehicle: true,
+      driver: true,
     },
   });
 
-  if (!bookingRequest) {
+  if (!ride) {
     return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
   }
 
-  const isOwner = session.user.role === "CLIENT" && bookingRequest.clientId === session.user.id;
+  const isOwner = session.user.role === "CLIENT" && ride.clientId === session.user.id;
   const isCarrier = session.user.role === "CARRIER";
   if (!isOwner && !isCarrier) {
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
   }
 
-  return NextResponse.json({ request: bookingRequest });
+  return NextResponse.json({ request: ride });
 }
