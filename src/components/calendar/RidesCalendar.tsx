@@ -48,9 +48,18 @@ export function RidesCalendar() {
   const [dragOverTarget, setDragOverTarget] = useState<DragOverTarget | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/carrier/calendar?weekStart=${weekStart.toISOString()}`);
-    if (res.ok) setData(await res.json());
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/carrier/calendar?weekStart=${weekStart.toISOString()}`);
+      if (res.ok) {
+        setData(await res.json());
+      } else {
+        console.error("Failed to load calendar", res.status, await res.text().catch(() => ""));
+      }
+    } catch (err) {
+      console.error("Failed to load calendar", err);
+    } finally {
+      setLoading(false);
+    }
   }, [weekStart]);
 
   useEffect(() => {
