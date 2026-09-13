@@ -71,13 +71,9 @@ export function CarrierProfileForm({
         contactPhone: form.contactPhone || undefined,
         city: form.city,
         description: form.description || undefined,
-        ...(isNew
-          ? {}
-          : {
-              licenseInfo: form.licenseInfo || undefined,
-              ratePerKm: form.ratePerKm || undefined,
-              fixedFee: form.fixedFee || undefined,
-            }),
+        ratePerKm: form.ratePerKm || undefined,
+        fixedFee: form.fixedFee || undefined,
+        ...(isNew ? {} : { licenseInfo: form.licenseInfo || undefined }),
       }),
     });
 
@@ -163,35 +159,33 @@ export function CarrierProfileForm({
       </Field>
 
       {isNew ? null : (
-        <>
-          <Field label={t("auth.licenseInfo")}>
-            <Input
-              value={form.licenseInfo}
-              onChange={(e) => set("licenseInfo", e.target.value)}
-            />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Rate per km (RSD)">
-              <Input
-                type="number"
-                min={0}
-                step="0.01"
-                value={form.ratePerKm}
-                onChange={(e) => set("ratePerKm", e.target.value)}
-              />
-            </Field>
-            <Field label="Fixed fee (RSD)">
-              <Input
-                type="number"
-                min={0}
-                step="0.01"
-                value={form.fixedFee}
-                onChange={(e) => set("fixedFee", e.target.value)}
-              />
-            </Field>
-          </div>
-        </>
+        <Field label={t("auth.licenseInfo")}>
+          <Input value={form.licenseInfo} onChange={(e) => set("licenseInfo", e.target.value)} />
+        </Field>
       )}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("carrier.ratePerKm")}>
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            required={isNew}
+            value={form.ratePerKm}
+            onChange={(e) => set("ratePerKm", e.target.value)}
+          />
+        </Field>
+        <Field label={t("carrier.fixedFee")}>
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            value={form.fixedFee}
+            onChange={(e) => set("fixedFee", e.target.value)}
+          />
+        </Field>
+      </div>
+      {isNew ? <p className="text-xs text-zinc-500">{t("carrier.ratePerKmHint")}</p> : null}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex items-center gap-3">

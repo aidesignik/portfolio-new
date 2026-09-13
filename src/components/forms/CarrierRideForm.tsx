@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +9,8 @@ import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { suggestPrice } from "@/lib/pricing";
 import type { CityLocation } from "@/lib/location";
+
+const DISTANCE_CALC_DEBOUNCE_MS = 900;
 
 type Vehicle = { id: string; type: string; model: string; seats: number };
 type Driver = { id: string; name: string };
@@ -45,12 +47,55 @@ export function CarrierRideForm({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [distanceTouched, setDistanceTouched] = useState(false);
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
+  const distanceRequestId = useRef(0);
 
   const suggested = useMemo(() => {
     const km = Number(form.distanceKm);
     if (!km || km <= 0) return null;
     return suggestPrice(km, carrierRates);
   }, [form.distanceKm, carrierRates]);
+
+  // Auto-calculate distance from the addresses as the carrier types, the
+  // same way the client-facing request flow does — debounced so we're not
+  // geocoding on every keystroke, and skipped once the carrier has typed
+  // their own value into the distance field directly.
+  useEffect(() => {
+    if (distanceTouched) return;
+    const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops } = form;
+    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) return;
+    if (stops.some((s) => !s.city || !s.location)) return;
+
+    const requestId = ++distanceRequestId.current;
+    const timer = setTimeout(async () => {
+      setCalculatingDistance(true);
+      const res = await fetch("/api/carrier/distance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pickupCity, pickupLocation, destinationCity, destinationLocation, stops }),
+      }).catch(() => null);
+
+      if (requestId !== distanceRequestId.current) return; // a newer edit superseded this request
+      setCalculatingDistance(false);
+      if (!res?.ok) return; // soft-fail — the field just stays blank/editable
+
+      const body = await res.json().catch(() => null);
+      if (typeof body?.distanceKm === "number" && requestId === distanceRequestId.current) {
+        setForm((prev) => ({ ...prev, distanceKm: String(body.distanceKm) }));
+      }
+    }, DISTANCE_CALC_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    form.pickupCity,
+    form.pickupLocation,
+    form.destinationCity,
+    form.destinationLocation,
+    form.stops,
+    distanceTouched,
+  ]);
 
   function addStop() {
     if (form.stops.length >= 5) return;
@@ -272,16 +317,27 @@ export function CarrierRideForm({
           </Field>
         </div>
 
-        <Field label={t("carrier.rideForm.distanceKmOptional")}>
+        <Field label={t("carrier.offerForm.distanceKm")}>
           <Input
             type="number"
             min={1}
             step="0.1"
-            placeholder={t("carrier.rideForm.distanceKmPlaceholder")}
+            placeholder={
+              calculatingDistance
+                ? t("carrier.rideForm.calculatingDistance")
+                : t("carrier.rideForm.distanceKmPlaceholder")
+            }
             value={form.distanceKm}
-            onChange={(e) => setForm({ ...form, distanceKm: e.target.value })}
+            onChange={(e) => {
+              const value = e.target.value;
+              setDistanceTouched(value !== "");
+              setForm({ ...form, distanceKm: value });
+            }}
           />
         </Field>
+        {calculatingDistance ? (
+          <p className="text-xs text-zinc-500">{t("carrier.rideForm.calculatingDistance")}</p>
+        ) : null}
 
         {suggested !== null ? (
           <p className="text-sm text-zinc-600">
