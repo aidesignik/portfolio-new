@@ -31,7 +31,13 @@ export function RegisterCarrierForm() {
     if (!res.ok) {
       const body = await res.json().catch(() => null);
       setLoading(false);
-      setError(body?.error === "EMAIL_IN_USE" ? t("auth.emailInUse") : t("common.saveFailed"));
+      if (body?.error === "EMAIL_IN_USE") {
+        setError(t("auth.emailInUse"));
+      } else if (body?.error?.fieldErrors?.email) {
+        setError(t("auth.invalidEmail"));
+      } else {
+        setError(t("common.saveFailed"));
+      }
       return;
     }
 
