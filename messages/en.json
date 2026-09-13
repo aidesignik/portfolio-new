@@ -152,6 +152,15 @@
     "requestsTitle": "Incoming requests",
     "noIncomingRequests": "No incoming requests right now.",
     "bookingsTitle": "Bookings",
+    "addRide": "Add ride",
+    "rideForm": {
+      "title": "Add a ride",
+      "subtitle": "Log a trip you've already arranged directly with a client.",
+      "clientSection": "Client details",
+      "tripSection": "Trip details",
+      "assignmentSection": "Vehicle & price",
+      "submit": "Create booking"
+    },
     "vehicleForm": {
       "make": "Make",
       "model": "Model",

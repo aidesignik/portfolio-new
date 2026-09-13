@@ -152,6 +152,15 @@
     "requestsTitle": "Novi zahtevi",
     "noIncomingRequests": "Trenutno nema novih zahteva.",
     "bookingsTitle": "Rezervacije",
+    "addRide": "Dodaj vožnju",
+    "rideForm": {
+      "title": "Dodaj vožnju",
+      "subtitle": "Unesite vožnju koju ste dogovorili direktno sa klijentom.",
+      "clientSection": "Podaci o klijentu",
+      "tripSection": "Podaci o vožnji",
+      "assignmentSection": "Vozilo i cena",
+      "submit": "Kreiraj rezervaciju"
+    },
     "vehicleForm": {
       "make": "Marka",
       "model": "Model",

@@ -34,7 +34,8 @@ export async function PATCH(request: Request) {
     carrier = await prisma.carrier.upsert({
       where: { userId: session.user.id },
       update: carrierData,
-      create: { ...carrierData, userId: session.user.id, status: "PENDING" },
+      // Approval gate is disabled for now — every new carrier is auto-approved.
+      create: { ...carrierData, userId: session.user.id, status: "APPROVED" },
     });
   } catch (err) {
     if (
