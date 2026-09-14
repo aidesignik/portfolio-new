@@ -20,9 +20,8 @@ type ExistingCarrier = Pick<
   | "city"
   | "address"
   | "postalCode"
-  | "licenseInfo"
   | "logoUrl"
-> & { ratePerKm: string | null; fixedFee: string | null };
+>;
 
 type Props = {
   carrier: ExistingCarrier | null;
@@ -44,10 +43,7 @@ export function CarrierProfileForm({ carrier, email }: Props) {
     city: carrier?.city ?? "",
     address: carrier?.address ?? "",
     postalCode: carrier?.postalCode ?? "",
-    licenseInfo: carrier?.licenseInfo ?? "",
     logoUrl: carrier?.logoUrl ?? "",
-    ratePerKm: carrier?.ratePerKm ?? "",
-    fixedFee: carrier?.fixedFee ?? "",
   });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -108,9 +104,6 @@ export function CarrierProfileForm({ carrier, email }: Props) {
           address: form.address || undefined,
           postalCode: form.postalCode || undefined,
           logoUrl: form.logoUrl || undefined,
-          ratePerKm: form.ratePerKm || undefined,
-          fixedFee: form.fixedFee || undefined,
-          ...(isNew ? {} : { licenseInfo: form.licenseInfo || undefined }),
         }),
       });
 
@@ -238,38 +231,6 @@ export function CarrierProfileForm({ carrier, email }: Props) {
           </div>
         </div>
       </Field>
-
-      {isNew ? null : (
-        <Field label={t("auth.licenseInfo")}>
-          <Input value={form.licenseInfo} onChange={(e) => set("licenseInfo", e.target.value)} />
-        </Field>
-      )}
-
-      {isNew ? null : (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("carrier.ratePerKm")}>
-              <Input
-                type="number"
-                min={0}
-                step="0.01"
-                value={form.ratePerKm}
-                onChange={(e) => set("ratePerKm", e.target.value)}
-              />
-            </Field>
-            <Field label={t("carrier.fixedFee")}>
-              <Input
-                type="number"
-                min={0}
-                step="0.01"
-                value={form.fixedFee}
-                onChange={(e) => set("fixedFee", e.target.value)}
-              />
-            </Field>
-          </div>
-          <p className="text-xs text-zinc-500">{t("carrier.ratePerKmHint")}</p>
-        </>
-      )}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex items-center gap-3">

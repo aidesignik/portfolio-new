@@ -3,12 +3,10 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 
 export function GoogleSignInButton() {
   const t = useTranslations();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,8 +31,13 @@ export function GoogleSignInButton() {
       return;
     }
 
-    router.push("/carrier/dashboard");
-    router.refresh();
+    // A hard navigation (not router.push) so the browser starts this request
+    // only once the new session cookie from signIn() above is fully settled —
+    // a client-side transition here could race ahead of it and read a stale
+    // session, wrongly bouncing an already-onboarded account back through
+    // onboarding.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.href = "/carrier/dashboard";
   }
 
   return (

@@ -22,18 +22,7 @@ export default async function CarrierOnboardingPage() {
         </p>
       </div>
       <Card>
-        <CarrierProfileForm
-          email={session!.user.email!}
-          carrier={
-            carrier
-              ? {
-                  ...carrier,
-                  ratePerKm: carrier.ratePerKm?.toString() ?? null,
-                  fixedFee: carrier.fixedFee?.toString() ?? null,
-                }
-              : null
-          }
-        />
+        <CarrierProfileForm email={session!.user.email!} carrier={carrier} />
       </Card>
     </div>
   );
