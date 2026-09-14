@@ -92,49 +92,55 @@ export function CarrierProfileForm({ carrier, email }: Props) {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    const res = await fetch("/api/carrier/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        companyName: form.companyName,
-        taxId: form.taxId,
-        registrationNumber: form.registrationNumber,
-        legalRepresentative: form.legalRepresentative,
-        contactEmail: isNew ? email : form.contactEmail,
-        contactPhone: form.contactPhone,
-        city: form.city,
-        address: form.address || undefined,
-        postalCode: form.postalCode || undefined,
-        logoUrl: form.logoUrl || undefined,
-        ratePerKm: form.ratePerKm || undefined,
-        fixedFee: form.fixedFee || undefined,
-        ...(isNew ? {} : { licenseInfo: form.licenseInfo || undefined }),
-      }),
-    });
 
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
+    try {
+      const res = await fetch("/api/carrier/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: form.companyName,
+          taxId: form.taxId,
+          registrationNumber: form.registrationNumber,
+          legalRepresentative: form.legalRepresentative,
+          contactEmail: isNew ? email : form.contactEmail,
+          contactPhone: form.contactPhone,
+          city: form.city,
+          address: form.address || undefined,
+          postalCode: form.postalCode || undefined,
+          logoUrl: form.logoUrl || undefined,
+          ratePerKm: form.ratePerKm || undefined,
+          fixedFee: form.fixedFee || undefined,
+          ...(isNew ? {} : { licenseInfo: form.licenseInfo || undefined }),
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(
+          body?.error === "TAX_ID_IN_USE"
+            ? t("auth.taxIdInUse")
+            : t("common.saveFailed"),
+        );
+        return;
+      }
+
+      if (isNew) {
+        // Passing an (even empty) object forces a POST with trigger: "update",
+        // which re-runs the jwt callback to pick up the carrier just created —
+        // update() with no args only GETs the still-stale cached session.
+        await update({});
+        router.push("/carrier/dashboard");
+        router.refresh();
+        return;
+      }
+
+      setSaved(true);
+    } catch (err) {
+      console.error("Failed to save carrier profile", err);
+      setError(t("common.saveFailed"));
+    } finally {
       setLoading(false);
-      setError(
-        body?.error === "TAX_ID_IN_USE"
-          ? t("auth.taxIdInUse")
-          : t("common.saveFailed"),
-      );
-      return;
     }
-
-    if (isNew) {
-      // Passing an (even empty) object forces a POST with trigger: "update",
-      // which re-runs the jwt callback to pick up the carrier just created —
-      // update() with no args only GETs the still-stale cached session.
-      await update({});
-      router.push("/carrier/dashboard");
-      router.refresh();
-      return;
-    }
-
-    setLoading(false);
-    setSaved(true);
   }
 
   return (
