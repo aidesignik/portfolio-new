@@ -41,7 +41,8 @@ export default async function FleetPage() {
                       {vehicle.licensePlate ? ` · ${vehicle.licensePlate}` : ""}
                     </p>
                     <p className="text-sm text-zinc-600">
-                      {vehicle.year} · {vehicle.seats} seats
+                      {vehicle.year ? `${vehicle.year} · ` : ""}
+                      {vehicle.seats} seats
                     </p>
                   </div>
                   <Badge tone={vehicle.status === "ACTIVE" ? "positive" : "neutral"}>

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import type { AvailableOption } from "@/lib/matching";
+import { formatAmenities, type AvailableOption } from "@/lib/matching";
 
 export function AvailableOptionCard({
   option,
@@ -25,6 +25,8 @@ export function AvailableOptionCard({
     event.stopPropagation();
   }
 
+  const amenitiesLabel = formatAmenities(option.amenities.map((a) => t(`amenities.${a}`)), option.otherAmenities);
+
   return (
     <>
       <Card
@@ -38,11 +40,7 @@ export function AvailableOptionCard({
             {t(`vehicleType.${option.type}`)} {option.model} · {option.seats}{" "}
             {t("client.availableOptions.seats")}
           </p>
-          {option.amenities.length > 0 ? (
-            <p className="mt-1 text-xs text-zinc-500">
-              {option.amenities.map((a) => t(`amenities.${a}`)).join(" · ")}
-            </p>
-          ) : null}
+          {amenitiesLabel ? <p className="mt-1 text-xs text-zinc-500">{amenitiesLabel}</p> : null}
           {option.estimatedPrice !== null ? (
             <p className="mt-3 text-lg font-semibold text-zinc-900">
               ~{option.estimatedPrice.toLocaleString()} RSD
@@ -86,24 +84,21 @@ export function AvailableOptionCard({
 
             <div className="mt-4 border-t border-zinc-200 pt-4">
               <p className="font-medium text-zinc-900">
-                {t(`vehicleType.${option.type}`)} {option.model} ({option.year})
+                {t(`vehicleType.${option.type}`)} {option.model}
+                {option.year ? ` (${option.year})` : ""}
               </p>
               <p className="mt-1 text-sm text-zinc-600">
                 {option.seats} {t("client.availableOptions.seats")}
               </p>
-              {option.amenities.length > 0 ? (
-                <p className="mt-1 text-sm text-zinc-600">
-                  {option.amenities.map((a) => t(`amenities.${a}`)).join(" · ")}
-                </p>
-              ) : null}
+              {amenitiesLabel ? <p className="mt-1 text-sm text-zinc-600">{amenitiesLabel}</p> : null}
             </div>
 
             <div className="mt-4 border-t border-zinc-200 pt-4">
               {option.photos.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
                   {option.photos.map((url) => (
-                    // Arbitrary external URLs pasted by carriers — next/image would
-                    // need every possible domain pre-configured, so plain img here.
+                    // Served from our own upload route, but still a plain img —
+                    // next/image isn't worth the config for a handful of thumbnails.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       key={url}

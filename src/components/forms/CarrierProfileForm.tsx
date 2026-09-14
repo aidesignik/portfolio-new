@@ -230,7 +230,7 @@ export function CarrierProfileForm({ carrier, email }: Props) {
                 onClick={() => set("logoUrl", "")}
                 className="text-xs font-medium text-red-600 hover:underline"
               >
-                {t("auth.removeLogo")}
+                {t("common.remove")}
               </button>
             </div>
           ) : null}

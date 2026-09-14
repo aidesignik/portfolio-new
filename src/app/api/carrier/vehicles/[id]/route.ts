@@ -2,6 +2,18 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { vehicleSchema } from "@/lib/validation/vehicle.schema";
+import { remove as removePhotoFile } from "@/lib/uploads/vehiclePhotoStorage";
+
+const PHOTO_ROUTE_PREFIX = "/api/carrier/vehicle-photos/";
+
+function removeOrphanedPhotos(oldPhotos: string[], newPhotos: string[]) {
+  const kept = new Set(newPhotos);
+  return Promise.all(
+    oldPhotos
+      .filter((url) => !kept.has(url) && url.startsWith(PHOTO_ROUTE_PREFIX))
+      .map((url) => removePhotoFile(url.slice(PHOTO_ROUTE_PREFIX.length))),
+  );
+}
 
 async function loadOwnedVehicle(userId: string, vehicleId: string) {
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId } });
@@ -42,6 +54,7 @@ export async function PATCH(
   }
 
   const vehicle = await prisma.vehicle.update({ where: { id }, data: parsed.data });
+  await removeOrphanedPhotos(existing.photos, vehicle.photos);
   return NextResponse.json({ vehicle });
 }
 
@@ -58,5 +71,6 @@ export async function DELETE(
 
   await prisma.driverVehicle.deleteMany({ where: { vehicleId: id } });
   await prisma.vehicle.delete({ where: { id } });
+  await removeOrphanedPhotos(existing.photos, []);
   return NextResponse.json({ ok: true });
 }

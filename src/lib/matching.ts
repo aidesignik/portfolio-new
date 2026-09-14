@@ -9,14 +9,26 @@ export interface AvailableOption {
   vehicleId: string;
   type: string;
   model: string;
-  year: number;
+  year: number | null;
   seats: number;
   amenities: string[];
+  otherAmenities: string | null;
   photos: string[];
   estimatedPrice: number | null;
 }
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
+
+/** Enum amenity labels (already translated) plus any free-text extras, joined for display. */
+export function formatAmenities(translatedAmenities: string[], otherAmenities: string | null): string {
+  const other = otherAmenities
+    ? otherAmenities
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean)
+    : [];
+  return [...translatedAmenities, ...other].join(" · ");
+}
 
 /**
  * Read-only preview shown to the client right after submitting a request:
@@ -69,6 +81,7 @@ export async function findAvailableOptions({
     year: vehicle.year,
     seats: vehicle.seats,
     amenities: vehicle.amenities,
+    otherAmenities: vehicle.otherAmenities,
     photos: vehicle.photos,
     estimatedPrice: priceDistanceKm
       ? suggestPrice(priceDistanceKm, {

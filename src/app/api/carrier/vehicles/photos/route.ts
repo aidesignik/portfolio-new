@@ -1,6 +1,7 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
-import { save } from "@/lib/uploads/logoStorage";
+import { save } from "@/lib/uploads/vehiclePhotoStorage";
 import { IMAGE_MIME_TO_EXT, MAX_IMAGE_SIZE_BYTES } from "@/lib/uploads/imageTypes";
 
 export async function POST(request: Request) {
@@ -22,8 +23,11 @@ export async function POST(request: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const filename = `${session.user.id}.${ext}`;
+  // A vehicle may not exist yet (uploading photos while creating a new
+  // one), so this is keyed by a random id rather than the vehicle's —
+  // multiple photos per vehicle also rules out keying by userId alone.
+  const filename = `${session.user.id}-${randomUUID()}.${ext}`;
   await save(filename, buffer);
 
-  return NextResponse.json({ logoUrl: `/api/carrier/logo/${filename}` });
+  return NextResponse.json({ photoUrl: `/api/carrier/vehicle-photos/${filename}` });
 }

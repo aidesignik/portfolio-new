@@ -36,6 +36,7 @@ export default async function EditVehiclePage({
             year: vehicle.year,
             seats: vehicle.seats,
             amenities: vehicle.amenities,
+            otherAmenities: vehicle.otherAmenities,
             status: vehicle.status,
             photos: vehicle.photos,
           }}

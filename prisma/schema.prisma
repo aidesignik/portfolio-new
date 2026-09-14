@@ -39,6 +39,7 @@ enum VehicleType {
   MINIBUS
   MIDIBUS
   COACH
+  DOUBLE_DECKER
 }
 
 enum RideStatus {
@@ -122,14 +123,15 @@ model Vehicle {
   carrierId String
   carrier   Carrier @relation(fields: [carrierId], references: [id])
 
-  type         VehicleType
-  model        String
-  licensePlate String?
-  year         Int
-  seats        Int
-  amenities    VehicleAmenity[] @default([])
-  photos       String[]         @default([])
-  status       VehicleStatus    @default(ACTIVE)
+  type            VehicleType
+  model           String
+  licensePlate    String?
+  year            Int?
+  seats           Int
+  amenities       VehicleAmenity[] @default([])
+  otherAmenities  String?
+  photos          String[]         @default([])
+  status          VehicleStatus    @default(ACTIVE)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 

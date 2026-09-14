@@ -10,4 +10,4 @@ export const IMAGE_EXT_TO_MIME: Record<string, string> = {
   webp: "image/webp",
 };
 
-export const MAX_LOGO_SIZE_BYTES = 3 * 1024 * 1024;
+export const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024;

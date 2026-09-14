@@ -8,6 +8,7 @@
     "loading": "Loading…",
     "edit": "Edit",
     "delete": "Delete",
+    "remove": "Remove",
     "confirm": "Confirm",
     "reject": "Reject",
     "accept": "Accept",
@@ -80,7 +81,6 @@
     "address": "Street address",
     "postalCode": "Postal code",
     "logoUrl": "Company logo (optional)",
-    "removeLogo": "Remove",
     "logoUploadHint": "PNG, JPG or WEBP, up to 3MB.",
     "logoTooLarge": "That image is too large — please use a file under 3MB.",
     "logoUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
@@ -220,10 +220,13 @@
       "year": "Year",
       "seats": "Seats",
       "amenities": "Amenities",
+      "otherAmenitiesPlaceholder": "Other amenities (comma-separated)",
       "status": "Status",
       "photos": "Photos",
-      "photosPlaceholder": "One image URL per line — must start with https://",
-      "invalidPhotoUrl": "One of the photo URLs isn't valid — make sure each one starts with https:// and points directly to an image.",
+      "photosUploadHint": "PNG, JPG or WEBP, up to 3MB each — up to 10 photos.",
+      "photoTooLarge": "That image is too large — please use a file under 3MB.",
+      "photoUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
+      "photoUploadFailed": "Couldn't upload one of the photos — please try again.",
       "saveFailed": "Couldn't save — please check the fields and try again."
     },
     "driverForm": {
@@ -260,7 +263,8 @@
     "VAN": "Van",
     "MINIBUS": "Minibus",
     "MIDIBUS": "Midibus",
-    "COACH": "Coach"
+    "COACH": "Coach",
+    "DOUBLE_DECKER": "Double-decker"
   },
   "rideStatus": {
     "PENDING": "Pending",

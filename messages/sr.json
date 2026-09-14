@@ -8,6 +8,7 @@
     "loading": "Učitavanje…",
     "edit": "Izmeni",
     "delete": "Obriši",
+    "remove": "Ukloni",
     "confirm": "Potvrdi",
     "reject": "Odbij",
     "accept": "Prihvati",
@@ -80,7 +81,6 @@
     "address": "Ulica i broj",
     "postalCode": "Poštanski broj",
     "logoUrl": "Logo firme (opciono)",
-    "removeLogo": "Ukloni",
     "logoUploadHint": "PNG, JPG ili WEBP, do 3MB.",
     "logoTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
     "logoUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
@@ -220,10 +220,13 @@
       "year": "Godina",
       "seats": "Broj sedišta",
       "amenities": "Oprema",
+      "otherAmenitiesPlaceholder": "Ostala oprema (odvojeno zarezima)",
       "status": "Status",
       "photos": "Fotografije",
-      "photosPlaceholder": "Jedan URL slike po redu — mora počinjati sa https://",
-      "invalidPhotoUrl": "Jedan od URL-ova slike nije ispravan — proverite da svaki počinje sa https:// i vodi direktno do slike.",
+      "photosUploadHint": "PNG, JPG ili WEBP, do 3MB po slici — do 10 fotografija.",
+      "photoTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
+      "photoUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
+      "photoUploadFailed": "Nije uspelo otpremanje jedne od fotografija — pokušajte ponovo.",
       "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
     },
     "driverForm": {
@@ -260,7 +263,8 @@
     "VAN": "Kombi",
     "MINIBUS": "Minibus",
     "MIDIBUS": "Midibus",
-    "COACH": "Autobus"
+    "COACH": "Autobus",
+    "DOUBLE_DECKER": "Dvospratni autobus"
   },
   "rideStatus": {
     "PENDING": "Na čekanju",
