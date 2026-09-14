@@ -19,7 +19,6 @@ type ExistingCarrier = Pick<
   | "contactPhone"
   | "city"
   | "address"
-  | "description"
   | "licenseInfo"
   | "logoUrl"
 > & { ratePerKm: string | null; fixedFee: string | null };
@@ -27,20 +26,14 @@ type ExistingCarrier = Pick<
 type Props = {
   carrier: ExistingCarrier | null;
   email: string;
-  contactPersonName?: string | null;
 };
 
-export function CarrierProfileForm({
-  carrier,
-  email,
-  contactPersonName,
-}: Props) {
+export function CarrierProfileForm({ carrier, email }: Props) {
   const t = useTranslations();
   const router = useRouter();
   const { update } = useSession();
   const isNew = carrier === null;
   const [form, setForm] = useState({
-    contactPerson: contactPersonName ?? "",
     companyName: carrier?.companyName ?? "",
     taxId: carrier?.taxId ?? "",
     registrationNumber: carrier?.registrationNumber ?? "",
@@ -49,7 +42,6 @@ export function CarrierProfileForm({
     contactPhone: carrier?.contactPhone ?? "",
     city: carrier?.city ?? "",
     address: carrier?.address ?? "",
-    description: carrier?.description ?? "",
     licenseInfo: carrier?.licenseInfo ?? "",
     logoUrl: carrier?.logoUrl ?? "",
     ratePerKm: carrier?.ratePerKm ?? "",
@@ -72,7 +64,6 @@ export function CarrierProfileForm({
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contactPerson: form.contactPerson || undefined,
         companyName: form.companyName,
         taxId: form.taxId,
         registrationNumber: form.registrationNumber,
@@ -81,7 +72,6 @@ export function CarrierProfileForm({
         contactPhone: form.contactPhone || undefined,
         city: form.city,
         address: form.address || undefined,
-        description: form.description || undefined,
         logoUrl: form.logoUrl || undefined,
         ratePerKm: form.ratePerKm || undefined,
         fixedFee: form.fixedFee || undefined,
@@ -117,29 +107,6 @@ export function CarrierProfileForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("carrier.contactPerson")}>
-          <Input
-            required
-            value={form.contactPerson}
-            onChange={(e) => set("contactPerson", e.target.value)}
-          />
-        </Field>
-        <Field label={t("auth.legalRepresentative")}>
-          <Input
-            required
-            value={form.legalRepresentative}
-            onChange={(e) => set("legalRepresentative", e.target.value)}
-          />
-        </Field>
-        <Field label={isNew ? t("common.email") : t("auth.contactEmail")}>
-          <Input
-            type="email"
-            required
-            disabled={isNew}
-            value={isNew ? email : form.contactEmail}
-            onChange={(e) => set("contactEmail", e.target.value)}
-          />
-        </Field>
         <Field label={t("auth.companyName")}>
           <Input
             required
@@ -159,6 +126,22 @@ export function CarrierProfileForm({
             required
             value={form.registrationNumber}
             onChange={(e) => set("registrationNumber", e.target.value)}
+          />
+        </Field>
+        <Field label={t("auth.legalRepresentative")}>
+          <Input
+            required
+            value={form.legalRepresentative}
+            onChange={(e) => set("legalRepresentative", e.target.value)}
+          />
+        </Field>
+        <Field label={isNew ? t("common.email") : t("auth.contactEmail")}>
+          <Input
+            type="email"
+            required
+            disabled={isNew}
+            value={isNew ? email : form.contactEmail}
+            onChange={(e) => set("contactEmail", e.target.value)}
           />
         </Field>
         <Field label={t("common.city")}>
@@ -183,12 +166,6 @@ export function CarrierProfileForm({
           </Field>
         )}
       </div>
-      <Field label={t("auth.description")}>
-        <Input
-          value={form.description}
-          onChange={(e) => set("description", e.target.value)}
-        />
-      </Field>
 
       <Field label={t("auth.logoUrl")}>
         <Input

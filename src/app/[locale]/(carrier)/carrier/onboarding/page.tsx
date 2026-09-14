@@ -24,7 +24,6 @@ export default async function CarrierOnboardingPage() {
       <Card>
         <CarrierProfileForm
           email={session!.user.email!}
-          contactPersonName={session!.user.name}
           carrier={
             carrier
               ? {

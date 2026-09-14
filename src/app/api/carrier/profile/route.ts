@@ -27,15 +27,13 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const { contactPerson, ...carrierData } = parsed.data;
-
   let carrier;
   try {
     carrier = await prisma.carrier.upsert({
       where: { userId: session.user.id },
-      update: carrierData,
+      update: parsed.data,
       // Approval gate is disabled for now — every new carrier is auto-approved.
-      create: { ...carrierData, userId: session.user.id, status: "APPROVED" },
+      create: { ...parsed.data, userId: session.user.id, status: "APPROVED" },
     });
   } catch (err) {
     if (
@@ -45,13 +43,6 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "TAX_ID_IN_USE" }, { status: 409 });
     }
     throw err;
-  }
-
-  if (contactPerson) {
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { name: contactPerson },
-    });
   }
 
   return NextResponse.json({ carrier });

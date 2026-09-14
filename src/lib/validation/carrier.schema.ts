@@ -16,7 +16,4 @@ export const carrierProfileSchema = z.object({
   logoUrl: z.string().url().optional().or(z.literal("")),
   ratePerKm: z.coerce.number().positive().optional(),
   fixedFee: z.coerce.number().min(0).optional(),
-  // The account holder's name, shown as the carrier's point of contact.
-  // Not a Carrier column — routed to User.name by the API handler.
-  contactPerson: z.string().min(1).optional(),
 });
