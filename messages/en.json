@@ -80,6 +80,7 @@
     "address": "Street address",
     "postalCode": "Postal code",
     "logoUrl": "Company logo (optional)",
+    "removeLogo": "Remove",
     "logoUploadHint": "PNG, JPG or WEBP, up to 3MB.",
     "logoTooLarge": "That image is too large — please use a file under 3MB.",
     "logoUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",

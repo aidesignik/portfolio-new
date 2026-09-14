@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
 
 const STORAGE_DIR = process.env.LOGO_STORAGE_DIR ?? path.join(process.cwd(), "storage/logos");
@@ -10,4 +10,8 @@ export async function save(filename: string, buffer: Buffer): Promise<void> {
 
 export async function read(filename: string): Promise<Buffer> {
   return readFile(path.join(/* turbopackIgnore: true */ STORAGE_DIR, filename));
+}
+
+export async function remove(filename: string): Promise<void> {
+  await unlink(path.join(/* turbopackIgnore: true */ STORAGE_DIR, filename)).catch(() => {});
 }

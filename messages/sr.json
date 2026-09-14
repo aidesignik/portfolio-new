@@ -80,6 +80,7 @@
     "address": "Ulica i broj",
     "postalCode": "Poštanski broj",
     "logoUrl": "Logo firme (opciono)",
+    "removeLogo": "Ukloni",
     "logoUploadHint": "PNG, JPG ili WEBP, do 3MB.",
     "logoTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
     "logoUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",

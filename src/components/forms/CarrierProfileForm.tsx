@@ -103,7 +103,10 @@ export function CarrierProfileForm({ carrier, email }: Props) {
           city: form.city,
           address: form.address || undefined,
           postalCode: form.postalCode || undefined,
-          logoUrl: form.logoUrl || undefined,
+          // Sent as-is (not `|| undefined`) so an explicitly removed logo
+          // (empty string) actually clears it — `undefined` would be a no-op
+          // update and leave the old value in place.
+          logoUrl: form.logoUrl,
         }),
       });
 
@@ -206,15 +209,30 @@ export function CarrierProfileForm({ carrier, email }: Props) {
         />
       </Field>
 
-      <Field label={t("auth.logoUrl")}>
+      <div className="space-y-1">
+        {/* Not a <Field>/<label> here on purpose: the Remove button below
+            needs to be a normal, independently clickable control, and a
+            <button> nested inside a <label> is invalid HTML that browsers
+            handle inconsistently (clicks can get redirected to the label's
+            associated control instead of the button). */}
+        <span className="block text-sm font-medium text-zinc-700">{t("auth.logoUrl")}</span>
         <div className="flex items-center gap-4">
           {form.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={form.logoUrl}
-              alt=""
-              className="h-16 w-16 shrink-0 rounded-md border border-zinc-200 object-contain"
-            />
+            <div className="shrink-0 space-y-1 text-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.logoUrl}
+                alt=""
+                className="h-16 w-16 rounded-md border border-zinc-200 object-contain"
+              />
+              <button
+                type="button"
+                onClick={() => set("logoUrl", "")}
+                className="text-xs font-medium text-red-600 hover:underline"
+              >
+                {t("auth.removeLogo")}
+              </button>
+            </div>
           ) : null}
           <div className="space-y-1">
             <input
@@ -230,7 +248,7 @@ export function CarrierProfileForm({ carrier, email }: Props) {
             {logoError ? <p className="text-xs text-red-600">{logoError}</p> : null}
           </div>
         </div>
-      </Field>
+      </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex items-center gap-3">

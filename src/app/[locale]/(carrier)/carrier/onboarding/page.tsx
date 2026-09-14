@@ -8,6 +8,21 @@ export default async function CarrierOnboardingPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
   const carrier = await prisma.carrier.findUnique({
     where: { userId: session!.user.id },
+    // Select only what CarrierProfileForm needs — the full row also carries
+    // Decimal fields (ratePerKm/fixedFee), which can't be passed from a
+    // Server Component to a Client Component as-is.
+    select: {
+      companyName: true,
+      taxId: true,
+      registrationNumber: true,
+      legalRepresentative: true,
+      contactEmail: true,
+      contactPhone: true,
+      city: true,
+      address: true,
+      postalCode: true,
+      logoUrl: true,
+    },
   });
   const isNew = carrier === null;
 
