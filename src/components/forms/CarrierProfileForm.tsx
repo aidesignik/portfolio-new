@@ -19,6 +19,7 @@ type ExistingCarrier = Pick<
   | "contactPhone"
   | "city"
   | "address"
+  | "postalCode"
   | "licenseInfo"
   | "logoUrl"
 > & { ratePerKm: string | null; fixedFee: string | null };
@@ -42,6 +43,7 @@ export function CarrierProfileForm({ carrier, email }: Props) {
     contactPhone: carrier?.contactPhone ?? "",
     city: carrier?.city ?? "",
     address: carrier?.address ?? "",
+    postalCode: carrier?.postalCode ?? "",
     licenseInfo: carrier?.licenseInfo ?? "",
     logoUrl: carrier?.logoUrl ?? "",
     ratePerKm: carrier?.ratePerKm ?? "",
@@ -99,9 +101,10 @@ export function CarrierProfileForm({ carrier, email }: Props) {
         registrationNumber: form.registrationNumber,
         legalRepresentative: form.legalRepresentative,
         contactEmail: isNew ? email : form.contactEmail,
-        contactPhone: form.contactPhone || undefined,
+        contactPhone: form.contactPhone,
         city: form.city,
         address: form.address || undefined,
+        postalCode: form.postalCode || undefined,
         logoUrl: form.logoUrl || undefined,
         ratePerKm: form.ratePerKm || undefined,
         fixedFee: form.fixedFee || undefined,
@@ -174,6 +177,14 @@ export function CarrierProfileForm({ carrier, email }: Props) {
             onChange={(e) => set("contactEmail", e.target.value)}
           />
         </Field>
+        <Field label={t("auth.contactPhone")}>
+          <Input
+            type="tel"
+            required
+            value={form.contactPhone}
+            onChange={(e) => set("contactPhone", e.target.value)}
+          />
+        </Field>
         <Field label={t("common.city")}>
           <Input
             required
@@ -181,21 +192,20 @@ export function CarrierProfileForm({ carrier, email }: Props) {
             onChange={(e) => set("city", e.target.value)}
           />
         </Field>
-        <Field label={t("auth.address")}>
+        <Field label={t("auth.postalCode")}>
           <Input
-            value={form.address}
-            onChange={(e) => set("address", e.target.value)}
+            value={form.postalCode}
+            onChange={(e) => set("postalCode", e.target.value)}
           />
         </Field>
-        {isNew ? null : (
-          <Field label={t("auth.contactPhone")}>
-            <Input
-              value={form.contactPhone}
-              onChange={(e) => set("contactPhone", e.target.value)}
-            />
-          </Field>
-        )}
       </div>
+
+      <Field label={t("auth.address")}>
+        <Input
+          value={form.address}
+          onChange={(e) => set("address", e.target.value)}
+        />
+      </Field>
 
       <Field label={t("auth.logoUrl")}>
         <div className="flex items-center gap-4">

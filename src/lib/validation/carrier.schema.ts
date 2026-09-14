@@ -8,9 +8,10 @@ export const carrierProfileSchema = z.object({
   // "Odgovorno lice" — the company's legally authorized representative.
   legalRepresentative: z.string().min(1),
   contactEmail: z.string().email(),
-  contactPhone: z.string().min(1).optional(),
+  contactPhone: z.string().min(1),
   city: z.string().min(1),
   address: z.string().min(1).optional(),
+  postalCode: z.string().min(1).optional(),
   description: z.string().optional(),
   licenseInfo: z.string().optional(),
   // Set by the logo-upload endpoint (a relative /api/carrier/logo/... path),
