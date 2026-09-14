@@ -80,7 +80,7 @@
     "continueWithGoogle": "Nastavi sa Google nalogom",
     "orDivider": "ili",
     "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom.",
-    "googleMockNotice": "Demo režim: simulira Google prijavu — nije potreban pravi Google nalog."
+    "googleMockNotice": "Demo režim: uvek prijavljuje isti demo Google nalog — nije potreban pravi Google nalog."
   },
   "carrierStatus": {
     "PENDING": "Čeka odobrenje",

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,13 +8,25 @@ import { Link } from "@/i18n/navigation";
 import { StatStrip } from "@/components/calendar/StatStrip";
 import { RidesCalendar } from "@/components/calendar/RidesCalendar";
 
-export default async function CarrierDashboardPage() {
-  const [session, t, tNav] = await Promise.all([
+export default async function CarrierDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const [{ locale }, session, t, tNav] = await Promise.all([
+    params,
     auth(),
     getTranslations("carrier"),
     getTranslations("nav"),
   ]);
-  const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
+  // The (gated) layout already redirects to onboarding when the session has
+  // no carrierId, but a freshly created session can reach this page before
+  // that carrierId is reflected — fall back to the same redirect here
+  // instead of crashing on a missing Carrier row.
+  const carrier = await prisma.carrier.findUnique({ where: { userId: session!.user.id } });
+  if (!carrier) {
+    redirect(`/${locale}/carrier/onboarding`);
+  }
 
   const [vehicleCount, driverCount, incomingCount, bookingCount] = await Promise.all([
     prisma.vehicle.count({ where: { carrierId: carrier.id } }),

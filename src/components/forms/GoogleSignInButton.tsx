@@ -17,11 +17,12 @@ export function GoogleSignInButton() {
     setError(null);
 
     // Mock Google identity for this demo — a real Google button would never
-    // send a name/email up front. Each click simulates a new Google account
-    // so the sign-up + onboarding-completion flow can be replayed freely.
+    // send a name/email up front. Uses a fixed identity so repeat clicks log
+    // back into the same account (like real Google auth would), rather than
+    // spinning up a new throwaway carrier every time.
     const result = await signIn("google-mock", {
-      email: `demo.carrier.${Date.now()}@example.com`,
-      name: "New Carrier (Google demo)",
+      email: "google.demo.carrier@example.com",
+      name: "Demo Carrier (Google)",
       redirect: false,
     });
 
