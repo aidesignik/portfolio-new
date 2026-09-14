@@ -13,7 +13,9 @@ export const carrierProfileSchema = z.object({
   address: z.string().min(1).optional(),
   description: z.string().optional(),
   licenseInfo: z.string().optional(),
-  logoUrl: z.string().url().optional().or(z.literal("")),
+  // Set by the logo-upload endpoint (a relative /api/carrier/logo/... path),
+  // not typed by the user, so no URL-format check is needed here.
+  logoUrl: z.string().min(1).optional().or(z.literal("")),
   ratePerKm: z.coerce.number().positive().optional(),
   fixedFee: z.coerce.number().min(0).optional(),
 });

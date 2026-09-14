@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/navigation";
@@ -50,10 +50,40 @@ export function CarrierProfileForm({ carrier, email }: Props) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
+  }
+
+  async function onLogoSelected(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setLogoUploading(true);
+    setLogoError(null);
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/carrier/profile/logo", { method: "POST", body });
+    setLogoUploading(false);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      setLogoError(
+        err?.error === "TOO_LARGE"
+          ? t("auth.logoTooLarge")
+          : err?.error === "UNSUPPORTED_TYPE"
+            ? t("auth.logoUnsupportedType")
+            : t("auth.logoUploadFailed"),
+      );
+      return;
+    }
+
+    const { logoUrl } = await res.json();
+    set("logoUrl", logoUrl);
   }
 
   async function onSubmit(event: FormEvent) {
@@ -168,12 +198,29 @@ export function CarrierProfileForm({ carrier, email }: Props) {
       </div>
 
       <Field label={t("auth.logoUrl")}>
-        <Input
-          type="url"
-          placeholder={t("auth.logoUrlPlaceholder")}
-          value={form.logoUrl}
-          onChange={(e) => set("logoUrl", e.target.value)}
-        />
+        <div className="flex items-center gap-4">
+          {form.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={form.logoUrl}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-md border border-zinc-200 object-contain"
+            />
+          ) : null}
+          <div className="space-y-1">
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              disabled={logoUploading}
+              onChange={onLogoSelected}
+              className="text-sm text-zinc-700 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-50"
+            />
+            <p className="text-xs text-zinc-500">
+              {logoUploading ? t("common.loading") : t("auth.logoUploadHint")}
+            </p>
+            {logoError ? <p className="text-xs text-red-600">{logoError}</p> : null}
+          </div>
+        </div>
       </Field>
 
       {isNew ? null : (
@@ -182,28 +229,31 @@ export function CarrierProfileForm({ carrier, email }: Props) {
         </Field>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("carrier.ratePerKm")}>
-          <Input
-            type="number"
-            min={0}
-            step="0.01"
-            required={isNew}
-            value={form.ratePerKm}
-            onChange={(e) => set("ratePerKm", e.target.value)}
-          />
-        </Field>
-        <Field label={t("carrier.fixedFee")}>
-          <Input
-            type="number"
-            min={0}
-            step="0.01"
-            value={form.fixedFee}
-            onChange={(e) => set("fixedFee", e.target.value)}
-          />
-        </Field>
-      </div>
-      {isNew ? <p className="text-xs text-zinc-500">{t("carrier.ratePerKmHint")}</p> : null}
+      {isNew ? null : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("carrier.ratePerKm")}>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.ratePerKm}
+                onChange={(e) => set("ratePerKm", e.target.value)}
+              />
+            </Field>
+            <Field label={t("carrier.fixedFee")}>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.fixedFee}
+                onChange={(e) => set("fixedFee", e.target.value)}
+              />
+            </Field>
+          </div>
+          <p className="text-xs text-zinc-500">{t("carrier.ratePerKmHint")}</p>
+        </>
+      )}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex items-center gap-3">

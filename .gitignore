@@ -41,6 +41,10 @@ yarn-error.log*
 /storage/documents/*
 !/storage/documents/.gitkeep
 
+# uploaded carrier logos
+/storage/logos/*
+!/storage/logos/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
