@@ -90,14 +90,18 @@ model Carrier {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
-  companyName  String
-  taxId        String   @unique
-  contactEmail String
-  contactPhone String?
-  city         String
-  description  String?
-  licenseInfo  String?
-  photos       String[] @default([])
+  companyName          String
+  taxId                String   @unique
+  registrationNumber   String?
+  legalRepresentative  String?
+  contactEmail         String
+  contactPhone         String?
+  city                 String
+  address              String?
+  description          String?
+  licenseInfo          String?
+  logoUrl              String?
+  photos               String[] @default([])
 
   ratePerKm Decimal? @db.Decimal(10, 2)
   fixedFee  Decimal? @db.Decimal(10, 2)

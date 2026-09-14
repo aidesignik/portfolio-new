@@ -13,11 +13,15 @@ type ExistingCarrier = Pick<
   Carrier,
   | "companyName"
   | "taxId"
+  | "registrationNumber"
+  | "legalRepresentative"
   | "contactEmail"
   | "contactPhone"
   | "city"
+  | "address"
   | "description"
   | "licenseInfo"
+  | "logoUrl"
 > & { ratePerKm: string | null; fixedFee: string | null };
 
 type Props = {
@@ -39,11 +43,15 @@ export function CarrierProfileForm({
     contactPerson: contactPersonName ?? "",
     companyName: carrier?.companyName ?? "",
     taxId: carrier?.taxId ?? "",
+    registrationNumber: carrier?.registrationNumber ?? "",
+    legalRepresentative: carrier?.legalRepresentative ?? "",
     contactEmail: carrier?.contactEmail ?? email,
     contactPhone: carrier?.contactPhone ?? "",
     city: carrier?.city ?? "",
+    address: carrier?.address ?? "",
     description: carrier?.description ?? "",
     licenseInfo: carrier?.licenseInfo ?? "",
+    logoUrl: carrier?.logoUrl ?? "",
     ratePerKm: carrier?.ratePerKm ?? "",
     fixedFee: carrier?.fixedFee ?? "",
   });
@@ -67,10 +75,14 @@ export function CarrierProfileForm({
         contactPerson: form.contactPerson || undefined,
         companyName: form.companyName,
         taxId: form.taxId,
+        registrationNumber: form.registrationNumber,
+        legalRepresentative: form.legalRepresentative,
         contactEmail: isNew ? email : form.contactEmail,
         contactPhone: form.contactPhone || undefined,
         city: form.city,
+        address: form.address || undefined,
         description: form.description || undefined,
+        logoUrl: form.logoUrl || undefined,
         ratePerKm: form.ratePerKm || undefined,
         fixedFee: form.fixedFee || undefined,
         ...(isNew ? {} : { licenseInfo: form.licenseInfo || undefined }),
@@ -112,6 +124,13 @@ export function CarrierProfileForm({
             onChange={(e) => set("contactPerson", e.target.value)}
           />
         </Field>
+        <Field label={t("auth.legalRepresentative")}>
+          <Input
+            required
+            value={form.legalRepresentative}
+            onChange={(e) => set("legalRepresentative", e.target.value)}
+          />
+        </Field>
         <Field label={isNew ? t("common.email") : t("auth.contactEmail")}>
           <Input
             type="email"
@@ -135,11 +154,24 @@ export function CarrierProfileForm({
             onChange={(e) => set("taxId", e.target.value)}
           />
         </Field>
+        <Field label={t("auth.registrationNumber")}>
+          <Input
+            required
+            value={form.registrationNumber}
+            onChange={(e) => set("registrationNumber", e.target.value)}
+          />
+        </Field>
         <Field label={t("common.city")}>
           <Input
             required
             value={form.city}
             onChange={(e) => set("city", e.target.value)}
+          />
+        </Field>
+        <Field label={t("auth.address")}>
+          <Input
+            value={form.address}
+            onChange={(e) => set("address", e.target.value)}
           />
         </Field>
         {isNew ? null : (
@@ -155,6 +187,15 @@ export function CarrierProfileForm({
         <Input
           value={form.description}
           onChange={(e) => set("description", e.target.value)}
+        />
+      </Field>
+
+      <Field label={t("auth.logoUrl")}>
+        <Input
+          type="url"
+          placeholder={t("auth.logoUrlPlaceholder")}
+          value={form.logoUrl}
+          onChange={(e) => set("logoUrl", e.target.value)}
         />
       </Field>
 
