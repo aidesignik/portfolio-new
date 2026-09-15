@@ -49,6 +49,10 @@ yarn-error.log*
 /storage/vehicle-photos/*
 !/storage/vehicle-photos/.gitkeep
 
+# uploaded driver documents
+/storage/driver-docs/*
+!/storage/driver-docs/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

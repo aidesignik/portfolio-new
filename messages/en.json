@@ -233,7 +233,18 @@
       "name": "Driver name",
       "phone": "Phone",
       "isAvailable": "Available",
-      "assignedVehicles": "Assigned vehicles"
+      "assignedVehicles": "Assigned vehicles",
+      "documentsTitle": "Documents",
+      "idCard": "ID card (both sides)",
+      "license": "Driver's license (both sides)",
+      "cpc": "CPC (both sides)",
+      "medicalCert": "Medical certificate (both sides)",
+      "expiryDate": "Expiry date",
+      "front": "Front",
+      "back": "Back",
+      "docTooLarge": "That image is too large — please use a file under 3MB.",
+      "docUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
+      "docUploadFailed": "Couldn't upload the image — please try again."
     },
     "offerForm": {
       "title": "Send an offer",

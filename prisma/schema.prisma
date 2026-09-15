@@ -150,6 +150,25 @@ model Driver {
   name        String
   phone       String
   isAvailable Boolean  @default(true)
+
+  // Required driver documents — ID card, driver's license, CPC and medical
+  // certificate — each with an expiry date and a front/back photo.
+  idCardExpiry DateTime?
+  idCardFrontUrl String?
+  idCardBackUrl  String?
+
+  licenseExpiry   DateTime?
+  licenseFrontUrl String?
+  licenseBackUrl  String?
+
+  cpcExpiry   DateTime?
+  cpcFrontUrl String?
+  cpcBackUrl  String?
+
+  medicalCertExpiry   DateTime?
+  medicalCertFrontUrl String?
+  medicalCertBackUrl  String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

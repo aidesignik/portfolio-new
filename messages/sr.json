@@ -233,7 +233,18 @@
       "name": "Ime vozača",
       "phone": "Telefon",
       "isAvailable": "Dostupan",
-      "assignedVehicles": "Dodeljena vozila"
+      "assignedVehicles": "Dodeljena vozila",
+      "documentsTitle": "Dokumenta",
+      "idCard": "Lična karta (obe strane)",
+      "license": "Vozačka dozvola (obe strane)",
+      "cpc": "CPC (obe strane)",
+      "medicalCert": "Lekarsko uverenje (obe strane)",
+      "expiryDate": "Datum isteka",
+      "front": "Prednja strana",
+      "back": "Zadnja strana",
+      "docTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
+      "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
+      "docUploadFailed": "Nije uspelo otpremanje slike — pokušajte ponovo."
     },
     "offerForm": {
       "title": "Pošalji ponudu",
