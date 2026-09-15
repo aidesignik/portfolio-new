@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { quickRideSchema } from "@/lib/validation/quickRide.schema";
+import { checkAvailability } from "@/lib/availability";
+
+const AVERAGE_TRIP_DURATION_HOURS = 4;
 
 // The calendar's "+ New Ride" button — creates a ride already claimed by
 // this carrier (so it shows in their own unassigned queue, not the
-// marketplace-wide one) but with no vehicle/driver/price yet. Assignment
-// happens afterward from the calendar.
+// marketplace-wide one). Vehicle/driver are optional: if the carrier
+// already knows who's free and picks one on the form, it's assigned right
+// away (subject to the same availability check as the calendar's drag-and-
+// drop); otherwise it lands unassigned and gets dispatched later.
 export async function POST(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
   if (error) return error;
@@ -34,10 +39,39 @@ export async function POST(request: Request) {
     });
   }
 
+  const [vehicle, driver] = await Promise.all([
+    data.vehicleId
+      ? prisma.vehicle.findFirst({ where: { id: data.vehicleId, carrierId: carrier.id } })
+      : null,
+    data.driverId ? prisma.driver.findFirst({ where: { id: data.driverId, carrierId: carrier.id } }) : null,
+  ]);
+  if (data.vehicleId && !vehicle) {
+    return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
+  }
+  if (data.driverId && !driver) {
+    return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
+  }
+
+  if (data.vehicleId || data.driverId) {
+    const estimatedEnd =
+      data.returnAt ?? new Date(data.departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
+    const availability = await checkAvailability({
+      vehicleId: data.vehicleId,
+      driverId: data.driverId,
+      start: data.departureAt,
+      end: estimatedEnd,
+    });
+    if (!availability.available) {
+      return NextResponse.json({ error: "UNAVAILABLE", conflicts: availability.conflicts }, { status: 409 });
+    }
+  }
+
   const ride = await prisma.ride.create({
     data: {
       clientId: client.id,
       carrierId: carrier.id,
+      vehicleId: data.vehicleId,
+      driverId: data.driverId,
       pickupCity: data.pickupCity,
       pickupLocation: data.pickupLocation,
       destinationCity: data.destinationCity,
