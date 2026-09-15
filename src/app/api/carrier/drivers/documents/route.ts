@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { save } from "@/lib/uploads/driverDocStorage";
 import { IMAGE_MIME_TO_EXT, MAX_IMAGE_SIZE_BYTES } from "@/lib/uploads/imageTypes";
+import { suggestExpiryDate } from "@/lib/documentExpiry";
 
 export async function POST(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "NO_FILE" }, { status: 400 });
   }
+  const docType = typeof form?.get("docType") === "string" ? (form.get("docType") as string) : "";
 
   const ext = IMAGE_MIME_TO_EXT[file.type];
   if (!ext) {
@@ -27,7 +29,10 @@ export async function POST(request: Request) {
   // one), and there are 8 possible document slots per driver, so this is
   // keyed by a random id rather than the driver's.
   const filename = `${session.user.id}-${randomUUID()}.${ext}`;
-  await save(filename, buffer);
+  const [, suggestedExpiry] = await Promise.all([
+    save(filename, buffer),
+    suggestExpiryDate(buffer, file.type, docType),
+  ]);
 
-  return NextResponse.json({ url: `/api/carrier/driver-docs/${filename}` });
+  return NextResponse.json({ url: `/api/carrier/driver-docs/${filename}`, suggestedExpiry });
 }

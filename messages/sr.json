@@ -244,7 +244,8 @@
       "back": "Zadnja strana",
       "docTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
       "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
-      "docUploadFailed": "Nije uspelo otpremanje slike — pokušajte ponovo."
+      "docUploadFailed": "Nije uspelo otpremanje slike — pokušajte ponovo.",
+      "expirySuggested": "Datum pročitan sa dokumenta — proverite da li je tačan."
     },
     "offerForm": {
       "title": "Pošalji ponudu",

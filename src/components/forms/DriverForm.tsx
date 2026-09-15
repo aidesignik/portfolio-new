@@ -66,6 +66,7 @@ function DriverDocumentSection({
   onFrontChange,
   backUrl,
   onBackChange,
+  docType,
 }: {
   title: string;
   expiry: string;
@@ -74,16 +75,19 @@ function DriverDocumentSection({
   onFrontChange: (url: string) => void;
   backUrl: string;
   onBackChange: (url: string) => void;
+  docType: string;
 }) {
   const t = useTranslations();
   const [uploadingSide, setUploadingSide] = useState<"front" | "back" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [suggested, setSuggested] = useState(false);
 
   async function upload(side: "front" | "back", file: File) {
     setUploadingSide(side);
     setError(null);
     const body = new FormData();
     body.append("file", file);
+    body.append("docType", docType);
     const res = await fetch("/api/carrier/drivers/documents", { method: "POST", body });
     setUploadingSide(null);
 
@@ -99,17 +103,32 @@ function DriverDocumentSection({
       return;
     }
 
-    const { url } = await res.json();
+    const { url, suggestedExpiry } = await res.json();
     if (side === "front") onFrontChange(url);
     else onBackChange(url);
+
+    // Only offer the suggestion while the field is still blank — never
+    // overwrite a date the carrier already typed in or already confirmed.
+    if (suggestedExpiry && !expiry) {
+      onExpiryChange(suggestedExpiry);
+      setSuggested(true);
+    }
   }
 
   return (
     <div className="space-y-3 rounded-md border border-zinc-200 p-3">
       <p className="text-sm font-medium text-zinc-900">{title}</p>
       <Field label={t("carrier.driverForm.expiryDate")}>
-        <Input type="date" value={expiry} onChange={(e) => onExpiryChange(e.target.value)} />
+        <Input
+          type="date"
+          value={expiry}
+          onChange={(e) => {
+            onExpiryChange(e.target.value);
+            setSuggested(false);
+          }}
+        />
       </Field>
+      {suggested ? <p className="text-xs text-amber-600">{t("carrier.driverForm.expirySuggested")}</p> : null}
       <div className="grid grid-cols-2 gap-3">
         <DocSideUpload
           label={t("carrier.driverForm.front")}
@@ -286,6 +305,7 @@ export function DriverForm({
         <p className="text-sm font-semibold text-zinc-900">{t("carrier.driverForm.documentsTitle")}</p>
         <DriverDocumentSection
           title={t("carrier.driverForm.idCard")}
+          docType="idCard"
           expiry={form.idCardExpiry}
           onExpiryChange={(v) => set("idCardExpiry", v)}
           frontUrl={form.idCardFrontUrl}
@@ -295,6 +315,7 @@ export function DriverForm({
         />
         <DriverDocumentSection
           title={t("carrier.driverForm.license")}
+          docType="license"
           expiry={form.licenseExpiry}
           onExpiryChange={(v) => set("licenseExpiry", v)}
           frontUrl={form.licenseFrontUrl}
@@ -304,6 +325,7 @@ export function DriverForm({
         />
         <DriverDocumentSection
           title={t("carrier.driverForm.cpc")}
+          docType="cpc"
           expiry={form.cpcExpiry}
           onExpiryChange={(v) => set("cpcExpiry", v)}
           frontUrl={form.cpcFrontUrl}
@@ -313,6 +335,7 @@ export function DriverForm({
         />
         <DriverDocumentSection
           title={t("carrier.driverForm.medicalCert")}
+          docType="medicalCert"
           expiry={form.medicalCertExpiry}
           onExpiryChange={(v) => set("medicalCertExpiry", v)}
           frontUrl={form.medicalCertFrontUrl}

@@ -244,7 +244,8 @@
       "back": "Back",
       "docTooLarge": "That image is too large — please use a file under 3MB.",
       "docUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
-      "docUploadFailed": "Couldn't upload the image — please try again."
+      "docUploadFailed": "Couldn't upload the image — please try again.",
+      "expirySuggested": "Date read from the document — please double-check it."
     },
     "offerForm": {
       "title": "Send an offer",
