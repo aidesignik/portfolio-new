@@ -171,6 +171,7 @@
       "newRideSubmit": "Create ride",
       "assignNowTitle": "Assign now (optional)",
       "assignNowHint": "Only vehicles and drivers free at this date/time are listed.",
+      "assignNowHintNoDate": "Showing your whole fleet — pick a departure date/time above to narrow this down to who's actually free.",
       "assignLater": "— Assign later —",
       "noneAvailableThatDay": "No vehicles or drivers are free for this date/time — you can assign one later from the calendar.",
       "newRideAssignmentUnavailable": "That vehicle or driver is no longer free for this date/time — pick another, or leave it unassigned.",

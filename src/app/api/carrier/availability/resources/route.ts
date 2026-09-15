@@ -4,32 +4,27 @@ import { prisma } from "@/lib/prisma";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
-// Which of this carrier's vehicles/drivers are actually free for a given
-// trip window — used by the "+ New Ride" form to offer an "assign now"
-// option filtered to real availability, same padding-window convention as
-// checkAvailability() in lib/availability.ts.
+// Which of this carrier's vehicles/drivers are free — used by the
+// "+ New Ride" form's vehicle/driver pickers. departureAt is optional: with
+// no date picked yet, this just returns the whole active fleet/roster
+// unfiltered (so the fields aren't empty before the carrier gets that far);
+// once a date is given, it's filtered to ones with no overlapping ride or
+// block, same padding-window convention as checkAvailability() in
+// lib/availability.ts.
 export async function GET(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
   if (error) return error;
 
   const { searchParams } = new URL(request.url);
-  const departureAt = new Date(searchParams.get("departureAt") ?? "");
-  if (Number.isNaN(departureAt.getTime())) {
+  const departureAtParam = searchParams.get("departureAt");
+  const departureAt = departureAtParam ? new Date(departureAtParam) : null;
+  if (departureAtParam && Number.isNaN(departureAt!.getTime())) {
     return NextResponse.json({ error: "INVALID_DEPARTURE_AT" }, { status: 400 });
   }
-  const returnAtParam = searchParams.get("returnAt");
-  const parsedReturnAt = returnAtParam ? new Date(returnAtParam) : null;
-  const end =
-    parsedReturnAt && !Number.isNaN(parsedReturnAt.getTime())
-      ? parsedReturnAt
-      : new Date(departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
 
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session.user.id } });
 
-  const windowStart = new Date(departureAt.getTime() - 3 * 60 * 60 * 1000);
-  const windowEnd = new Date(end.getTime() + 3 * 60 * 60 * 1000);
-
-  const [vehicles, drivers, overlappingRides, overlappingBlocks] = await Promise.all([
+  const [vehicles, drivers] = await Promise.all([
     prisma.vehicle.findMany({
       where: { carrierId: carrier.id, status: "ACTIVE" },
       orderBy: { createdAt: "asc" },
@@ -38,6 +33,22 @@ export async function GET(request: Request) {
       where: { carrierId: carrier.id, isAvailable: true },
       orderBy: { createdAt: "asc" },
     }),
+  ]);
+
+  if (!departureAt) {
+    return NextResponse.json({ vehicles, drivers });
+  }
+
+  const returnAtParam = searchParams.get("returnAt");
+  const parsedReturnAt = returnAtParam ? new Date(returnAtParam) : null;
+  const end =
+    parsedReturnAt && !Number.isNaN(parsedReturnAt.getTime())
+      ? parsedReturnAt
+      : new Date(departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
+  const windowStart = new Date(departureAt.getTime() - 3 * 60 * 60 * 1000);
+  const windowEnd = new Date(end.getTime() + 3 * 60 * 60 * 1000);
+
+  const [overlappingRides, overlappingBlocks] = await Promise.all([
     prisma.ride.findMany({
       where: {
         carrierId: carrier.id,

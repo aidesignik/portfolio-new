@@ -171,6 +171,7 @@
       "newRideSubmit": "Kreiraj vožnju",
       "assignNowTitle": "Dodeli odmah (opciono)",
       "assignNowHint": "Prikazana su samo vozila i vozači slobodni u ovom terminu.",
+      "assignNowHintNoDate": "Prikazan je ceo vozni park — izaberite datum i vreme polaska iznad da vidite ko je zaista slobodan.",
       "assignLater": "— Dodeli kasnije —",
       "noneAvailableThatDay": "Nijedno vozilo ili vozač nisu slobodni u ovom terminu — možete dodeliti kasnije sa kalendara.",
       "newRideAssignmentUnavailable": "To vozilo ili vozač više nisu slobodni u ovom terminu — izaberite drugi, ili ostavite nedodeljeno.",

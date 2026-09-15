@@ -37,19 +37,22 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
   useEffect(() => {
-    // The "assign now" section only renders once departureAt is set (and,
-    // for a round trip, once returnAt is too) — see the JSX below — so
-    // there's nothing to fetch, and nothing stale to clear, otherwise.
-    if (!form.departureAt || (form.isRoundTrip && !form.returnAt)) return;
-
+    // Always fetch — with no date picked yet this just returns the whole
+    // fleet/roster unfiltered (see the API route), so the fields are
+    // populated and visible as soon as the modal opens, then narrow down
+    // to who's actually free once a date (and, for a round trip, a return
+    // date) is picked.
     let cancelled = false;
     // No data-fetching library here to restructure this around — same
     // accepted pattern as RidesCalendar's load().
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingAvailability(true);
-    const params = new URLSearchParams({ departureAt: new Date(form.departureAt).toISOString() });
-    if (form.isRoundTrip && form.returnAt) {
-      params.set("returnAt", new Date(form.returnAt).toISOString());
+    const params = new URLSearchParams();
+    if (form.departureAt) {
+      params.set("departureAt", new Date(form.departureAt).toISOString());
+      if (form.isRoundTrip && form.returnAt) {
+        params.set("returnAt", new Date(form.returnAt).toISOString());
+      }
     }
     fetch(`/api/carrier/availability/resources?${params}`)
       .then((res) => (res.ok ? res.json() : null))
@@ -258,50 +261,50 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
             />
           </Field>
 
-          {form.departureAt ? (
-            <div className="space-y-2 rounded-md border border-zinc-200 p-3">
-              <p className="text-sm font-medium text-zinc-700">{t("carrier.calendar.assignNowTitle")}</p>
-              <p className="text-xs text-zinc-500">{t("carrier.calendar.assignNowHint")}</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label={t("carrier.offerForm.vehicle")}>
-                  <select
-                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                    value={form.vehicleId}
-                    onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
-                    disabled={loadingAvailability}
-                  >
-                    <option value="">{t("carrier.calendar.assignLater")}</option>
-                    {availableVehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {tType(v.type)} {v.model}
-                        {v.licensePlate ? ` · ${v.licensePlate}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label={t("carrier.offerForm.driver")}>
-                  <select
-                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                    value={form.driverId}
-                    onChange={(e) => setForm({ ...form, driverId: e.target.value })}
-                    disabled={loadingAvailability}
-                  >
-                    <option value="">{t("carrier.calendar.assignLater")}</option>
-                    {availableDrivers.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-              </div>
-              {loadingAvailability ? (
-                <p className="text-xs text-zinc-500">{t("common.loading")}</p>
-              ) : availableVehicles.length === 0 && availableDrivers.length === 0 ? (
-                <p className="text-xs text-zinc-500">{t("carrier.calendar.noneAvailableThatDay")}</p>
-              ) : null}
+          <div className="space-y-2 rounded-md border border-zinc-200 p-3">
+            <p className="text-sm font-medium text-zinc-700">{t("carrier.calendar.assignNowTitle")}</p>
+            <p className="text-xs text-zinc-500">
+              {form.departureAt ? t("carrier.calendar.assignNowHint") : t("carrier.calendar.assignNowHintNoDate")}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label={t("carrier.offerForm.vehicle")}>
+                <select
+                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  value={form.vehicleId}
+                  onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
+                  disabled={loadingAvailability}
+                >
+                  <option value="">{t("carrier.calendar.assignLater")}</option>
+                  {availableVehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {tType(v.type)} {v.model}
+                      {v.licensePlate ? ` · ${v.licensePlate}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={t("carrier.offerForm.driver")}>
+                <select
+                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  value={form.driverId}
+                  onChange={(e) => setForm({ ...form, driverId: e.target.value })}
+                  disabled={loadingAvailability}
+                >
+                  <option value="">{t("carrier.calendar.assignLater")}</option>
+                  {availableDrivers.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
             </div>
-          ) : null}
+            {loadingAvailability ? (
+              <p className="text-xs text-zinc-500">{t("common.loading")}</p>
+            ) : form.departureAt && availableVehicles.length === 0 && availableDrivers.length === 0 ? (
+              <p className="text-xs text-zinc-500">{t("carrier.calendar.noneAvailableThatDay")}</p>
+            ) : null}
+          </div>
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
