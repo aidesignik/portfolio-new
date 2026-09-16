@@ -37,7 +37,7 @@ export default async function LoginPage({
             </Link>
           </p>
         </div>
-        <Card>
+        <Card bordered={false}>
           <LoginForm />
         </Card>
       </div>

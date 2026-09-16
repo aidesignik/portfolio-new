@@ -14,7 +14,7 @@ export default async function RegisterCarrierPage() {
           <h1 className="text-2xl font-semibold text-zinc-900">{t("registerCarrierTitle")}</h1>
           <p className="mt-1 text-sm text-zinc-600">{t("registerCarrierSubtitle")}</p>
         </div>
-        <Card>
+        <Card bordered={false}>
           <RegisterCarrierForm />
         </Card>
         <p className="text-center text-sm text-zinc-600">
