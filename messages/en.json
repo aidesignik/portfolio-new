@@ -181,7 +181,7 @@
       "assignNowHintNoDate": "Showing your whole fleet — pick a departure date/time above to narrow this down to who's actually free.",
       "assignLater": "— Assign later —",
       "noneAvailableThatDay": "No vehicles or drivers are free for this date/time — you can assign one later from the calendar.",
-      "newRideAssignmentUnavailable": "That vehicle or driver is no longer free for this date/time — pick another, or leave it unassigned.",
+      "availabilityWarning": "This vehicle or driver already has a ride from {start} to {end} — assign anyway?",
       "loading": "Loading…",
       "loadError": "Couldn't load the calendar — try refreshing.",
       "pax": "pax",
@@ -274,7 +274,6 @@
       "finalPrice": "Your price",
       "notes": "Notes (optional)",
       "submit": "Send offer",
-      "unavailable": "This vehicle or driver is already booked for this date. Choose another.",
       "alreadyClaimed": "Another carrier already claimed this ride.",
       "distanceUnavailable": "Couldn't calculate the distance automatically for this request — enter it manually in the distance field."
     }

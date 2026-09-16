@@ -3,11 +3,9 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { carrierRideSchema } from "@/lib/validation/carrierRide.schema";
 import { suggestPrice } from "@/lib/pricing";
-import { checkAvailability } from "@/lib/availability";
+import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { estimateRouteDistance } from "@/lib/tripDistance";
 import { returnLegScalars } from "@/lib/rideReturnLeg";
-
-const AVERAGE_TRIP_DURATION_HOURS = 4;
 
 export async function POST(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
@@ -33,15 +31,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
   }
 
-  const estimatedEnd =
-    data.returnAt ?? new Date(data.departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
   const availability = await checkAvailability({
     vehicleId: vehicle.id,
     driverId: driver.id,
     start: data.departureAt,
-    end: estimatedEnd,
+    end: effectiveRideEnd(data.departureAt, data.returnAt ?? null),
   });
-  if (!availability.available) {
+  // Advisory only — see assign/route.ts.
+  if (!availability.available && !data.force) {
     return NextResponse.json({ error: "UNAVAILABLE", conflicts: availability.conflicts }, { status: 409 });
   }
 

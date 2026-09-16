@@ -11,6 +11,9 @@ export const rideAssignmentSchema = z
     driverId: z.string().min(1).optional(),
     distanceKm: z.coerce.number().positive().optional(),
     price: z.coerce.number().positive().optional(),
+    // Set after the dispatcher confirms past an availability warning —
+    // bypasses the conflict check rather than blocking the assignment.
+    force: z.coerce.boolean().default(false),
   })
   .refine((data) => data.vehicleId || data.driverId, {
     message: "vehicleId or driverId is required",

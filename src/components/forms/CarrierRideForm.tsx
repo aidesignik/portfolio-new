@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
+import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { suggestPrice } from "@/lib/pricing";
 import type { CityLocation } from "@/lib/location";
 
@@ -125,25 +126,26 @@ export function CarrierRideForm({
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/carrier/rides", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
+      "/api/carrier/rides",
+      "POST",
+      {
         ...form,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
         distanceKm: form.distanceKm ? Number(form.distanceKm) : undefined,
         finalPrice: Number(form.finalPrice || suggested || 0),
-      }),
-    });
+      },
+      (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+    );
 
     setLoading(false);
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      if (body?.error === "UNAVAILABLE") {
-        setError(t("carrier.offerForm.unavailable"));
+      if (declinedAvailability) {
+        // Not a real failure — no error, just stay on the form.
       } else if (body?.error === "DISTANCE_UNAVAILABLE") {
         setError(t("carrier.rideForm.distanceUnavailable"));
       } else {

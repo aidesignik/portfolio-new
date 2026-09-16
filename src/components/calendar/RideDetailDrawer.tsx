@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
+import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
 
@@ -98,21 +99,23 @@ export function RideDetailDrawer({
   async function saveEdit() {
     setBusy("edit");
     setEditError(null);
-    const res = await fetch(`/api/carrier/rides/${ride.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
+      `/api/carrier/rides/${ride.id}`,
+      "PATCH",
+      {
         ...editForm,
         returnAt: editForm.isRoundTrip ? editForm.returnAt : undefined,
         ...returnTripPayload(editForm.isRoundTrip, editForm.returnTrip),
         passengerCount: Number(editForm.passengerCount),
         specialRequests: editForm.specialRequests || undefined,
-      }),
-    });
+      },
+      (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+    );
     setBusy(null);
     if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setEditError(body?.error === "UNAVAILABLE" ? t("carrier.offerForm.unavailable") : t("common.saveFailed"));
+      // Declining the warning isn't a real failure — no error, just stay
+      // in edit mode so the dispatcher can adjust and retry.
+      if (!declinedAvailability) setEditError(t("common.saveFailed"));
       return;
     }
     setEditing(false);
@@ -122,15 +125,17 @@ export function RideDetailDrawer({
   async function reassign() {
     setBusy("reassign");
     setError(null);
-    const res = await fetch(`/api/carrier/rides/${ride.id}/assign`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vehicleId, driverId }),
-    });
+    const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
+      `/api/carrier/rides/${ride.id}/assign`,
+      "POST",
+      { vehicleId, driverId },
+      (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+    );
     setBusy(null);
     if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(body?.error === "UNAVAILABLE" ? t("carrier.offerForm.unavailable") : t("common.saveFailed"));
+      // Declining the warning isn't a real failure — no error, just stay
+      // in reassign mode so the dispatcher can adjust and retry.
+      if (!declinedAvailability) setError(t("common.saveFailed"));
       return;
     }
     setReassigning(false);

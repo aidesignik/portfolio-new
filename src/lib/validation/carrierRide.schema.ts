@@ -37,6 +37,9 @@ export const carrierRideSchema = z
     // manual override/fallback when that can't resolve an address.
     distanceKm: z.coerce.number().positive().optional(),
     finalPrice: z.coerce.number().positive(),
+    // Set after the dispatcher confirms past an availability warning —
+    // bypasses the conflict check rather than blocking the assignment.
+    force: z.coerce.boolean().default(false),
   })
   .refine((data) => !data.isRoundTrip || data.returnAt !== undefined, {
     message: "returnAt is required for a round trip",

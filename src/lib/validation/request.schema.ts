@@ -25,6 +25,11 @@ export const createRideSchema = z
     returnDestinationLocation: z.string().min(1).optional(),
     passengerCount: z.coerce.number().int().min(1).max(200),
     specialRequests: z.string().optional(),
+    // Set after the dispatcher confirms past an availability warning —
+    // bypasses the conflict check rather than blocking the edit. Only
+    // meaningful for the carrier-side ride edit (PATCH /api/carrier/rides/
+    // [id]); ignored by the client-facing request flow.
+    force: z.coerce.boolean().default(false),
   })
   .refine((data) => !data.isRoundTrip || data.returnAt !== undefined, {
     message: "returnAt is required for a round trip",

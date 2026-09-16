@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { suggestPrice } from "@/lib/pricing";
 
 type Vehicle = { id: string; type: string; model: string; seats: number };
@@ -49,23 +50,24 @@ export function AssignRideForm({
     setLoading(true);
     setError(null);
 
-    const res = await fetch(`/api/carrier/rides/${rideId}/assign`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
+      `/api/carrier/rides/${rideId}/assign`,
+      "POST",
+      {
         vehicleId,
         driverId,
         distanceKm: distanceKm ? Number(distanceKm) : undefined,
         price: Number(price || suggested || 0) || undefined,
-      }),
-    });
+      },
+      (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+    );
 
     setLoading(false);
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      if (body?.error === "UNAVAILABLE") {
-        setError(t("carrier.offerForm.unavailable"));
+      if (declinedAvailability) {
+        // Not a real failure — no error, just stay on the form.
       } else if (body?.error === "ALREADY_CLAIMED") {
         setError(t("carrier.offerForm.alreadyClaimed"));
       } else {

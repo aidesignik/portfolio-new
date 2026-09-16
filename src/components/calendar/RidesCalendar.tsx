@@ -8,6 +8,7 @@ import { UnassignedQueue } from "./UnassignedQueue";
 import { CalendarLegend } from "./CalendarLegend";
 import { NewRideModal } from "./NewRideModal";
 import { RideDetailDrawer } from "./RideDetailDrawer";
+import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -110,21 +111,19 @@ export function RidesCalendar() {
 
   async function handleDrop(resourceId: string) {
     if (!draggingRide) return;
-    if (dragOverTarget?.conflict) {
-      setDraggingRideId(null);
-      setDragOverTarget(null);
-      return;
-    }
-
     const body = grouping === "vehicle" ? { vehicleId: resourceId } : { driverId: resourceId };
     setDraggingRideId(null);
     setDragOverTarget(null);
-    const res = await fetch(`/api/carrier/rides/${draggingRide.id}/assign`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) load();
+    // The red highlight while dragging is just a live preview — dropping
+    // still goes through, and a real conflict is confirmed (not blocked)
+    // via the server's advisory check.
+    const { response } = await fetchWithAvailabilityConfirm(
+      `/api/carrier/rides/${draggingRide.id}/assign`,
+      "POST",
+      body,
+      (start, end) => t("availabilityWarning", { start, end }),
+    );
+    if (response.ok) load();
   }
 
   if (loading && !data) {

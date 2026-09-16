@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { quickRideSchema } from "@/lib/validation/quickRide.schema";
-import { checkAvailability } from "@/lib/availability";
+import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
-
-const AVERAGE_TRIP_DURATION_HOURS = 4;
 
 // The calendar's "+ New Ride" button — creates a ride already claimed by
 // this carrier (so it shows in their own unassigned queue, not the
@@ -57,15 +55,14 @@ export async function POST(request: Request) {
   }
 
   if (data.vehicleId || data.driverId) {
-    const estimatedEnd =
-      data.returnAt ?? new Date(data.departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
     const availability = await checkAvailability({
       vehicleId: data.vehicleId,
       driverId: data.driverId,
       start: data.departureAt,
-      end: estimatedEnd,
+      end: effectiveRideEnd(data.departureAt, data.returnAt ?? null),
     });
-    if (!availability.available) {
+    // Advisory only — see assign/route.ts.
+    if (!availability.available && !data.force) {
       return NextResponse.json({ error: "UNAVAILABLE", conflicts: availability.conflicts }, { status: 409 });
     }
   }

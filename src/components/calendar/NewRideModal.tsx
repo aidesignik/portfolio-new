@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
+import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarVehicle } from "./types";
 
@@ -95,28 +96,26 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/carrier/rides/quick", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
+      "/api/carrier/rides/quick",
+      "POST",
+      {
         ...form,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
         vehicleId: form.vehicleId || undefined,
         driverId: form.driverId || undefined,
-      }),
-    });
+      },
+      (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+    );
 
     setLoading(false);
 
     if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(
-        body?.error === "UNAVAILABLE"
-          ? t("carrier.calendar.newRideAssignmentUnavailable")
-          : t("common.saveFailed"),
-      );
+      // Declining the warning isn't a real failure — no error, just stay
+      // on the form so the dispatcher can adjust and retry.
+      if (!declinedAvailability) setError(t("common.saveFailed"));
       return;
     }
 

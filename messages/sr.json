@@ -181,7 +181,7 @@
       "assignNowHintNoDate": "Prikazan je ceo vozni park — izaberite datum i vreme polaska iznad da vidite ko je zaista slobodan.",
       "assignLater": "— Dodeli kasnije —",
       "noneAvailableThatDay": "Nijedno vozilo ili vozač nisu slobodni u ovom terminu — možete dodeliti kasnije sa kalendara.",
-      "newRideAssignmentUnavailable": "To vozilo ili vozač više nisu slobodni u ovom terminu — izaberite drugi, ili ostavite nedodeljeno.",
+      "availabilityWarning": "Ovo vozilo ili vozač već ima vožnju od {start} do {end} — ipak dodeliti?",
       "loading": "Učitavanje…",
       "loadError": "Nije uspelo učitavanje kalendara — pokušajte ponovo.",
       "pax": "put.",
@@ -274,7 +274,6 @@
       "finalPrice": "Vaša cena",
       "notes": "Napomena (opciono)",
       "submit": "Pošalji ponudu",
-      "unavailable": "Ovo vozilo ili vozač su već zauzeti tog datuma. Izaberite drugo.",
       "alreadyClaimed": "Drugi prevoznik je već preuzeo ovu vožnju.",
       "distanceUnavailable": "Nismo mogli automatski da izračunamo udaljenost za ovaj zahtev — unesite je ručno u polje za udaljenost."
     }

@@ -33,6 +33,9 @@ export const quickRideSchema = z
     // lands in the unassigned queue as before.
     vehicleId: z.string().min(1).optional(),
     driverId: z.string().min(1).optional(),
+    // Set after the dispatcher confirms past an availability warning —
+    // bypasses the conflict check rather than blocking the assignment.
+    force: z.coerce.boolean().default(false),
   })
   .refine((data) => !data.isRoundTrip || data.returnAt !== undefined, {
     message: "returnAt is required for a round trip",

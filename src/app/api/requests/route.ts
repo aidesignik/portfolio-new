@@ -35,10 +35,11 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  // Round-trip return-leg customization (returnStops) isn't wired into the
-  // client-facing request flow — only the carrier-side ride forms use it —
-  // so it's dropped here rather than passed to Prisma (not a Ride column).
-  const { stops, returnStops: _returnStops, ...data } = parsed.data;
+  // Round-trip return-leg customization (returnStops) and the carrier-side
+  // availability override (force) aren't wired into the client-facing
+  // request flow, so they're dropped here rather than passed to Prisma
+  // (neither is a Ride column).
+  const { stops, returnStops: _returnStops, force: _force, ...data } = parsed.data;
 
   const created = await prisma.ride.create({
     data: {

@@ -3,10 +3,8 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { rideAssignmentSchema } from "@/lib/validation/rideAssignment.schema";
 import { suggestPrice } from "@/lib/pricing";
-import { checkAvailability } from "@/lib/availability";
+import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { estimateRouteDistance } from "@/lib/tripDistance";
-
-const AVERAGE_TRIP_DURATION_HOURS = 4;
 
 // Assigns (or reassigns) a vehicle and/or driver to a ride — either one
 // alone is fine, since the calendar's drag-and-drop assigns one resource at
@@ -60,16 +58,17 @@ export async function POST(
     return NextResponse.json({ error: "VEHICLE_OR_DRIVER_NOT_FOUND" }, { status: 404 });
   }
 
-  const estimatedEnd =
-    ride.returnAt ?? new Date(ride.departureAt.getTime() + AVERAGE_TRIP_DURATION_HOURS * 60 * 60 * 1000);
   const availability = await checkAvailability({
     vehicleId: data.vehicleId,
     driverId: data.driverId,
     start: ride.departureAt,
-    end: estimatedEnd,
+    end: effectiveRideEnd(ride.departureAt, ride.returnAt),
     excludeRideId: ride.id,
   });
-  if (!availability.available) {
+  // Advisory only — a conflict blocks the first attempt (giving the UI a
+  // chance to warn and ask for confirmation), but data.force bypasses it,
+  // since the dispatcher may know the resource is actually free.
+  if (!availability.available && !data.force) {
     return NextResponse.json({ error: "UNAVAILABLE", conflicts: availability.conflicts }, { status: 409 });
   }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
+import { effectiveRideEnd } from "@/lib/availability";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
@@ -48,20 +49,28 @@ export async function GET(request: Request) {
   const windowStart = new Date(departureAt.getTime() - 3 * 60 * 60 * 1000);
   const windowEnd = new Date(end.getTime() + 3 * 60 * 60 * 1000);
 
-  const [overlappingRides, overlappingBlocks] = await Promise.all([
+  const [candidateRides, overlappingBlocks] = await Promise.all([
     prisma.ride.findMany({
       where: {
         carrierId: carrier.id,
         status: { in: ["PENDING", "CONFIRMED"] },
-        departureAt: { gte: windowStart, lte: windowEnd },
+        // A ride's own end can be arbitrarily far past its departure (a
+        // multi-day round trip) — this only filters the one bound cheap in
+        // SQL, the exact overlap is checked below in JS.
+        departureAt: { lte: windowEnd },
       },
-      select: { vehicleId: true, driverId: true },
+      select: { vehicleId: true, driverId: true, departureAt: true, returnAt: true },
     }),
     prisma.block.findMany({
       where: { carrierId: carrier.id, startAt: { lte: windowEnd }, endAt: { gte: windowStart } },
       select: { vehicleId: true, driverId: true },
     }),
   ]);
+
+  const overlappingRides = candidateRides.filter((ride) => {
+    const rideEnd = effectiveRideEnd(ride.departureAt, ride.returnAt);
+    return ride.departureAt <= windowEnd && windowStart <= rideEnd;
+  });
 
   const busyVehicleIds = new Set(
     [...overlappingRides, ...overlappingBlocks].map((r) => r.vehicleId).filter((id): id is string => Boolean(id)),
