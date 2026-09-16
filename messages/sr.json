@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "Atlas",
+    "language": "Jezik",
     "save": "Sačuvaj",
     "cancel": "Otkaži",
     "submit": "Pošalji",
@@ -35,6 +36,7 @@
     "logout": "Odjava",
     "dashboard": "Kontrolna tabla",
     "profile": "Profil",
+    "accountMenu": "Meni naloga",
     "requests": "Zahtevi",
     "bookings": "Rezervacije",
     "fleet": "Vozni park",

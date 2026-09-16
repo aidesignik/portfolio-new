@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "Atlas",
+    "language": "Language",
     "save": "Save",
     "cancel": "Cancel",
     "submit": "Submit",
@@ -35,6 +36,7 @@
     "logout": "Log out",
     "dashboard": "Dashboard",
     "profile": "Profile",
+    "accountMenu": "Account menu",
     "requests": "Requests",
     "bookings": "Bookings",
     "fleet": "Fleet",

@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
+import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { SignOutButton } from "./SignOutButton";
+import { UserMenu } from "./UserMenu";
 import { MARKETPLACE_ENABLED } from "@/config/features";
 
 export async function Navbar() {
@@ -18,6 +19,18 @@ export async function Navbar() {
       : session?.user.role === "CARRIER"
         ? "/carrier/dashboard"
         : "/dashboard";
+
+  // The avatar dropdown shows who's signed in — the carrier's company name
+  // where there is one, falling back to the account name/email otherwise.
+  const carrier =
+    session?.user.role === "CARRIER"
+      ? await prisma.carrier.findUnique({
+          where: { userId: session.user.id },
+          select: { companyName: true },
+        })
+      : null;
+  const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
+  const profileHref = session?.user.role === "CARRIER" ? "/carrier/onboarding" : null;
 
   return (
     <header className="border-b border-zinc-200 bg-white">
@@ -36,15 +49,6 @@ export async function Navbar() {
                   {tNav("dashboard")}
                 </Link>
               ) : null}
-              {session.user.role === "CARRIER" ? (
-                <Link
-                  href="/carrier/onboarding"
-                  className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
-                >
-                  {tNav("profile")}
-                </Link>
-              ) : null}
-              <SignOutButton label={tNav("logout")} />
             </>
           ) : (
             <>
@@ -69,7 +73,16 @@ export async function Navbar() {
               {tNav("forCarriers")}
             </Link>
           ) : null}
-          <LocaleSwitcher />
+          {session?.user ? (
+            <UserMenu
+              name={displayName}
+              email={session.user.email ?? null}
+              image={session.user.image}
+              profileHref={profileHref}
+            />
+          ) : (
+            <LocaleSwitcher />
+          )}
         </nav>
       </div>
     </header>
