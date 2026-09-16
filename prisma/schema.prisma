@@ -132,6 +132,11 @@ model Vehicle {
   otherAmenities  String?
   photos          String[]         @default([])
   status          VehicleStatus    @default(ACTIVE)
+
+  lastRegistrationDate DateTime?
+  lastInspectionDate   DateTime?
+  documentUrls         String[]  @default([])
+
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 

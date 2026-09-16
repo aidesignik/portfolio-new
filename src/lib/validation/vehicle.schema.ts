@@ -16,4 +16,9 @@ export const vehicleSchema = z.object({
   // Set by the photo-upload endpoint (relative /api/carrier/vehicle-photos/...
   // paths), not typed by the user, so no URL-format check is needed here.
   photos: z.array(z.string().min(1)).max(10).default([]),
+  lastRegistrationDate: z.coerce.date().optional(),
+  lastInspectionDate: z.coerce.date().optional(),
+  // Set by the document-upload endpoint (relative /api/carrier/vehicle-docs/...
+  // paths), not typed by the user, so no URL-format check is needed here.
+  documentUrls: z.array(z.string().min(1)).max(10).default([]),
 });

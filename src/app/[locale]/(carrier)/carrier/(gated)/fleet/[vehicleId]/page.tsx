@@ -39,6 +39,9 @@ export default async function EditVehiclePage({
             otherAmenities: vehicle.otherAmenities,
             status: vehicle.status,
             photos: vehicle.photos,
+            lastRegistrationDate: vehicle.lastRegistrationDate,
+            lastInspectionDate: vehicle.lastInspectionDate,
+            documentUrls: vehicle.documentUrls,
           }}
         />
       </Card>

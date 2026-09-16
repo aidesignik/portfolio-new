@@ -8,6 +8,16 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validation/vehicle.schema";
 
+function toDateInputValue(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+}
+
+function docNameFromUrl(url: string): string {
+  return url.split("/").pop() ?? url;
+}
+
 type VehicleFormValues = {
   type: string;
   model: string;
@@ -18,6 +28,14 @@ type VehicleFormValues = {
   otherAmenities: string | null;
   status: string;
   photos: string[];
+  lastRegistrationDate: string;
+  lastInspectionDate: string;
+  documentUrls: string[];
+};
+
+type InitialVehicleValues = Omit<VehicleFormValues, "lastRegistrationDate" | "lastInspectionDate"> & {
+  lastRegistrationDate: Date | string | null;
+  lastInspectionDate: Date | string | null;
 };
 
 export function VehicleForm({
@@ -25,27 +43,38 @@ export function VehicleForm({
   initial,
 }: {
   vehicleId?: string;
-  initial?: VehicleFormValues;
+  initial?: InitialVehicleValues;
 }) {
   const t = useTranslations();
   const router = useRouter();
   const [form, setForm] = useState<VehicleFormValues>(
-    initial ?? {
-      type: vehicleTypes[0],
-      model: "",
-      licensePlate: "",
-      year: new Date().getFullYear(),
-      seats: 50,
-      amenities: [],
-      otherAmenities: "",
-      status: "ACTIVE",
-      photos: [],
-    },
+    initial
+      ? {
+          ...initial,
+          lastRegistrationDate: toDateInputValue(initial.lastRegistrationDate),
+          lastInspectionDate: toDateInputValue(initial.lastInspectionDate),
+        }
+      : {
+          type: vehicleTypes[0],
+          model: "",
+          licensePlate: "",
+          year: new Date().getFullYear(),
+          seats: 50,
+          amenities: [],
+          otherAmenities: "",
+          status: "ACTIVE",
+          photos: [],
+          lastRegistrationDate: "",
+          lastInspectionDate: "",
+          documentUrls: [],
+        },
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [docUploading, setDocUploading] = useState(false);
+  const [docError, setDocError] = useState<string | null>(null);
 
   function toggleAmenity(amenity: string) {
     setForm((prev) => ({
@@ -95,6 +124,45 @@ export function VehicleForm({
     setForm((prev) => ({ ...prev, photos: prev.photos.filter((p) => p !== url) }));
   }
 
+  async function onDocumentsSelected(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (files.length === 0) return;
+
+    const room = 10 - form.documentUrls.length;
+    if (room <= 0) return;
+
+    setDocUploading(true);
+    setDocError(null);
+
+    for (const file of files.slice(0, room)) {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/carrier/vehicles/documents", { method: "POST", body });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        setDocError(
+          err?.error === "TOO_LARGE"
+            ? t("carrier.vehicleForm.docTooLarge")
+            : err?.error === "UNSUPPORTED_TYPE"
+              ? t("carrier.vehicleForm.docUnsupportedType")
+              : t("carrier.vehicleForm.docUploadFailed"),
+        );
+        continue;
+      }
+
+      const { url } = await res.json();
+      setForm((prev) => ({ ...prev, documentUrls: [...prev.documentUrls, url] }));
+    }
+
+    setDocUploading(false);
+  }
+
+  function removeDocument(url: string) {
+    setForm((prev) => ({ ...prev, documentUrls: prev.documentUrls.filter((d) => d !== url) }));
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -109,6 +177,8 @@ export function VehicleForm({
         licensePlate: form.licensePlate || undefined,
         year: form.year || undefined,
         otherAmenities: form.otherAmenities || undefined,
+        lastRegistrationDate: form.lastRegistrationDate || undefined,
+        lastInspectionDate: form.lastInspectionDate || undefined,
       }),
     });
 
@@ -161,6 +231,20 @@ export function VehicleForm({
             required
             value={form.seats}
             onChange={(e) => setForm({ ...form, seats: Number(e.target.value) })}
+          />
+        </Field>
+        <Field label={t("carrier.vehicleForm.lastRegistrationDate")}>
+          <Input
+            type="date"
+            value={form.lastRegistrationDate}
+            onChange={(e) => setForm({ ...form, lastRegistrationDate: e.target.value })}
+          />
+        </Field>
+        <Field label={t("carrier.vehicleForm.lastInspectionDate")}>
+          <Input
+            type="date"
+            value={form.lastInspectionDate}
+            onChange={(e) => setForm({ ...form, lastInspectionDate: e.target.value })}
           />
         </Field>
       </div>
@@ -241,6 +325,42 @@ export function VehicleForm({
           {photoUploading ? t("common.loading") : t("carrier.vehicleForm.photosUploadHint")}
         </p>
         {photoError ? <p className="text-xs text-red-600">{photoError}</p> : null}
+      </div>
+
+      <div className="space-y-2">
+        <span className="block text-sm font-medium text-zinc-700">{t("carrier.vehicleForm.documents")}</span>
+        {form.documentUrls.length > 0 ? (
+          <ul className="space-y-1">
+            {form.documentUrls.map((url) => (
+              <li key={url} className="flex items-center justify-between gap-3 rounded-md border border-zinc-200 px-3 py-2 text-sm">
+                <a href={url} target="_blank" rel="noreferrer" className="truncate text-zinc-700 underline">
+                  {docNameFromUrl(url)}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => removeDocument(url)}
+                  className="shrink-0 text-xs font-medium text-red-600 hover:underline"
+                >
+                  {t("common.remove")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {form.documentUrls.length < 10 ? (
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp,application/pdf"
+            multiple
+            disabled={docUploading}
+            onChange={onDocumentsSelected}
+            className="text-sm text-zinc-700 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-50"
+          />
+        ) : null}
+        <p className="text-xs text-zinc-500">
+          {docUploading ? t("common.loading") : t("carrier.vehicleForm.documentsUploadHint")}
+        </p>
+        {docError ? <p className="text-xs text-red-600">{docError}</p> : null}
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}

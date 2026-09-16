@@ -234,6 +234,13 @@
       "photoTooLarge": "That image is too large — please use a file under 3MB.",
       "photoUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
       "photoUploadFailed": "Couldn't upload one of the photos — please try again.",
+      "lastRegistrationDate": "Last registration date",
+      "lastInspectionDate": "Last technical inspection date",
+      "documents": "Vehicle documents (optional)",
+      "documentsUploadHint": "PDF, PNG, JPG or WEBP, up to 5MB each.",
+      "docTooLarge": "That file is too large — please use a file under 5MB.",
+      "docUnsupportedType": "That file type isn't supported — please use PDF, PNG, JPG or WEBP.",
+      "docUploadFailed": "Couldn't upload one of the documents — please try again.",
       "saveFailed": "Couldn't save — please check the fields and try again."
     },
     "driverForm": {

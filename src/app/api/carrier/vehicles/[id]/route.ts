@@ -3,15 +3,22 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { vehicleSchema } from "@/lib/validation/vehicle.schema";
 import { remove as removePhotoFile } from "@/lib/uploads/vehiclePhotoStorage";
+import { remove as removeDocFile } from "@/lib/uploads/vehicleDocStorage";
 
 const PHOTO_ROUTE_PREFIX = "/api/carrier/vehicle-photos/";
+const DOC_ROUTE_PREFIX = "/api/carrier/vehicle-docs/";
 
-function removeOrphanedPhotos(oldPhotos: string[], newPhotos: string[]) {
-  const kept = new Set(newPhotos);
+function removeOrphanedFiles(
+  oldUrls: string[],
+  newUrls: string[],
+  prefix: string,
+  removeFile: (filename: string) => Promise<void>,
+) {
+  const kept = new Set(newUrls);
   return Promise.all(
-    oldPhotos
-      .filter((url) => !kept.has(url) && url.startsWith(PHOTO_ROUTE_PREFIX))
-      .map((url) => removePhotoFile(url.slice(PHOTO_ROUTE_PREFIX.length))),
+    oldUrls
+      .filter((url) => !kept.has(url) && url.startsWith(prefix))
+      .map((url) => removeFile(url.slice(prefix.length))),
   );
 }
 
@@ -54,7 +61,10 @@ export async function PATCH(
   }
 
   const vehicle = await prisma.vehicle.update({ where: { id }, data: parsed.data });
-  await removeOrphanedPhotos(existing.photos, vehicle.photos);
+  await Promise.all([
+    removeOrphanedFiles(existing.photos, vehicle.photos, PHOTO_ROUTE_PREFIX, removePhotoFile),
+    removeOrphanedFiles(existing.documentUrls, vehicle.documentUrls, DOC_ROUTE_PREFIX, removeDocFile),
+  ]);
   return NextResponse.json({ vehicle });
 }
 
@@ -71,6 +81,9 @@ export async function DELETE(
 
   await prisma.driverVehicle.deleteMany({ where: { vehicleId: id } });
   await prisma.vehicle.delete({ where: { id } });
-  await removeOrphanedPhotos(existing.photos, []);
+  await Promise.all([
+    removeOrphanedFiles(existing.photos, [], PHOTO_ROUTE_PREFIX, removePhotoFile),
+    removeOrphanedFiles(existing.documentUrls, [], DOC_ROUTE_PREFIX, removeDocFile),
+  ]);
   return NextResponse.json({ ok: true });
 }

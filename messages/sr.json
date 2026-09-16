@@ -234,6 +234,13 @@
       "photoTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
       "photoUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
       "photoUploadFailed": "Nije uspelo otpremanje jedne od fotografija — pokušajte ponovo.",
+      "lastRegistrationDate": "Datum poslednje registracije",
+      "lastInspectionDate": "Datum poslednjeg tehničkog pregleda",
+      "documents": "Dokumentacija vozila (opciono)",
+      "documentsUploadHint": "PDF, PNG, JPG ili WEBP, do 5MB po fajlu.",
+      "docTooLarge": "Fajl je prevelik — koristite fajl manji od 5MB.",
+      "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PDF, PNG, JPG ili WEBP.",
+      "docUploadFailed": "Nije uspelo otpremanje jednog od dokumenata — pokušajte ponovo.",
       "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
     },
     "driverForm": {
