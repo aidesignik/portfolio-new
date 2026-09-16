@@ -154,6 +154,13 @@
     "setupVehiclePrompt": "Dodajte svoje prvo vozilo da biste počeli sa zakazivanjem vožnji.",
     "setupDriverPrompt": "Dodajte vozača da biste počeli sa zakazivanjem vožnji.",
     "setupBothPrompt": "Dodajte svoje prvo vozilo i vozača da biste počeli sa zakazivanjem vožnji.",
+    "expiry": {
+      "bannerTitle": "Dokumenti koji zahtevaju pažnju",
+      "expired": "Isteklo",
+      "expiringSoon": "Uskoro ističe",
+      "registration": "Registracija",
+      "inspection": "Tehnički pregled"
+    },
     "onboardingTitle": "Profil firme",
     "onboardingSubtitle": "Predstavite se klijentima.",
     "completeProfileTitle": "Dovršite profil prevoznika",

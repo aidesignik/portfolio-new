@@ -28,9 +28,14 @@ export async function Navbar() {
         <nav className="flex items-center gap-4">
           {session?.user ? (
             <>
-              <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                {tNav("dashboard")}
-              </Link>
+              {/* With the marketplace hidden, "/" already redirects a signed-in
+                  user straight to this same page (see src/proxy.ts) — the
+                  logo link covers it, so this would just be a duplicate. */}
+              {MARKETPLACE_ENABLED ? (
+                <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                  {tNav("dashboard")}
+                </Link>
+              ) : null}
               {session.user.role === "CARRIER" ? (
                 <Link
                   href="/carrier/onboarding"

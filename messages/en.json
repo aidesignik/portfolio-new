@@ -154,6 +154,13 @@
     "setupVehiclePrompt": "Add your first vehicle to start scheduling rides.",
     "setupDriverPrompt": "Add a driver to start scheduling rides.",
     "setupBothPrompt": "Add your first vehicle and driver to start scheduling rides.",
+    "expiry": {
+      "bannerTitle": "Documents needing attention",
+      "expired": "Expired",
+      "expiringSoon": "Expiring soon",
+      "registration": "Registration",
+      "inspection": "Technical inspection"
+    },
     "onboardingTitle": "Company profile",
     "onboardingSubtitle": "Tell clients who you are.",
     "completeProfileTitle": "Complete your carrier profile",

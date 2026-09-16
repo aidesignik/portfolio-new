@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
+import { driverExpiringItems, worstItemStatus } from "@/lib/expiryStatus";
 
 export default async function DriversPage() {
   const [session, t, tType] = await Promise.all([
@@ -32,25 +33,35 @@ export default async function DriversPage() {
         <p className="text-sm text-zinc-600">{t("noDrivers")}</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {drivers.map((driver) => (
-            <Link key={driver.id} href={`/carrier/drivers/${driver.id}`}>
-              <Card className="transition-shadow hover:shadow-md">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium text-zinc-900">{driver.name}</p>
-                    <p className="text-sm text-zinc-600">{driver.phone}</p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {driver.vehicles.map((dv) => `${tType(dv.vehicle.type)} ${dv.vehicle.model}`).join(", ") ||
-                        "-"}
-                    </p>
+          {drivers.map((driver) => {
+            const expiryBadgeStatus = worstItemStatus(driverExpiringItems(driver, ""));
+            return (
+              <Link key={driver.id} href={`/carrier/drivers/${driver.id}`}>
+                <Card className="transition-shadow hover:shadow-md">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-medium text-zinc-900">{driver.name}</p>
+                      <p className="text-sm text-zinc-600">{driver.phone}</p>
+                      <p className="mt-1 text-xs text-zinc-500">
+                        {driver.vehicles.map((dv) => `${tType(dv.vehicle.type)} ${dv.vehicle.model}`).join(", ") ||
+                          "-"}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge tone={driver.isAvailable ? "positive" : "neutral"}>
+                        {driver.isAvailable ? "✓" : "—"}
+                      </Badge>
+                      {expiryBadgeStatus ? (
+                        <Badge tone={expiryBadgeStatus === "expired" ? "negative" : "warning"}>
+                          {t(`expiry.${expiryBadgeStatus}`)}
+                        </Badge>
+                      ) : null}
+                    </div>
                   </div>
-                  <Badge tone={driver.isAvailable ? "positive" : "neutral"}>
-                    {driver.isAvailable ? "✓" : "—"}
-                  </Badge>
-                </div>
-              </Card>
-            </Link>
-          ))}
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

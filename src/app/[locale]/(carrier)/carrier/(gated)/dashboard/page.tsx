@@ -7,17 +7,20 @@ import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 import { StatStrip } from "@/components/calendar/StatStrip";
 import { RidesCalendar } from "@/components/calendar/RidesCalendar";
+import { ExpiringDocumentsBanner } from "@/components/carrier/ExpiringDocumentsBanner";
+import { vehicleExpiringItems, driverExpiringItems, sortExpiringItems } from "@/lib/expiryStatus";
 
 export default async function CarrierDashboardPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const [{ locale }, session, t, tNav] = await Promise.all([
+  const [{ locale }, session, t, tNav, tType] = await Promise.all([
     params,
     auth(),
     getTranslations("carrier"),
     getTranslations("nav"),
+    getTranslations("vehicleType"),
   ]);
   // The (gated) layout already redirects to onboarding when the session has
   // no carrierId, but a freshly created session can reach this page before
@@ -28,11 +31,29 @@ export default async function CarrierDashboardPage({
     redirect(`/${locale}/carrier/onboarding`);
   }
 
-  const [vehicleCount, driverCount, incomingCount, bookingCount] = await Promise.all([
+  const [vehicleCount, driverCount, incomingCount, bookingCount, vehicles, drivers] = await Promise.all([
     prisma.vehicle.count({ where: { carrierId: carrier.id } }),
     prisma.driver.count({ where: { carrierId: carrier.id } }),
     prisma.ride.count({ where: { carrierId: null, status: "PENDING" } }),
     prisma.ride.count({ where: { carrierId: carrier.id } }),
+    prisma.vehicle.findMany({
+      where: { carrierId: carrier.id },
+      select: { id: true, type: true, model: true, licensePlate: true, lastRegistrationDate: true, lastInspectionDate: true },
+    }),
+    prisma.driver.findMany({
+      where: { carrierId: carrier.id },
+      select: { id: true, name: true, idCardExpiry: true, licenseExpiry: true, cpcExpiry: true, medicalCertExpiry: true },
+    }),
+  ]);
+
+  const expiringItems = sortExpiringItems([
+    ...vehicles.flatMap((vehicle) =>
+      vehicleExpiringItems(
+        vehicle,
+        `${tType(vehicle.type)} ${vehicle.model}${vehicle.licensePlate ? ` · ${vehicle.licensePlate}` : ""}`,
+      ),
+    ),
+    ...drivers.flatMap((driver) => driverExpiringItems(driver, driver.name)),
   ]);
 
   const tiles = [
@@ -47,6 +68,7 @@ export default async function CarrierDashboardPage({
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-zinc-900">{t("dashboardTitle")}</h1>
+      <ExpiringDocumentsBanner items={expiringItems} />
       <StatStrip tiles={tiles} />
 
       {readyForCalendar ? (
