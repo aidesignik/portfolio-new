@@ -150,14 +150,31 @@ export function RideDetailDrawer({
             </h2>
             <p className="text-sm text-zinc-600">{new Date(ride.departureAt).toLocaleString()}</p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 text-zinc-400 hover:text-zinc-700"
-            aria-label={t("common.close")}
-          >
-            ✕
-          </button>
+          <div className="flex shrink-0 items-center gap-3">
+            {editable && !editing ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditForm(buildEditForm(ride));
+                  setEditError(null);
+                  setEditing(true);
+                }}
+                className="text-zinc-400 hover:text-zinc-700"
+                aria-label={t("common.edit")}
+                title={t("common.edit")}
+              >
+                ✎
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-zinc-400 hover:text-zinc-700"
+              aria-label={t("common.close")}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <Badge tone={STATUS_TONE[ride.status]}>{t(`rideStatus.${ride.status}`)}</Badge>
@@ -170,24 +187,9 @@ export function RideDetailDrawer({
         <div className="mt-4 space-y-3 border-t border-zinc-200 pt-4">
           {!editing ? (
             <div className="space-y-1 text-sm">
-              <div className="flex items-start justify-between gap-4">
-                <p className="text-zinc-600">
-                  {ride.pickupLocation} → {ride.destinationLocation}
-                </p>
-                {editable ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      setEditForm(buildEditForm(ride));
-                      setEditError(null);
-                      setEditing(true);
-                    }}
-                  >
-                    {t("common.edit")}
-                  </Button>
-                ) : null}
-              </div>
+              <p className="text-zinc-600">
+                {ride.pickupLocation} → {ride.destinationLocation}
+              </p>
               {ride.isRoundTrip && ride.returnAt ? (
                 <p className="text-zinc-600">
                   {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
