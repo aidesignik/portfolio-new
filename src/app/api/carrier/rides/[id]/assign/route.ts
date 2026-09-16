@@ -11,7 +11,10 @@ const AVERAGE_TRIP_DURATION_HOURS = 4;
 // Assigns (or reassigns) a vehicle and/or driver to a ride — either one
 // alone is fine, since the calendar's drag-and-drop assigns one resource at
 // a time. The first carrier to touch an unclaimed ride claims it. There's
-// no separate priced-offer/accept step; this is a direct edit.
+// no separate priced-offer/accept step; this is a direct edit. Once both a
+// vehicle and driver end up assigned, the ride is auto-confirmed — there's
+// no separate client waiting on a confirmation, so a manual "mark as
+// confirmed" step would just be the carrier confirming their own action.
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -89,6 +92,9 @@ export async function POST(
         ? Number(ride.price)
         : undefined);
 
+  const finalVehicleId = data.vehicleId ?? ride.vehicleId;
+  const finalDriverId = data.driverId ?? ride.driverId;
+
   const updated = await prisma.ride.update({
     where: { id: ride.id },
     data: {
@@ -97,6 +103,7 @@ export async function POST(
       driverId: data.driverId ?? undefined,
       estimatedDistanceKm: distanceKm ?? ride.estimatedDistanceKm,
       price,
+      status: ride.status === "PENDING" && finalVehicleId && finalDriverId ? "CONFIRMED" : undefined,
     },
   });
 

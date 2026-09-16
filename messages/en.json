@@ -186,7 +186,6 @@
       "unassignedEmpty": "Nothing waiting on you right now.",
       "reassign": "Reassign",
       "noVehicleAssigned": "Not assigned yet",
-      "markConfirmed": "Mark as confirmed",
       "cancelRide": "Cancel ride",
       "cancelConfirm": "Cancel this ride? The client will need a new one.",
       "conflictWith": "Already booked ({client})",

@@ -11,7 +11,10 @@ const AVERAGE_TRIP_DURATION_HOURS = 4;
 // marketplace-wide one). Vehicle/driver are optional: if the carrier
 // already knows who's free and picks one on the form, it's assigned right
 // away (subject to the same availability check as the calendar's drag-and-
-// drop); otherwise it lands unassigned and gets dispatched later.
+// drop) and the ride is immediately CONFIRMED — there's no separate client
+// waiting on a confirmation, the carrier creating it is the confirmation.
+// Left unassigned, it lands PENDING and gets dispatched (and confirmed via
+// the assign endpoint) later.
 export async function POST(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
   if (error) return error;
@@ -81,7 +84,7 @@ export async function POST(request: Request) {
       returnAt: data.returnAt,
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
-      status: "PENDING",
+      status: data.vehicleId && data.driverId ? "CONFIRMED" : "PENDING",
       stops: { create: data.stops.map((stop, index) => ({ ...stop, order: index })) },
     },
   });

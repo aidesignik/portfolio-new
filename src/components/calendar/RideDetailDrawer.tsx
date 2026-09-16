@@ -56,11 +56,11 @@ export function RideDetailDrawer({
     onChanged();
   }
 
-  async function act(action: "confirm" | "cancel") {
-    if (action === "cancel" && !confirm(t("carrier.calendar.cancelConfirm"))) return;
-    setBusy(action);
+  async function cancelRide() {
+    if (!confirm(t("carrier.calendar.cancelConfirm"))) return;
+    setBusy("cancel");
     setError(null);
-    const res = await fetch(`/api/carrier/rides/${ride.id}/${action}`, { method: "POST" });
+    const res = await fetch(`/api/carrier/rides/${ride.id}/cancel`, { method: "POST" });
     setBusy(null);
     if (!res.ok) {
       setError(t("common.saveFailed"));
@@ -162,13 +162,8 @@ export function RideDetailDrawer({
         {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
 
         <div className="mt-4 flex flex-wrap gap-2 border-t border-zinc-200 pt-4">
-          {ride.status === "PENDING" ? (
-            <Button type="button" disabled={busy === "confirm"} onClick={() => act("confirm")}>
-              {busy === "confirm" ? t("common.loading") : t("carrier.calendar.markConfirmed")}
-            </Button>
-          ) : null}
           {ride.status !== "CANCELLED" && ride.status !== "COMPLETED" ? (
-            <Button type="button" variant="danger" disabled={busy === "cancel"} onClick={() => act("cancel")}>
+            <Button type="button" variant="danger" disabled={busy === "cancel"} onClick={cancelRide}>
               {busy === "cancel" ? t("common.loading") : t("carrier.calendar.cancelRide")}
             </Button>
           ) : null}

@@ -186,7 +186,6 @@
       "unassignedEmpty": "Trenutno nema ničega što čeka na vas.",
       "reassign": "Promeni dodelu",
       "noVehicleAssigned": "Još nije dodeljeno",
-      "markConfirmed": "Označi kao potvrđeno",
       "cancelRide": "Otkaži vožnju",
       "cancelConfirm": "Otkazati ovu vožnju? Klijentu će trebati nova.",
       "conflictWith": "Već zauzeto ({client})",
