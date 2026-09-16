@@ -75,34 +75,35 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <Field label={t("common.email")}>
-        <Input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Field>
-      <Field label={t("common.password")}>
-        <Input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Field>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? t("common.loading") : t("auth.loginTitle")}
-      </Button>
-
+    <div className="space-y-4">
+      <GoogleSignInButton />
       <div className="flex items-center gap-3 text-xs text-zinc-400">
         <span className="h-px flex-1 bg-zinc-200" />
         {t("auth.orDivider")}
         <span className="h-px flex-1 bg-zinc-200" />
       </div>
-      <GoogleSignInButton />
-    </form>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field label={t("common.email")}>
+          <Input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </Field>
+        <Field label={t("common.password")}>
+          <Input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Field>
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? t("common.loading") : t("auth.loginTitle")}
+        </Button>
+      </form>
+    </div>
   );
 }
