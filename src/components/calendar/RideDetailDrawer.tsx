@@ -147,8 +147,15 @@ export function RideDetailDrawer({
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">
               {ride.pickupCity} → {ride.destinationCity}
+              {ride.isRoundTrip ? ` → ${ride.pickupCity}` : ""}
             </h2>
+            <p className="text-sm text-zinc-600">{ride.client.name ?? "—"}</p>
             <p className="text-sm text-zinc-600">{new Date(ride.departureAt).toLocaleString()}</p>
+            {ride.isRoundTrip && ride.returnAt ? (
+              <p className="text-sm text-zinc-600">
+                {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
+              </p>
+            ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-3">
             {editable && !editing ? (
@@ -180,7 +187,6 @@ export function RideDetailDrawer({
         <Badge tone={STATUS_TONE[ride.status]}>{t(`rideStatus.${ride.status}`)}</Badge>
 
         <div className="mt-4 space-y-1 border-t border-zinc-200 pt-4 text-sm">
-          <p className="text-zinc-900">{ride.client.name ?? "—"}</p>
           <p className="text-zinc-600">{ride.client.phone}</p>
         </div>
 
@@ -190,11 +196,6 @@ export function RideDetailDrawer({
               <p className="text-zinc-600">
                 {ride.pickupLocation} → {ride.destinationLocation}
               </p>
-              {ride.isRoundTrip && ride.returnAt ? (
-                <p className="text-zinc-600">
-                  {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
-                </p>
-              ) : null}
               <p className="text-zinc-600">{ride.passengerCount} {t("carrier.calendar.pax")}</p>
               {ride.specialRequests ? <p className="text-zinc-700">{ride.specialRequests}</p> : null}
             </div>
