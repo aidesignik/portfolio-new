@@ -53,7 +53,10 @@ export async function Navbar() {
               ) : null}
             </>
           )}
-          {session?.user.role !== "CARRIER" ? (
+          {/* With the marketplace hidden this would just duplicate the login
+              page's own register link, so it only shows once there's a
+              distinct client side to contrast it against. */}
+          {MARKETPLACE_ENABLED && session?.user.role !== "CARRIER" ? (
             <Link
               href="/register/carrier"
               className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-200"

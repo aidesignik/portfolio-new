@@ -17,7 +17,12 @@ export default async function LoginPage({
   for (const [key, value] of Object.entries(params)) {
     if (typeof value === "string") query.set(key, value);
   }
-  const registerHref = query.toString() ? `/register?${query.toString()}` : "/register";
+  // With the client marketplace hidden, the only signup path is carrier
+  // registration — so this becomes the one place to either log in or
+  // register, instead of a separate "For carriers" nav item.
+  const registerPath = MARKETPLACE_ENABLED ? "/register" : "/register/carrier";
+  const registerLabel = MARKETPLACE_ENABLED ? t("registerTitle") : t("registerCarrierTitle");
+  const registerHref = query.toString() ? `${registerPath}?${query.toString()}` : registerPath;
 
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-16">
@@ -28,14 +33,12 @@ export default async function LoginPage({
       <Card>
         <LoginForm />
       </Card>
-      {MARKETPLACE_ENABLED ? (
-        <p className="text-center text-sm text-zinc-600">
-          {t("noAccount")}{" "}
-          <Link href={registerHref} className="font-medium text-zinc-900 underline">
-            {t("registerTitle")}
-          </Link>
-        </p>
-      ) : null}
+      <p className="text-center text-sm text-zinc-600">
+        {t("noAccount")}{" "}
+        <Link href={registerHref} className="font-medium text-zinc-900 underline">
+          {registerLabel}
+        </Link>
+      </p>
     </main>
   );
 }
