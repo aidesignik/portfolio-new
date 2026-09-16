@@ -29,6 +29,28 @@ function dayIndex(weekStart: Date, dateStr: string) {
   return Math.round((d.getTime() - weekStart.getTime()) / DAY_MS);
 }
 
+// Rides (and blocks) for the same resource that overlap in the days they
+// span would otherwise sit exactly on top of each other. Greedily assigns
+// each item to the first "lane" whose last item ends before this one
+// starts — same interval-graph-coloring approach a day-view calendar uses
+// to stack overlapping events side by side instead of overlapping them.
+function assignLanes(items: { id: string; startIdx: number; endIdx: number }[]) {
+  const laneEnds: number[] = [];
+  const laneOf = new Map<string, number>();
+  const sorted = [...items].sort((a, b) => a.startIdx - b.startIdx || a.endIdx - b.endIdx);
+  for (const item of sorted) {
+    let lane = laneEnds.findIndex((end) => end < item.startIdx);
+    if (lane === -1) {
+      lane = laneEnds.length;
+      laneEnds.push(item.endIdx);
+    } else {
+      laneEnds[lane] = item.endIdx;
+    }
+    laneOf.set(item.id, lane);
+  }
+  return { laneOf, laneCount: Math.max(1, laneEnds.length) };
+}
+
 export function ResourceTimelineGrid({
   weekStart,
   grouping,
@@ -95,13 +117,28 @@ export function ResourceTimelineGrid({
         </div>
 
         {resources.map((resource) => {
-          const resourceRides = rides.filter(
-            (r) => (grouping === "vehicle" ? r.vehicleId : r.driverId) === resource.id,
-          );
-          const resourceBlocks = blocks.filter(
-            (b) => (grouping === "vehicle" ? b.vehicleId : b.driverId) === resource.id,
-          );
+          const resourceRides = rides
+            .filter((r) => (grouping === "vehicle" ? r.vehicleId : r.driverId) === resource.id)
+            .map((ride) => {
+              const startIdx = Math.max(0, dayIndex(weekStart, ride.departureAt));
+              const endIdx = ride.returnAt ? Math.min(6, dayIndex(weekStart, ride.returnAt)) : startIdx;
+              return { ride, startIdx, endIdx };
+            });
+          const resourceBlocks = blocks
+            .filter((b) => (grouping === "vehicle" ? b.vehicleId : b.driverId) === resource.id)
+            .map((block) => ({
+              block,
+              startIdx: Math.max(0, dayIndex(weekStart, block.startAt)),
+              endIdx: Math.min(6, dayIndex(weekStart, block.endAt)),
+            }));
           const isDragTarget = dragOverTarget?.resourceId === resource.id;
+
+          // Overlapping rides/blocks for this resource get their own lane
+          // (row) instead of sitting on top of each other.
+          const { laneOf, laneCount } = assignLanes([
+            ...resourceRides.map(({ ride, startIdx, endIdx }) => ({ id: ride.id, startIdx, endIdx })),
+            ...resourceBlocks.map(({ block, startIdx, endIdx }) => ({ id: block.id, startIdx, endIdx })),
+          ]);
 
           return (
             <div
@@ -114,7 +151,10 @@ export function ResourceTimelineGrid({
               </div>
               <div
                 className="relative col-span-7 grid border-b border-zinc-200"
-                style={{ gridTemplateColumns: "repeat(7, minmax(0, 1fr))", minHeight: "3.75rem" }}
+                style={{
+                  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                  gridTemplateRows: `repeat(${laneCount}, minmax(3.75rem, auto))`,
+                }}
                 onDragOver={(e) => {
                   if (!draggingRideId) return;
                   e.preventDefault();
@@ -132,45 +172,39 @@ export function ResourceTimelineGrid({
                     className={`border-r border-zinc-100 last:border-r-0 ${
                       isDragTarget ? (dragOverTarget?.conflict ? "bg-red-50" : "bg-emerald-50") : ""
                     }`}
-                    style={{ gridRow: 1, gridColumn: i + 1 }}
+                    style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
                   />
                 ))}
 
-                {resourceBlocks.map((block) => {
-                  const startIdx = Math.max(0, dayIndex(weekStart, block.startAt));
-                  const endIdx = Math.min(6, dayIndex(weekStart, block.endAt));
-                  return (
-                    <div
-                      key={block.id}
-                      className="z-0 flex items-center truncate rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-600"
-                      style={{
-                        gridRow: 1,
-                        gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                        margin: "0.25rem",
-                        ...BLOCK_PATTERN_STYLE,
-                      }}
-                      title={block.note ?? undefined}
-                    >
-                      {t(`blockReason.${block.reason}`)}
-                    </div>
-                  );
-                })}
+                {resourceBlocks.map(({ block, startIdx, endIdx }) => (
+                  <div
+                    key={block.id}
+                    className="z-0 flex items-center truncate rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-600"
+                    style={{
+                      gridRow: (laneOf.get(block.id) ?? 0) + 1,
+                      gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
+                      margin: "0.25rem",
+                      ...BLOCK_PATTERN_STYLE,
+                    }}
+                    title={block.note ?? undefined}
+                  >
+                    {t(`blockReason.${block.reason}`)}
+                  </div>
+                ))}
 
-                {resourceRides.map((ride) => {
-                  const startIdx = Math.max(0, dayIndex(weekStart, ride.departureAt));
-                  const endIdx = ride.returnAt
-                    ? Math.min(6, dayIndex(weekStart, ride.returnAt))
-                    : startIdx;
-                  return (
-                    <div
-                      key={ride.id}
-                      className="z-10"
-                      style={{ gridRow: 1, gridColumn: `${startIdx + 1} / ${endIdx + 2}`, margin: "0.25rem" }}
-                    >
-                      <RideBlockCard ride={ride} onClick={() => onRideClick(ride.id)} style={{ height: "100%" }} />
-                    </div>
-                  );
-                })}
+                {resourceRides.map(({ ride, startIdx, endIdx }) => (
+                  <div
+                    key={ride.id}
+                    className="z-10"
+                    style={{
+                      gridRow: (laneOf.get(ride.id) ?? 0) + 1,
+                      gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
+                      margin: "0.25rem",
+                    }}
+                  >
+                    <RideBlockCard ride={ride} onClick={() => onRideClick(ride.id)} style={{ height: "100%" }} />
+                  </div>
+                ))}
 
                 {isDragTarget && dragOverTarget?.conflict && dragOverTarget.message ? (
                   <div
