@@ -11,6 +11,7 @@ export interface CalendarRide {
   pickupLocation: string;
   destinationCity: string;
   destinationLocation: string;
+  stops: { city: string; location: string }[];
   departureAt: string;
   returnAt: string | null;
   isRoundTrip: boolean;

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         departureAt: { lt: weekEnd },
         AND: [{ OR: [{ returnAt: null }, { returnAt: { gte: weekStart } }] }],
       },
-      include: { client: { select: { name: true, phone: true } } },
+      include: { client: { select: { name: true, phone: true } }, stops: { orderBy: { order: "asc" } } },
     }),
     prisma.block.findMany({
       where: { carrierId: carrier.id, startAt: { lt: weekEnd }, endAt: { gte: weekStart } },
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         driverId: null,
         OR: [{ carrierId: null }, { carrierId: carrier.id }],
       },
-      include: { client: { select: { name: true, phone: true } } },
+      include: { client: { select: { name: true, phone: true } }, stops: { orderBy: { order: "asc" } } },
       orderBy: { departureAt: "asc" },
     }),
   ]);
