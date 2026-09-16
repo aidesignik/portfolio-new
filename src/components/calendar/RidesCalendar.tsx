@@ -177,7 +177,7 @@ export function RidesCalendar() {
 
       <CalendarLegend />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+      <div className={`grid gap-4 ${data.unassigned.length > 0 ? "lg:grid-cols-[1fr_20rem]" : ""}`}>
         <ResourceTimelineGrid
           weekStart={weekStart}
           grouping={grouping}
@@ -192,15 +192,17 @@ export function RidesCalendar() {
           onDragLeave={() => setDragOverTarget(null)}
           draggingRideId={draggingRideId}
         />
-        <UnassignedQueue
-          rides={data.unassigned}
-          onDragStart={setDraggingRideId}
-          onDragEnd={() => {
-            setDraggingRideId(null);
-            setDragOverTarget(null);
-          }}
-          onRideClick={setSelectedRideId}
-        />
+        {data.unassigned.length > 0 ? (
+          <UnassignedQueue
+            rides={data.unassigned}
+            onDragStart={setDraggingRideId}
+            onDragEnd={() => {
+              setDraggingRideId(null);
+              setDragOverTarget(null);
+            }}
+            onRideClick={setSelectedRideId}
+          />
+        ) : null}
       </div>
 
       {showNewRide ? (

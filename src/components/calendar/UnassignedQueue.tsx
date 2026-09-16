@@ -23,38 +23,34 @@ export function UnassignedQueue({
         <h2 className="text-sm font-semibold text-zinc-900">{t("unassignedTitle")}</h2>
         <p className="text-xs text-zinc-500">{t("unassignedHint")}</p>
       </div>
-      {rides.length === 0 ? (
-        <p className="text-sm text-zinc-500">{t("unassignedEmpty")}</p>
-      ) : (
-        <div className="space-y-2">
-          {rides.map((ride) => (
-            <div
-              key={ride.id}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = "move";
-                onDragStart(ride.id);
-              }}
-              onDragEnd={onDragEnd}
-              onClick={() => onRideClick(ride.id)}
-              className="cursor-grab active:cursor-grabbing"
-            >
-              <Card className="space-y-1 border-dashed transition-shadow hover:shadow-md">
-                <p className="text-sm font-medium text-zinc-900">{ride.client.name ?? "—"}</p>
-                <p className="text-xs text-zinc-600">
-                  {new Date(ride.departureAt).toLocaleString()}
-                </p>
-                <p className="text-xs text-zinc-600">
-                  {ride.pickupCity} → {ride.destinationCity}
-                </p>
-                <p className="text-xs text-zinc-500">
-                  {ride.passengerCount} {t("pax")}
-                </p>
-              </Card>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="space-y-2">
+        {rides.map((ride) => (
+          <div
+            key={ride.id}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = "move";
+              onDragStart(ride.id);
+            }}
+            onDragEnd={onDragEnd}
+            onClick={() => onRideClick(ride.id)}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <Card className="space-y-1 border-dashed transition-shadow hover:shadow-md">
+              <p className="text-sm font-medium text-zinc-900">{ride.client.name ?? "—"}</p>
+              <p className="text-xs text-zinc-600">
+                {new Date(ride.departureAt).toLocaleString()}
+              </p>
+              <p className="text-xs text-zinc-600">
+                {ride.pickupCity} → {ride.destinationCity}
+              </p>
+              <p className="text-xs text-zinc-500">
+                {ride.passengerCount} {t("pax")}
+              </p>
+            </Card>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

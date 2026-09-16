@@ -183,7 +183,6 @@
       "noDrivers": "Add a driver to see them here.",
       "unassignedTitle": "Unassigned rides",
       "unassignedHint": "Drag a ride onto a row to assign it.",
-      "unassignedEmpty": "Nothing waiting on you right now.",
       "reassign": "Reassign",
       "noVehicleAssigned": "Not assigned yet",
       "cancelRide": "Cancel ride",
