@@ -188,7 +188,6 @@ export function RideDetailDrawer({
                   </Button>
                 ) : null}
               </div>
-              <p className="text-zinc-600">{new Date(ride.departureAt).toLocaleString()}</p>
               {ride.isRoundTrip && ride.returnAt ? (
                 <p className="text-zinc-600">
                   {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
