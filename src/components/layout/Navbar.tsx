@@ -3,6 +3,7 @@ import { auth } from "@/auth/auth";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SignOutButton } from "./SignOutButton";
+import { MARKETPLACE_ENABLED } from "@/config/features";
 
 export async function Navbar() {
   const [session, t, tNav] = await Promise.all([
@@ -45,9 +46,11 @@ export async function Navbar() {
               <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
                 {tNav("login")}
               </Link>
-              <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                {tNav("register")}
-              </Link>
+              {MARKETPLACE_ENABLED ? (
+                <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                  {tNav("register")}
+                </Link>
+              ) : null}
             </>
           )}
           {session?.user.role !== "CARRIER" ? (
