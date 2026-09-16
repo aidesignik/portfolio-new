@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { LoginForm } from "@/components/forms/LoginForm";
 import { Link } from "@/i18n/navigation";
 import { MARKETPLACE_ENABLED } from "@/config/features";
+import { AuthSplitScreen } from "@/components/layout/AuthSplitScreen";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -25,19 +26,21 @@ export default async function LoginPage({
   const registerHref = query.toString() ? `${registerPath}?${query.toString()}` : registerPath;
 
   return (
-    <main className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-16">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-zinc-900">{t("loginTitle")}</h1>
-        <p className="mt-1 text-sm text-zinc-600">
-          {t("newHere")}{" "}
-          <Link href={registerHref} className="font-medium text-zinc-900 underline">
-            {registerLabel}
-          </Link>
-        </p>
+    <AuthSplitScreen>
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-zinc-900">{t("loginTitle")}</h1>
+          <p className="mt-1 text-sm text-zinc-600">
+            {t("newHere")}{" "}
+            <Link href={registerHref} className="font-medium text-zinc-900 underline">
+              {registerLabel}
+            </Link>
+          </p>
+        </div>
+        <Card>
+          <LoginForm />
+        </Card>
       </div>
-      <Card>
-        <LoginForm />
-      </Card>
-    </main>
+    </AuthSplitScreen>
   );
 }
