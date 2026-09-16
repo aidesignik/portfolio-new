@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
+import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
@@ -26,6 +27,7 @@ function toDateTimeInputValue(iso: string): string {
 }
 
 function buildEditForm(ride: CalendarRide) {
+  const hasReturnOverride = Boolean(ride.returnPickupCity || ride.returnDestinationCity);
   return {
     pickupCity: ride.pickupCity,
     pickupLocation: ride.pickupLocation,
@@ -35,6 +37,16 @@ function buildEditForm(ride: CalendarRide) {
     departureAt: toDateTimeInputValue(ride.departureAt),
     isRoundTrip: ride.isRoundTrip,
     returnAt: ride.returnAt ? toDateTimeInputValue(ride.returnAt) : "",
+    returnTrip: hasReturnOverride
+      ? {
+          differentReturnRoute: true,
+          returnPickupCity: ride.returnPickupCity ?? "",
+          returnPickupLocation: ride.returnPickupLocation ?? "",
+          returnStops: ride.returnStops,
+          returnDestinationCity: ride.returnDestinationCity ?? "",
+          returnDestinationLocation: ride.returnDestinationLocation ?? "",
+        }
+      : EMPTY_RETURN_TRIP,
     passengerCount: String(ride.passengerCount),
     specialRequests: ride.specialRequests ?? "",
   };
@@ -92,6 +104,7 @@ export function RideDetailDrawer({
       body: JSON.stringify({
         ...editForm,
         returnAt: editForm.isRoundTrip ? editForm.returnAt : undefined,
+        ...returnTripPayload(editForm.isRoundTrip, editForm.returnTrip),
         passengerCount: Number(editForm.passengerCount),
         specialRequests: editForm.specialRequests || undefined,
       }),
@@ -196,6 +209,13 @@ export function RideDetailDrawer({
               <p className="text-zinc-600">
                 {ride.pickupLocation} → {ride.destinationLocation}
               </p>
+              {ride.isRoundTrip && (ride.returnPickupCity || ride.returnDestinationCity) ? (
+                <p className="text-zinc-600">
+                  {t("client.requestForm.differentReturnRoute")}:{" "}
+                  {ride.returnPickupLocation ?? ride.destinationLocation} →{" "}
+                  {ride.returnDestinationLocation ?? ride.pickupLocation}
+                </p>
+              ) : null}
               <p className="text-zinc-600">{ride.passengerCount} {t("carrier.calendar.pax")}</p>
               {ride.specialRequests ? <p className="text-zinc-700">{ride.specialRequests}</p> : null}
             </div>
@@ -268,15 +288,26 @@ export function RideDetailDrawer({
               </label>
 
               {editForm.isRoundTrip ? (
-                <Field label={t("client.requestForm.returnAt")}>
-                  <Input
-                    type="datetime-local"
-                    required
-                    min={editForm.departureAt || undefined}
-                    value={editForm.returnAt}
-                    onChange={(e) => setEditForm({ ...editForm, returnAt: e.target.value })}
+                <>
+                  <Field label={t("client.requestForm.returnAt")}>
+                    <Input
+                      type="datetime-local"
+                      required
+                      min={editForm.departureAt || undefined}
+                      value={editForm.returnAt}
+                      onChange={(e) => setEditForm({ ...editForm, returnAt: e.target.value })}
+                    />
+                  </Field>
+                  <ReturnTripFields
+                    value={editForm.returnTrip}
+                    onChange={(returnTrip) => setEditForm({ ...editForm, returnTrip })}
+                    outboundPickupCity={editForm.pickupCity}
+                    outboundPickupLocation={editForm.pickupLocation}
+                    outboundDestinationCity={editForm.destinationCity}
+                    outboundDestinationLocation={editForm.destinationLocation}
+                    outboundStops={editForm.stops}
                   />
-                </Field>
+                </>
               ) : null}
 
               <Field label={t("client.requestForm.passengerCount")}>

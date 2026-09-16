@@ -13,7 +13,7 @@ export async function GET() {
   const requests = await prisma.ride.findMany({
     where: { clientId: session.user.id },
     include: {
-      stops: { orderBy: { order: "asc" } },
+      stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       carrier: true,
       vehicle: true,
       driver: true,
@@ -35,7 +35,10 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { stops, ...data } = parsed.data;
+  // Round-trip return-leg customization (returnStops) isn't wired into the
+  // client-facing request flow — only the carrier-side ride forms use it —
+  // so it's dropped here rather than passed to Prisma (not a Ride column).
+  const { stops, returnStops: _returnStops, ...data } = parsed.data;
 
   const created = await prisma.ride.create({
     data: {
@@ -43,7 +46,7 @@ export async function POST(request: Request) {
       clientId: session.user.id,
       stops: { create: stops.map((stop, index) => ({ ...stop, order: index })) },
     },
-    include: { stops: { orderBy: { order: "asc" } } },
+    include: { stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } } },
   });
 
   // Distance drives the price the client is shown — computed server-side

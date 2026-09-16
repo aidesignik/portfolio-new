@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
+import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { suggestPrice } from "@/lib/pricing";
 import type { CityLocation } from "@/lib/location";
 
@@ -38,6 +39,7 @@ export function CarrierRideForm({
     departureAt: "",
     isRoundTrip: false,
     returnAt: "",
+    returnTrip: EMPTY_RETURN_TRIP,
     passengerCount: "40",
     specialRequests: "",
     vehicleId: vehicles[0]?.id ?? "",
@@ -130,6 +132,7 @@ export function CarrierRideForm({
         ...form,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
+        ...returnTripPayload(form.isRoundTrip, form.returnTrip),
         distanceKm: form.distanceKm ? Number(form.distanceKm) : undefined,
         finalPrice: Number(form.finalPrice || suggested || 0),
       }),
@@ -262,15 +265,26 @@ export function CarrierRideForm({
         </label>
 
         {form.isRoundTrip ? (
-          <Field label={t("client.requestForm.returnAt")}>
-            <Input
-              type="datetime-local"
-              required
-              min={form.departureAt || undefined}
-              value={form.returnAt}
-              onChange={(e) => setForm({ ...form, returnAt: e.target.value })}
+          <>
+            <Field label={t("client.requestForm.returnAt")}>
+              <Input
+                type="datetime-local"
+                required
+                min={form.departureAt || undefined}
+                value={form.returnAt}
+                onChange={(e) => setForm({ ...form, returnAt: e.target.value })}
+              />
+            </Field>
+            <ReturnTripFields
+              value={form.returnTrip}
+              onChange={(returnTrip) => setForm({ ...form, returnTrip })}
+              outboundPickupCity={form.pickupCity}
+              outboundPickupLocation={form.pickupLocation}
+              outboundDestinationCity={form.destinationCity}
+              outboundDestinationLocation={form.destinationLocation}
+              outboundStops={form.stops}
             />
-          </Field>
+          </>
         ) : null}
 
         <Field label={t("client.requestForm.passengerCount")}>

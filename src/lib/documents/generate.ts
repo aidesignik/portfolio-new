@@ -26,7 +26,7 @@ export async function generateDocument(rideId: string, type: DocumentType) {
       carrier: true,
       vehicle: true,
       driver: true,
-      stops: { orderBy: { order: "asc" } },
+      stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
     },
   })) as unknown as RideWithRelations;
 

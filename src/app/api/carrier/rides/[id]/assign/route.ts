@@ -35,7 +35,10 @@ export async function POST(
     return NextResponse.json({ error: "CARRIER_NOT_APPROVED" }, { status: 403 });
   }
 
-  const ride = await prisma.ride.findUnique({ where: { id: rideId }, include: { stops: true } });
+  const ride = await prisma.ride.findUnique({
+    where: { id: rideId },
+    include: { stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } } },
+  });
   if (!ride) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
   if (ride.carrierId && ride.carrierId !== carrier.id) {
     return NextResponse.json({ error: "ALREADY_CLAIMED" }, { status: 409 });

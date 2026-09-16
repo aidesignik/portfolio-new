@@ -3,6 +3,7 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { createRideSchema } from "@/lib/validation/request.schema";
 import { checkAvailability } from "@/lib/availability";
+import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
@@ -59,11 +60,12 @@ export async function PATCH(
       departureAt: data.departureAt,
       isRoundTrip: data.isRoundTrip,
       returnAt: data.isRoundTrip ? data.returnAt : null,
+      ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
       stops: {
         deleteMany: {},
-        create: data.stops.map((stop, index) => ({ ...stop, order: index })),
+        create: buildStopsCreate(data),
       },
     },
   });

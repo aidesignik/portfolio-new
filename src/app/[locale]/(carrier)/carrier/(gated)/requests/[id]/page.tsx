@@ -20,7 +20,7 @@ export default async function CarrierRequestDetailPage({
       where: { id },
       include: {
         client: { select: { name: true, phone: true } },
-        stops: { orderBy: { order: "asc" } },
+        stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       },
     }),
     prisma.vehicle.findMany({ where: { carrierId: carrier.id, status: "ACTIVE" } }),

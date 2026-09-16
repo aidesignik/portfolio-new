@@ -3,6 +3,20 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const STOPS_INCLUDE = { orderBy: [{ leg: "asc" as const }, { order: "asc" as const }] };
+
+// Ride.stops holds both legs (tagged OUTBOUND/RETURN) — split back into the
+// two flat arrays the calendar UI expects.
+function splitLegs<T extends { stops: { leg: "OUTBOUND" | "RETURN"; city: string; location: string }[] }>(
+  ride: T,
+) {
+  const { stops, ...rest } = ride;
+  return {
+    ...rest,
+    stops: stops.filter((s) => s.leg === "OUTBOUND").map(({ city, location }) => ({ city, location })),
+    returnStops: stops.filter((s) => s.leg === "RETURN").map(({ city, location }) => ({ city, location })),
+  };
+}
 
 // Returns everything the resource-timeline calendar needs for one week:
 // the carrier's vehicles/drivers (rows), rides and blocks overlapping that
@@ -31,7 +45,7 @@ export async function GET(request: Request) {
         departureAt: { lt: weekEnd },
         AND: [{ OR: [{ returnAt: null }, { returnAt: { gte: weekStart } }] }],
       },
-      include: { client: { select: { name: true, phone: true } }, stops: { orderBy: { order: "asc" } } },
+      include: { client: { select: { name: true, phone: true } }, stops: STOPS_INCLUDE },
     }),
     prisma.block.findMany({
       where: { carrierId: carrier.id, startAt: { lt: weekEnd }, endAt: { gte: weekStart } },
@@ -46,7 +60,7 @@ export async function GET(request: Request) {
         driverId: null,
         OR: [{ carrierId: null }, { carrierId: carrier.id }],
       },
-      include: { client: { select: { name: true, phone: true } }, stops: { orderBy: { order: "asc" } } },
+      include: { client: { select: { name: true, phone: true } }, stops: STOPS_INCLUDE },
       orderBy: { departureAt: "asc" },
     }),
   ]);
@@ -56,8 +70,8 @@ export async function GET(request: Request) {
     weekEnd: weekEnd.toISOString(),
     vehicles,
     drivers,
-    rides,
+    rides: rides.map(splitLegs),
     blocks,
-    unassigned,
+    unassigned: unassigned.map(splitLegs),
   });
 }

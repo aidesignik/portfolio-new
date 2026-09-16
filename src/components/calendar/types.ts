@@ -15,6 +15,11 @@ export interface CalendarRide {
   departureAt: string;
   returnAt: string | null;
   isRoundTrip: boolean;
+  returnPickupCity: string | null;
+  returnPickupLocation: string | null;
+  returnStops: { city: string; location: string }[];
+  returnDestinationCity: string | null;
+  returnDestinationLocation: string | null;
   passengerCount: number;
   specialRequests: string | null;
   estimatedDistanceKm: number | null;

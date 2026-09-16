@@ -5,6 +5,7 @@ import { carrierRideSchema } from "@/lib/validation/carrierRide.schema";
 import { suggestPrice } from "@/lib/pricing";
 import { checkAvailability } from "@/lib/availability";
 import { estimateRouteDistance } from "@/lib/tripDistance";
+import { returnLegScalars } from "@/lib/rideReturnLeg";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
@@ -96,18 +97,27 @@ export async function POST(request: Request) {
       departureAt: data.departureAt,
       isRoundTrip: data.isRoundTrip,
       returnAt: data.returnAt,
+      ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
       estimatedDistanceKm: distanceKm,
       price: data.finalPrice,
       status: "CONFIRMED",
       stops: {
-        create: data.stops.map((stop, index) => ({
-          ...stop,
-          order: index,
-          lat: coordinates?.[index + 1]?.lat,
-          lng: coordinates?.[index + 1]?.lng,
-        })),
+        create: [
+          ...data.stops.map((stop, index) => ({
+            ...stop,
+            order: index,
+            leg: "OUTBOUND" as const,
+            lat: coordinates?.[index + 1]?.lat,
+            lng: coordinates?.[index + 1]?.lng,
+          })),
+          // Return-leg stops aren't geocoded (out of scope for now) — only
+          // stored when the carrier picked a custom return route.
+          ...(data.isRoundTrip && data.returnStops.length > 0
+            ? data.returnStops.map((stop, index) => ({ ...stop, order: index, leg: "RETURN" as const }))
+            : []),
+        ],
       },
     },
   });

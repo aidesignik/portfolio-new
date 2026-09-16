@@ -18,6 +18,14 @@ export const quickRideSchema = z
     departureAt: z.coerce.date(),
     isRoundTrip: z.coerce.boolean().default(false),
     returnAt: z.coerce.date().optional(),
+    // The return leg defaults to the outbound leg reversed — these are only
+    // set when a different pickup/destination/stops is picked for the way
+    // back (see resolveReturnLeg()).
+    returnPickupCity: z.string().min(1).optional(),
+    returnPickupLocation: z.string().min(1).optional(),
+    returnStops: z.array(cityLocationSchema).max(5).default([]),
+    returnDestinationCity: z.string().min(1).optional(),
+    returnDestinationLocation: z.string().min(1).optional(),
     passengerCount: z.coerce.number().int().min(1).max(200),
     specialRequests: z.string().optional(),
     // Optional "assign now" — if the carrier already knows who's free, per

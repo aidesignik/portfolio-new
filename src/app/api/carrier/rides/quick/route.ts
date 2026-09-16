@@ -3,6 +3,7 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { quickRideSchema } from "@/lib/validation/quickRide.schema";
 import { checkAvailability } from "@/lib/availability";
+import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
@@ -82,10 +83,11 @@ export async function POST(request: Request) {
       departureAt: data.departureAt,
       isRoundTrip: data.isRoundTrip,
       returnAt: data.returnAt,
+      ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
       status: data.vehicleId && data.driverId ? "CONFIRMED" : "PENDING",
-      stops: { create: data.stops.map((stop, index) => ({ ...stop, order: index })) },
+      stops: { create: buildStopsCreate(data) },
     },
   });
 

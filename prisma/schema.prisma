@@ -223,6 +223,17 @@ model Ride {
   departureAt         DateTime
   isRoundTrip         Boolean   @default(false)
   returnAt            DateTime?
+  // The return leg defaults to the outbound leg reversed (same pickup/
+  // destination/stops) and these stay null — set only when the carrier
+  // picks a different route for the way back.
+  returnPickupCity          String?
+  returnPickupLocation      String?
+  returnPickupLat           Float?
+  returnPickupLng           Float?
+  returnDestinationCity     String?
+  returnDestinationLocation String?
+  returnDestinationLat      Float?
+  returnDestinationLng      Float?
   passengerCount      Int
   // Computed server-side from geocoded pickup/stops/destination, or entered
   // directly by the carrier when they create+assign a ride themselves.
@@ -246,11 +257,19 @@ model Ride {
   @@index([status])
 }
 
+enum RideLeg {
+  OUTBOUND
+  RETURN
+}
+
 model RideStop {
   id     String @id @default(cuid())
   rideId String
   ride   Ride   @relation(fields: [rideId], references: [id])
 
+  // Only ever RETURN for a round trip's custom return route (see
+  // Ride.returnPickupCity) — order restarts at 0 within each leg.
+  leg      RideLeg @default(OUTBOUND)
   order    Int
   city     String
   location String

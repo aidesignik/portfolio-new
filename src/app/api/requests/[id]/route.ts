@@ -16,7 +16,7 @@ export async function GET(
     where: { id },
     include: {
       client: { select: { name: true, phone: true, email: true } },
-      stops: { orderBy: { order: "asc" } },
+      stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       carrier: true,
       vehicle: true,
       driver: true,

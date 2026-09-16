@@ -18,7 +18,7 @@ export default async function ClientRequestDetailPage({
   const ride = await prisma.ride.findFirst({
     where: { id, clientId: session!.user.id },
     include: {
-      stops: { orderBy: { order: "asc" } },
+      stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       carrier: true,
       vehicle: true,
       driver: true,

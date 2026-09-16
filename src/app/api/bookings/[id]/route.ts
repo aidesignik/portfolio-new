@@ -19,7 +19,7 @@ export async function GET(
       carrier: true,
       vehicle: true,
       driver: true,
-      stops: { orderBy: { order: "asc" } },
+      stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       documents: true,
     },
   });
