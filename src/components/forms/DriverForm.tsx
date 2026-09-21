@@ -155,6 +155,7 @@ type DriverFormValues = {
   name: string;
   phone: string;
   isAvailable: boolean;
+  licenseNumber: string;
   vehicleIds: string[];
   idCardExpiry: string;
   idCardFrontUrl: string;
@@ -184,6 +185,7 @@ const EMPTY_FORM: DriverFormValues = {
   name: "",
   phone: "",
   isAvailable: true,
+  licenseNumber: "",
   vehicleIds: [],
   idCardExpiry: "",
   idCardFrontUrl: "",
@@ -253,6 +255,7 @@ export function DriverForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        licenseNumber: form.licenseNumber || undefined,
         idCardExpiry: form.idCardExpiry || undefined,
         licenseExpiry: form.licenseExpiry || undefined,
         cpcExpiry: form.cpcExpiry || undefined,
@@ -281,6 +284,9 @@ export function DriverForm({
       </Field>
       <Field label={t("carrier.driverForm.phone")}>
         <Input required value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+      </Field>
+      <Field label={t("carrier.driverForm.licenseNumber")}>
+        <Input value={form.licenseNumber} onChange={(e) => set("licenseNumber", e.target.value)} />
       </Field>
       <label className="flex items-center gap-2 text-sm">
         <input

@@ -37,6 +37,7 @@ export default async function EditDriverPage({
             name: driver.name,
             phone: driver.phone,
             isAvailable: driver.isAvailable,
+            licenseNumber: driver.licenseNumber ?? "",
             vehicleIds: driver.vehicles.map((v) => v.vehicleId),
             idCardExpiry: driver.idCardExpiry,
             idCardFrontUrl: driver.idCardFrontUrl ?? "",

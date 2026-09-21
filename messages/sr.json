@@ -163,6 +163,25 @@
       "registration": "Registracija",
       "inspection": "Tehnički pregled"
     },
+    "assignment": {
+      "noVehicleAssigned": "Nije dodeljeno vozilo",
+      "noDriverAssigned": "Nije dodeljen vozač"
+    },
+    "docChip": {
+      "registration": "Registracija",
+      "inspection": "Pregled",
+      "idCard": "Lična karta",
+      "license": "Vozačka",
+      "cpc": "CPC",
+      "medicalCert": "Lekarsko",
+      "valid": "✓ {label}",
+      "expiringSoon": "{label} · {days}d",
+      "expired": "{label} isteklo"
+    },
+    "table": {
+      "documents": "Dokumenta",
+      "noDocuments": "Nema evidentiranih dokumenata"
+    },
     "onboardingTitle": "Profil firme",
     "onboardingSubtitle": "Predstavite se klijentima.",
     "completeProfileTitle": "Dovršite profil prevoznika",
@@ -177,6 +196,17 @@
     "driversTitle": "Vozači",
     "addDriver": "Dodaj vozača",
     "noDrivers": "Još nema vozača.",
+    "fleetTable": {
+      "vehicle": "Vozilo",
+      "details": "Detalji",
+      "assignedDriver": "Dodeljeni vozač",
+      "seats": "sedišta"
+    },
+    "driversTable": {
+      "driver": "Vozač",
+      "licenseNumber": "Broj dozvole",
+      "assignedVehicle": "Dodeljeno vozilo"
+    },
     "calendarTitle": "Kalendar zauzetosti",
     "calendar": {
       "today": "Danas",
@@ -260,6 +290,7 @@
       "name": "Ime vozača",
       "phone": "Telefon",
       "isAvailable": "Dostupan",
+      "licenseNumber": "Broj vozačke dozvole",
       "assignedVehicles": "Dodeljena vozila",
       "documentsTitle": "Dokumenta",
       "idCard": "Lična karta (obe strane)",

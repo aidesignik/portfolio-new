@@ -8,6 +8,7 @@ export const driverSchema = z.object({
   name: z.string().min(1),
   phone: z.string().min(1),
   isAvailable: z.coerce.boolean().default(true),
+  licenseNumber: z.string().optional(),
   vehicleIds: z.array(z.string()).default([]),
 
   idCardExpiry: z.coerce.date().optional(),

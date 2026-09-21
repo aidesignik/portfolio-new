@@ -45,6 +45,7 @@ export interface CalendarVehicle {
   licensePlate: string | null;
   seats: number;
   status: string;
+  photos: string[];
 }
 
 export interface CalendarDriver {

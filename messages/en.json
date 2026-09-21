@@ -163,6 +163,25 @@
       "registration": "Registration",
       "inspection": "Technical inspection"
     },
+    "assignment": {
+      "noVehicleAssigned": "No vehicle assigned",
+      "noDriverAssigned": "No driver assigned"
+    },
+    "docChip": {
+      "registration": "Registration",
+      "inspection": "Inspection",
+      "idCard": "ID card",
+      "license": "License",
+      "cpc": "CPC",
+      "medicalCert": "Medical cert",
+      "valid": "✓ {label}",
+      "expiringSoon": "{label} · {days}d",
+      "expired": "{label} expired"
+    },
+    "table": {
+      "documents": "Documents",
+      "noDocuments": "No documents on file"
+    },
     "onboardingTitle": "Company profile",
     "onboardingSubtitle": "Tell clients who you are.",
     "completeProfileTitle": "Complete your carrier profile",
@@ -177,6 +196,17 @@
     "driversTitle": "Drivers",
     "addDriver": "Add driver",
     "noDrivers": "No drivers yet.",
+    "fleetTable": {
+      "vehicle": "Vehicle",
+      "details": "Details",
+      "assignedDriver": "Assigned driver",
+      "seats": "seats"
+    },
+    "driversTable": {
+      "driver": "Driver",
+      "licenseNumber": "License #",
+      "assignedVehicle": "Assigned vehicle"
+    },
     "calendarTitle": "Availability calendar",
     "calendar": {
       "today": "Today",
@@ -260,6 +290,7 @@
       "name": "Driver name",
       "phone": "Phone",
       "isAvailable": "Available",
+      "licenseNumber": "License number",
       "assignedVehicles": "Assigned vehicles",
       "documentsTitle": "Documents",
       "idCard": "ID card (both sides)",

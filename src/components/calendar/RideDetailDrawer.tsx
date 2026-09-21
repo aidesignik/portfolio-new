@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { SidePanel } from "@/components/ui/SidePanel";
+import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
+import { DriverAvatar } from "@/components/ui/DriverAvatar";
+import { AssignmentChip, EmptyAssignmentChip } from "@/components/ui/AssignmentChip";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
@@ -350,11 +353,25 @@ export function RideDetailDrawer({
 
         <div className="mt-4 space-y-2 border-t border-zinc-200 pt-4">
           {!reassigning ? (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-700">
-                {vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("carrier.calendar.noVehicleAssigned")}
-                {driver ? ` · ${driver.name}` : ""}
-              </p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                {vehicle ? (
+                  <AssignmentChip>
+                    <VehicleAvatar type={vehicle.type} photoUrl={vehicle.photos[0] ?? null} size="sm" />
+                    {tType(vehicle.type)} {vehicle.model}
+                  </AssignmentChip>
+                ) : (
+                  <EmptyAssignmentChip>{t("carrier.assignment.noVehicleAssigned")}</EmptyAssignmentChip>
+                )}
+                {driver ? (
+                  <AssignmentChip>
+                    <DriverAvatar name={driver.name} size="sm" />
+                    {driver.name}
+                  </AssignmentChip>
+                ) : (
+                  <EmptyAssignmentChip>{t("carrier.assignment.noDriverAssigned")}</EmptyAssignmentChip>
+                )}
+              </div>
               <Button type="button" variant="secondary" onClick={() => setReassigning(true)}>
                 {t("carrier.calendar.reassign")}
               </Button>

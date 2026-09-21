@@ -152,9 +152,10 @@ model Driver {
   carrierId String
   carrier   Carrier @relation(fields: [carrierId], references: [id])
 
-  name        String
-  phone       String
-  isAvailable Boolean  @default(true)
+  name          String
+  phone         String
+  isAvailable   Boolean  @default(true)
+  licenseNumber String?
 
   // Required driver documents — ID card, driver's license, CPC and medical
   // certificate — each with an expiry date and a front/back photo.
