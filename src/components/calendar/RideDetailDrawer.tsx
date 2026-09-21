@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { SidePanel } from "@/components/ui/SidePanel";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
@@ -156,12 +157,9 @@ export function RideDetailDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-start justify-between gap-4">
+    <SidePanel onClose={onClose}>
+      <div className="shrink-0 border-b border-zinc-200 p-6">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">
               {ride.pickupCity} → {ride.destinationCity}
@@ -202,9 +200,13 @@ export function RideDetailDrawer({
           </div>
         </div>
 
-        <Badge tone={STATUS_TONE[ride.status]}>{t(`rideStatus.${ride.status}`)}</Badge>
+        <div className="mt-3">
+          <Badge tone={STATUS_TONE[ride.status]}>{t(`rideStatus.${ride.status}`)}</Badge>
+        </div>
+      </div>
 
-        <div className="mt-4 space-y-1 border-t border-zinc-200 pt-4 text-sm">
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="space-y-1 text-sm">
           <p className="text-zinc-600">{ride.client.phone}</p>
         </div>
 
@@ -416,6 +418,6 @@ export function RideDetailDrawer({
           <DocumentDownloads bookingId={ride.id} initialDocuments={[]} />
         </div>
       </div>
-    </div>
+    </SidePanel>
   );
 }

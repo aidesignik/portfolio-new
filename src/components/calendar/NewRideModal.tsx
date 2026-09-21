@@ -5,13 +5,27 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { SidePanel } from "@/components/ui/SidePanel";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarVehicle } from "./types";
 
-export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+const DEPARTURE_JUMP_DEBOUNCE_MS = 400;
+
+export function NewRideModal({
+  onClose,
+  onCreated,
+  onDepartureDateChange,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+  // Lets the calendar underneath jump to the picked date's week as the
+  // dispatcher fills in the form, for live context — optional so this
+  // component doesn't need a caller that wires it up.
+  onDepartureDateChange?: (date: Date) => void;
+}) {
   const t = useTranslations();
   const tType = useTranslations("vehicleType");
   const [form, setForm] = useState({
@@ -80,6 +94,15 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
     };
   }, [form.departureAt, form.isRoundTrip, form.returnAt]);
 
+  useEffect(() => {
+    if (!onDepartureDateChange || !form.departureAt) return;
+    const timer = setTimeout(() => {
+      const date = new Date(form.departureAt);
+      if (!Number.isNaN(date.getTime())) onDepartureDateChange(date);
+    }, DEPARTURE_JUMP_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [form.departureAt, onDepartureDateChange]);
+
   function addStop() {
     if (form.stops.length >= 5) return;
     setForm({ ...form, stops: [...form.stops, { city: "", location: "" }] });
@@ -123,26 +146,20 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="text-lg font-semibold text-zinc-900">{t("carrier.calendar.newRideTitle")}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 text-zinc-400 hover:text-zinc-700"
-            aria-label={t("common.close")}
-          >
-            ✕
-          </button>
-        </div>
+    <SidePanel onClose={onClose}>
+      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-zinc-200 p-6">
+        <h2 className="text-lg font-semibold text-zinc-900">{t("carrier.calendar.newRideTitle")}</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="shrink-0 text-zinc-400 hover:text-zinc-700"
+          aria-label={t("common.close")}
+        >
+          ✕
+        </button>
+      </div>
 
+      <div className="flex-1 overflow-y-auto p-6">
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label={t("common.name")}>
@@ -326,6 +343,6 @@ export function NewRideModal({ onClose, onCreated }: { onClose: () => void; onCr
           </Button>
         </form>
       </div>
-    </div>
+    </SidePanel>
   );
 }

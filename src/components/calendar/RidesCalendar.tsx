@@ -211,6 +211,7 @@ export function RidesCalendar() {
             setShowNewRide(false);
             load();
           }}
+          onDepartureDateChange={(date) => setWeekStart(startOfWeek(date))}
         />
       ) : null}
 
