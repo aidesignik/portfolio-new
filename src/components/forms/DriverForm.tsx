@@ -203,10 +203,15 @@ export function DriverForm({
   driverId,
   initial,
   vehicles,
+  onSaved,
 }: {
   driverId?: string;
   initial?: InitialDriverValues;
   vehicles: { id: string; type: string; model: string }[];
+  // When rendered inside the "add driver" side panel, closes the panel and
+  // refreshes the list instead of navigating to the standalone drivers
+  // page — the panel is already on that page.
+  onSaved?: () => void;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -261,6 +266,10 @@ export function DriverForm({
       return;
     }
 
+    if (onSaved) {
+      onSaved();
+      return;
+    }
     router.push("/carrier/drivers");
     router.refresh();
   }

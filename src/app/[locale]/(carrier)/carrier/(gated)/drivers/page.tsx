@@ -3,8 +3,8 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
+import { AddDriverButton } from "@/components/forms/AddDriverButton";
 import { driverExpiringItems, worstItemStatus } from "@/lib/expiryStatus";
 
 export default async function DriversPage() {
@@ -14,19 +14,20 @@ export default async function DriversPage() {
     getTranslations("vehicleType"),
   ]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
-  const drivers = await prisma.driver.findMany({
-    where: { carrierId: carrier.id },
-    include: { vehicles: { include: { vehicle: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const [drivers, vehicles] = await Promise.all([
+    prisma.driver.findMany({
+      where: { carrierId: carrier.id },
+      include: { vehicles: { include: { vehicle: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.vehicle.findMany({ where: { carrierId: carrier.id }, orderBy: { createdAt: "desc" } }),
+  ]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900">{t("driversTitle")}</h1>
-        <Link href="/carrier/drivers/new">
-          <Button>{t("addDriver")}</Button>
-        </Link>
+        <AddDriverButton vehicles={vehicles} />
       </div>
 
       {drivers.length === 0 ? (

@@ -41,9 +41,14 @@ type InitialVehicleValues = Omit<VehicleFormValues, "lastRegistrationDate" | "la
 export function VehicleForm({
   vehicleId,
   initial,
+  onSaved,
 }: {
   vehicleId?: string;
   initial?: InitialVehicleValues;
+  // When rendered inside the "add vehicle" side panel, closes the panel
+  // and refreshes the list instead of navigating to the standalone fleet
+  // page — the panel is already on that page.
+  onSaved?: () => void;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -189,6 +194,10 @@ export function VehicleForm({
       return;
     }
 
+    if (onSaved) {
+      onSaved();
+      return;
+    }
     router.push("/carrier/fleet");
     router.refresh();
   }

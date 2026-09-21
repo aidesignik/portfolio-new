@@ -3,8 +3,8 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
+import { AddVehicleButton } from "@/components/forms/AddVehicleButton";
 import { vehicleExpiringItems, worstItemStatus } from "@/lib/expiryStatus";
 
 export default async function FleetPage() {
@@ -23,9 +23,7 @@ export default async function FleetPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900">{t("fleetTitle")}</h1>
-        <Link href="/carrier/fleet/new">
-          <Button>{t("addVehicle")}</Button>
-        </Link>
+        <AddVehicleButton />
       </div>
 
       {vehicles.length === 0 ? (
