@@ -28,6 +28,7 @@
     "currency": "RSD",
     "close": "Close",
     "chooseFiles": "Choose files",
+    "search": "Search",
     "saveFailed": "Couldn't save — please check the fields and try again."
   },
   "nav": {

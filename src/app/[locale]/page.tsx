@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { Link } from "@/i18n/navigation";
+import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PublicSearchForm } from "@/components/forms/PublicSearchForm";
@@ -65,7 +66,9 @@ export default async function HomePage({
   const canShowBookCta = !session?.user || session.user.role === "CLIENT";
 
   return (
-    <main className="mx-auto max-w-3xl space-y-10 px-4 py-16">
+    <>
+      <Navbar />
+      <main className="mx-auto max-w-3xl space-y-10 px-4 py-16">
       <div className="space-y-4 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
           {tHome("title")}
@@ -108,6 +111,7 @@ export default async function HomePage({
           <Button variant="secondary">{tHome("ctaCarrier")}</Button>
         </Link>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

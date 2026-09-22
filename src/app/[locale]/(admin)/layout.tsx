@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { requireRole } from "@/auth/session";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default async function AdminLayout({
   children,
@@ -10,5 +11,10 @@ export default async function AdminLayout({
 }) {
   const { locale } = await params;
   await requireRole(locale, "ADMIN");
-  return <div className="mx-auto max-w-5xl px-4 py-10">{children}</div>;
+  return (
+    <>
+      <Navbar />
+      <div className="mx-auto max-w-5xl px-4 py-10">{children}</div>
+    </>
+  );
 }

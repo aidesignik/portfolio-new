@@ -6,6 +6,7 @@ import { BLOCK_PATTERN_STYLE } from "./statusStyles";
 import type { CalendarBlock, CalendarDriver, CalendarRide, CalendarVehicle, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const GRID_TEMPLATE_COLUMNS = "208px repeat(7, minmax(100px, 1fr))";
 
 export interface DragOverTarget {
   resourceId: string;
@@ -15,7 +16,8 @@ export interface DragOverTarget {
 
 interface Resource {
   id: string;
-  label: string;
+  name: string;
+  plate: string | null;
 }
 
 function startOfDay(date: Date) {
@@ -85,37 +87,35 @@ export function ResourceTimelineGrid({
 
   const resources: Resource[] =
     grouping === "vehicle"
-      ? vehicles.map((v) => ({
-          id: v.id,
-          label: `${tType(v.type)} ${v.model}${v.licensePlate ? ` · ${v.licensePlate}` : ""}`,
-        }))
-      : drivers.map((d) => ({ id: d.id, label: d.name }));
+      ? vehicles.map((v) => ({ id: v.id, name: `${tType(v.type)} ${v.model}`, plate: v.licensePlate }))
+      : drivers.map((d) => ({ id: d.id, name: d.name, plate: null }));
 
   if (resources.length === 0) {
     return (
-      <p className="rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] p-6 text-center text-[13.5px] text-[var(--ink-muted)]">
+      <p className="p-6 text-center text-[13.5px] text-[var(--ink-muted)]">
         {grouping === "vehicle" ? t("noVehicles") : t("noDrivers")}
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+    <div className="overflow-x-auto">
       <div className="min-w-[860px]">
-        <div className="grid" style={{ gridTemplateColumns: "208px repeat(7, minmax(100px, 1fr))" }}>
+        <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
           <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-subtle)]" />
-          {days.map((day, i) => (
-            <div
-              key={i}
-              className={`border-b border-[var(--border-hairline)] px-2 py-2 text-center text-[13px] font-bold ${
-                day.getTime() === today.getTime()
-                  ? "bg-[var(--select-tint)] text-[var(--action-800)]"
-                  : "bg-[var(--bg-subtle)] text-[var(--ink-secondary)]"
-              }`}
-            >
-              {day.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
-            </div>
-          ))}
+          {days.map((day, i) => {
+            const isToday = day.getTime() === today.getTime();
+            return (
+              <div
+                key={i}
+                className={`flex h-11 items-center justify-center border-b border-r border-[var(--border-hairline)] px-2 text-[13px] font-bold last:border-r-0 ${
+                  isToday ? "bg-[var(--select-tint)] text-[var(--action-800)]" : "bg-[var(--bg-subtle)] text-[var(--ink-2)]"
+                }`}
+              >
+                {day.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+              </div>
+            );
+          })}
         </div>
 
         {resources.map((resource) => {
@@ -143,19 +143,18 @@ export function ResourceTimelineGrid({
           ]);
 
           return (
-            <div
-              key={resource.id}
-              className="grid"
-              style={{ gridTemplateColumns: "208px repeat(7, minmax(100px, 1fr))" }}
-            >
-              <div className="flex items-center border-b border-r border-[var(--border-hairline)] px-3 py-3 text-[14px] font-semibold text-[var(--ink-primary)]">
-                {resource.label}
+            <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
+              <div className="flex flex-col justify-center gap-[1px] border-r border-b border-[var(--border-hairline)] px-[14px] py-3">
+                <p className="truncate text-[13.5px] font-bold text-[var(--ink-primary)]">{resource.name}</p>
+                {resource.plate ? (
+                  <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">{resource.plate}</p>
+                ) : null}
               </div>
               <div
                 className="relative col-span-7 grid border-b border-[var(--border-hairline)]"
                 style={{
                   gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                  gridTemplateRows: `repeat(${laneCount}, minmax(3.75rem, auto))`,
+                  gridTemplateRows: `repeat(${laneCount}, minmax(96px, auto))`,
                 }}
                 onDragOver={(e) => {
                   if (!draggingRideId) return;
@@ -168,19 +167,24 @@ export function ResourceTimelineGrid({
                   if (draggingRideId) onDropRide(resource.id);
                 }}
               >
-                {days.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`border-r border-[var(--border-soft)] last:border-r-0 ${
-                      isDragTarget
-                        ? dragOverTarget?.conflict
-                          ? "bg-[var(--chip-critical)]/30"
-                          : "bg-[var(--chip-positive)]/30"
-                        : ""
-                    }`}
-                    style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
-                  />
-                ))}
+                {days.map((day, i) => {
+                  const isToday = day.getTime() === today.getTime();
+                  return (
+                    <div
+                      key={i}
+                      className={`border-r border-b border-[var(--border-soft)] last:border-r-0 ${
+                        isDragTarget
+                          ? dragOverTarget?.conflict
+                            ? "bg-[var(--chip-critical)]/30"
+                            : "bg-[var(--chip-positive)]/30"
+                          : isToday
+                            ? "bg-[var(--select-tint)]"
+                            : ""
+                      }`}
+                      style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
+                    />
+                  );
+                })}
 
                 {resourceBlocks.map(({ block, startIdx, endIdx }) => (
                   <div
@@ -189,7 +193,7 @@ export function ResourceTimelineGrid({
                     style={{
                       gridRow: (laneOf.get(block.id) ?? 0) + 1,
                       gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                      margin: "0.25rem",
+                      margin: "6px",
                       ...BLOCK_PATTERN_STYLE,
                     }}
                     title={block.note ?? undefined}
@@ -205,7 +209,7 @@ export function ResourceTimelineGrid({
                     style={{
                       gridRow: (laneOf.get(ride.id) ?? 0) + 1,
                       gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                      margin: "0.25rem",
+                      margin: "6px",
                     }}
                   >
                     <RideBlockCard ride={ride} onClick={() => onRideClick(ride.id)} style={{ height: "100%" }} />
@@ -218,7 +222,7 @@ export function ResourceTimelineGrid({
                     style={{
                       gridRow: 1,
                       gridColumn: "1 / 8",
-                      margin: "0.25rem",
+                      margin: "6px",
                       justifySelf: "start",
                       background: "#F87171",
                     }}

@@ -147,34 +147,34 @@ export function RidesCalendar() {
             type="button"
             onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
             aria-label={t("today")}
-            className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
+            className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-panel)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
           >
             <ChevronLeft size={17} strokeWidth={1.9} />
           </button>
-          <span className="min-w-[10rem] text-center font-mono text-[13px] font-medium text-[var(--ink-secondary)]">
+          <span className="min-w-[10rem] text-center font-mono text-[13.5px] font-medium text-[var(--ink-2)]">
             {weekLabel}
           </span>
           <button
             type="button"
             onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
             aria-label={t("today")}
-            className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
+            className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-panel)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
           >
             <ChevronRight size={17} strokeWidth={1.9} />
           </button>
-          <Button variant="ghost" compact onClick={() => setWeekStart(startOfWeek(new Date()))}>
+          <Button variant="secondary" compact onClick={() => setWeekStart(startOfWeek(new Date()))}>
             {t("today")}
           </Button>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 rounded-[10px] border border-[var(--border-hairline)] p-[3px]">
+          <div className="flex items-center gap-[2px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
             <button
               type="button"
               onClick={() => setGrouping("vehicle")}
-              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-colors duration-[.12s] ease-out ${
+              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
                 grouping === "vehicle"
-                  ? "bg-[var(--border-soft)] text-[var(--ink-primary)]"
+                  ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
                   : "text-[var(--ink-secondary)]"
               }`}
             >
@@ -183,9 +183,9 @@ export function RidesCalendar() {
             <button
               type="button"
               onClick={() => setGrouping("driver")}
-              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-colors duration-[.12s] ease-out ${
+              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
                 grouping === "driver"
-                  ? "bg-[var(--border-soft)] text-[var(--ink-primary)]"
+                  ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
                   : "text-[var(--ink-secondary)]"
               }`}
             >
@@ -201,7 +201,7 @@ export function RidesCalendar() {
 
       <CalendarLegend />
 
-      <div className={`grid gap-4 ${data.unassigned.length > 0 ? "lg:grid-cols-[1fr_20rem]" : ""}`}>
+      <div className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
         <ResourceTimelineGrid
           weekStart={weekStart}
           grouping={grouping}

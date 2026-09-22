@@ -26,11 +26,13 @@ export function UserMenu({
   email,
   image,
   profileHref,
+  size = 32,
 }: {
   name: string;
   email: string | null;
   image?: string | null;
   profileHref: string | null;
+  size?: 32 | 34;
 }) {
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -63,7 +65,8 @@ export function UserMenu({
         aria-label={t("accountMenu")}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-semibold text-white"
+        style={{ height: size, width: size }}
+        className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-medium text-white"
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
