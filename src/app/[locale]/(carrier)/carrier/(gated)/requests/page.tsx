@@ -17,7 +17,7 @@ export default async function CarrierRequestsPage() {
   return (
     <>
       <PageHeader title={t("requestsTitle")} context={`${requests.length}`} />
-      <div className="px-5 py-4">
+      <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {requests.length === 0 ? (
           <p className="text-[13.5px] text-[var(--ink-muted)]">{t("noIncomingRequests")}</p>
         ) : (

@@ -21,7 +21,7 @@ export async function PageHeader({
   const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
 
   return (
-    <div className="flex min-h-[60px] items-center justify-between gap-4 border-b border-[var(--border-hairline)] bg-[var(--bg-panel)] px-5 py-3">
+    <div className="flex min-h-[60px] shrink-0 items-center justify-between gap-4 border-b border-[var(--border-hairline)] bg-[var(--bg-panel)] px-5 py-3">
       <div className="flex min-w-0 items-baseline gap-3">
         <h1 className="truncate text-[25px] font-extrabold tracking-[-0.02em] text-[var(--ink-primary)]">{title}</h1>
         {context ? <span className="shrink-0 font-mono text-[13.5px] text-[var(--ink-muted)]">{context}</span> : null}

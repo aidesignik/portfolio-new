@@ -24,7 +24,7 @@ export default async function EditDriverPage({
   if (!driver) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900">{driver.name}</h1>
         <DeleteButton url={`/api/carrier/drivers/${driver.id}`} redirectTo="/carrier/drivers" />

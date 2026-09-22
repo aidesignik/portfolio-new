@@ -6,7 +6,7 @@ export default async function NewVehiclePage() {
   const t = await getTranslations("carrier");
 
   return (
-    <div className="space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <h1 className="text-2xl font-semibold text-zinc-900">{t("addVehicle")}</h1>
       <Card>
         <VehicleForm />

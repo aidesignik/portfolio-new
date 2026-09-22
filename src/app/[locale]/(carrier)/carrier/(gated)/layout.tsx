@@ -106,19 +106,15 @@ export default async function CarrierGatedLayout({
   });
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] p-6">
-      <div className="mx-auto max-w-[1440px] overflow-x-auto">
-        <div className="grid min-w-[1020px] grid-cols-[252px_1fr] overflow-hidden rounded-[18px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
-          <CarrierSidebar
-            requestCount={requestCount}
-            bookingCount={bookingCount}
-            fleetCount={vehicles.length}
-            driverCount={drivers.length}
-            expiringItems={sidebarExpiringItems}
-          />
-          <div className="flex min-w-0 flex-col bg-[var(--bg-canvas)]">{children}</div>
-        </div>
-      </div>
+    <div className="grid h-dvh grid-cols-[252px_1fr] overflow-hidden bg-white">
+      <CarrierSidebar
+        requestCount={requestCount}
+        bookingCount={bookingCount}
+        fleetCount={vehicles.length}
+        driverCount={drivers.length}
+        expiringItems={sidebarExpiringItems}
+      />
+      <div className="flex h-dvh min-w-0 flex-col">{children}</div>
     </div>
   );
 }

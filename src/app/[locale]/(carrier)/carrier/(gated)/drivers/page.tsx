@@ -26,7 +26,7 @@ export default async function DriversPage() {
         context={`${drivers.length}`}
         actions={<AddDriverButton vehicles={vehicles} />}
       />
-      <div className="px-5 py-4">
+      <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {drivers.length === 0 ? (
           <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noDrivers")}</p>
         ) : (

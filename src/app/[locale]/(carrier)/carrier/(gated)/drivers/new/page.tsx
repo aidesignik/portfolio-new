@@ -10,7 +10,7 @@ export default async function NewDriverPage() {
   const vehicles = await prisma.vehicle.findMany({ where: { carrierId: carrier.id }, orderBy: { createdAt: "desc" } });
 
   return (
-    <div className="space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <h1 className="text-2xl font-semibold text-zinc-900">{t("addDriver")}</h1>
       <Card>
         <DriverForm vehicles={vehicles} />

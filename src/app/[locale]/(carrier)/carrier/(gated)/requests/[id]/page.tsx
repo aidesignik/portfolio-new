@@ -31,7 +31,7 @@ export default async function CarrierRequestDetailPage({
   if (!ride || (ride.carrierId && ride.carrierId !== carrier.id)) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
           {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
