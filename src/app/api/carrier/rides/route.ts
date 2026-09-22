@@ -49,7 +49,13 @@ export async function POST(request: Request) {
   }
   if (!client) {
     client = await prisma.user.create({
-      data: { email, name: data.clientName, phone: data.clientPhone, role: "CLIENT" },
+      data: {
+        email,
+        name: data.clientName,
+        companyName: data.clientCompanyName || undefined,
+        phone: data.clientPhone,
+        role: "CLIENT",
+      },
     });
   }
   const clientId = client.id;

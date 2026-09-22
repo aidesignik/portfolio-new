@@ -22,8 +22,14 @@ export function ContractDocument({ ride, number }: DocumentTemplateProps) {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Client</Text>
-            <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
+            <Text style={styles.value}>{ride.client.companyName ?? ride.client.name ?? ride.client.email}</Text>
           </View>
+          {ride.client.companyName ? (
+            <View style={styles.row}>
+              <Text style={styles.label}>Contact person</Text>
+              <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.divider} />

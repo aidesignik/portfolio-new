@@ -76,6 +76,11 @@ model User {
   passwordHash String?
   role         Role     @default(CLIENT)
   name         String?
+  // Set for client accounts that book on behalf of an organization (a
+  // sports federation, a company, a school) rather than as an individual —
+  // `name` then holds the contact person, this holds who they're booking
+  // for. Null for an ordinary individual client.
+  companyName  String?
   image        String?
   phone        String?
   locale       String   @default("sr")

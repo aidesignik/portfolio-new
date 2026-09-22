@@ -1,7 +1,7 @@
 import type { Carrier, Driver, Ride, RideStop, User, Vehicle } from "@prisma/client";
 
 export type RideWithRelations = Ride & {
-  client: Pick<User, "name" | "email" | "phone">;
+  client: Pick<User, "name" | "companyName" | "email" | "phone">;
   carrier: Carrier;
   vehicle: Vehicle;
   driver: Driver;

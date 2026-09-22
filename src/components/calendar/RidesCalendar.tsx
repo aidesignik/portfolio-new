@@ -9,6 +9,7 @@ import { CalendarLegend } from "./CalendarLegend";
 import { NewRideModal } from "./NewRideModal";
 import { RideDetailDrawer } from "./RideDetailDrawer";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { clientDisplayName } from "@/lib/clientDisplay";
 import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -90,7 +91,7 @@ export function RidesCalendar() {
       setDragOverTarget({
         resourceId,
         conflict: true,
-        message: t("conflictWith", { client: conflictRide.client.name ?? "—" }),
+        message: t("conflictWith", { client: clientDisplayName(conflictRide.client) }),
       });
       return;
     }

@@ -29,6 +29,7 @@ export function CarrierRideForm({
   const t = useTranslations();
   const router = useRouter();
   const [form, setForm] = useState({
+    clientCompanyName: "",
     clientName: "",
     clientEmail: "",
     clientPhone: "",
@@ -131,6 +132,7 @@ export function CarrierRideForm({
       "POST",
       {
         ...form,
+        clientCompanyName: form.clientCompanyName || undefined,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
@@ -171,8 +173,15 @@ export function CarrierRideForm({
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-4">
         <h2 className="text-sm font-semibold text-zinc-900">{t("carrier.rideForm.clientSection")}</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label={t("common.name")}>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label={t("carrier.rideForm.client")}>
+            <Input
+              placeholder={t("carrier.rideForm.clientPlaceholder")}
+              value={form.clientCompanyName}
+              onChange={(e) => setForm({ ...form, clientCompanyName: e.target.value })}
+            />
+          </Field>
+          <Field label={t("carrier.rideForm.contactPerson")}>
             <Input
               required
               value={form.clientName}

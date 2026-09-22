@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
 import { formatRoute } from "@/lib/location";
+import { clientDisplayName } from "@/lib/clientDisplay";
 
 export default async function CarrierBookingDetailPage({
   params,
@@ -18,7 +19,7 @@ export default async function CarrierBookingDetailPage({
   const booking = await prisma.ride.findFirst({
     where: { id, carrierId: carrier.id },
     include: {
-      client: { select: { name: true, phone: true, email: true } },
+      client: { select: { name: true, companyName: true, phone: true, email: true } },
       vehicle: true,
       driver: true,
       documents: true,
@@ -36,6 +37,10 @@ export default async function CarrierBookingDetailPage({
       </div>
 
       <Card className="space-y-2">
+        <p className="text-sm font-medium text-zinc-900">
+          {clientDisplayName(booking.client)}
+          {booking.client.companyName ? ` (${booking.client.name ?? "—"})` : ""}
+        </p>
         <p className="text-sm text-zinc-600">{t("common.email")}: {booking.client.email}</p>
         <p className="text-sm text-zinc-600">{t("common.phone")}: {booking.client.phone}</p>
         <p className="text-sm text-zinc-600">

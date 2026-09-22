@@ -14,6 +14,7 @@ import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { clientDisplayName } from "@/lib/clientDisplay";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
 
@@ -168,7 +169,7 @@ export function RideDetailDrawer({
               {ride.pickupCity} → {ride.destinationCity}
               {ride.isRoundTrip ? ` → ${ride.pickupCity}` : ""}
             </h2>
-            <p className="text-sm text-zinc-600">{ride.client.name ?? "—"}</p>
+            <p className="text-sm text-zinc-600">{clientDisplayName(ride.client)}</p>
             <p className="text-sm text-zinc-600">{new Date(ride.departureAt).toLocaleString()}</p>
             {ride.isRoundTrip && ride.returnAt ? (
               <p className="text-sm text-zinc-600">
@@ -210,6 +211,7 @@ export function RideDetailDrawer({
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="space-y-1 text-sm">
+          {ride.client.companyName ? <p className="text-zinc-600">{ride.client.name ?? "—"}</p> : null}
           <p className="text-zinc-600">{ride.client.phone}</p>
         </div>
 

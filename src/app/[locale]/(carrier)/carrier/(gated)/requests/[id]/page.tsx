@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { AssignRideForm } from "@/components/forms/AssignRideForm";
 import { formatLocation } from "@/lib/location";
+import { clientDisplayName } from "@/lib/clientDisplay";
 
 export default async function CarrierRequestDetailPage({
   params,
@@ -19,7 +20,7 @@ export default async function CarrierRequestDetailPage({
     prisma.ride.findUnique({
       where: { id },
       include: {
-        client: { select: { name: true, phone: true } },
+        client: { select: { name: true, companyName: true, phone: true } },
         stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       },
     }),
@@ -61,7 +62,8 @@ export default async function CarrierRequestDetailPage({
           </p>
         ) : null}
         <p className="text-sm text-zinc-600">
-          {ride.client.name} · {ride.client.phone}
+          {clientDisplayName(ride.client)}
+          {ride.client.companyName ? ` (${ride.client.name ?? "—"})` : ""} · {ride.client.phone}
         </p>
         {ride.specialRequests ? (
           <p className="mt-2 text-sm text-zinc-700">{ride.specialRequests}</p>

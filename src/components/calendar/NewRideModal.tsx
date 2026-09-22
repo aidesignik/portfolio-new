@@ -29,6 +29,7 @@ export function NewRideModal({
   const t = useTranslations();
   const tType = useTranslations("vehicleType");
   const [form, setForm] = useState({
+    clientCompanyName: "",
     clientName: "",
     clientEmail: "",
     clientPhone: "",
@@ -124,6 +125,7 @@ export function NewRideModal({
       "POST",
       {
         ...form,
+        clientCompanyName: form.clientCompanyName || undefined,
         clientPhone: form.clientPhone || undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
@@ -161,8 +163,15 @@ export function NewRideModal({
 
       <div className="flex-1 overflow-y-auto p-6">
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label={t("common.name")}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("carrier.rideForm.client")}>
+              <Input
+                placeholder={t("carrier.rideForm.clientPlaceholder")}
+                value={form.clientCompanyName}
+                onChange={(e) => setForm({ ...form, clientCompanyName: e.target.value })}
+              />
+            </Field>
+            <Field label={t("carrier.rideForm.contactPerson")}>
               <Input
                 required
                 value={form.clientName}

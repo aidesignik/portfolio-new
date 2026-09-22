@@ -3,7 +3,7 @@ export type RideStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 export interface CalendarRide {
   id: string;
   clientId: string;
-  client: { name: string | null; phone: string | null };
+  client: { name: string | null; companyName: string | null; phone: string | null };
   carrierId: string | null;
   vehicleId: string | null;
   driverId: string | null;

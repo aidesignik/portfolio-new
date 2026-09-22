@@ -6,6 +6,7 @@ import { cityLocationSchema } from "./request.schema";
 // queue; assignment happens afterward from the calendar itself.
 export const quickRideSchema = z
   .object({
+    clientCompanyName: z.string().optional(),
     clientName: z.string().min(1),
     clientEmail: z.string().email(),
     clientPhone: z.string().optional(),

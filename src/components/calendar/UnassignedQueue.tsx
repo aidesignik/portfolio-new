@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/Card";
+import { clientDisplayName } from "@/lib/clientDisplay";
 import type { CalendarRide } from "./types";
 
 export function UnassignedQueue({
@@ -37,7 +38,7 @@ export function UnassignedQueue({
             className="cursor-grab active:cursor-grabbing"
           >
             <Card className="space-y-1 border-dashed transition-shadow hover:shadow-md">
-              <p className="text-sm font-medium text-zinc-900">{ride.client.name ?? "—"}</p>
+              <p className="text-sm font-medium text-zinc-900">{clientDisplayName(ride.client)}</p>
               <p className="text-xs text-zinc-600">
                 {new Date(ride.departureAt).toLocaleString()}
               </p>

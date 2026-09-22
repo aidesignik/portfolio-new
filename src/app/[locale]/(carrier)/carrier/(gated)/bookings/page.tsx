@@ -6,13 +6,14 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 import { formatRoute } from "@/lib/location";
+import { clientDisplayName } from "@/lib/clientDisplay";
 
 export default async function CarrierBookingsPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const bookings = await prisma.ride.findMany({
     where: { carrierId: carrier.id },
-    include: { client: { select: { name: true } } },
+    include: { client: { select: { name: true, companyName: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -35,7 +36,7 @@ export default async function CarrierBookingsPage() {
                 <div>
                   <p className="font-medium text-zinc-900">{formatRoute(booking)}</p>
                   <p className="text-sm text-zinc-600">
-                    {new Date(booking.departureAt).toLocaleString()} · {booking.client.name}
+                    {new Date(booking.departureAt).toLocaleString()} · {clientDisplayName(booking.client)}
                   </p>
                 </div>
                 <Badge tone="positive">{booking.status}</Badge>

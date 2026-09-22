@@ -49,8 +49,14 @@ export function ConfirmationDocument({ ride, number }: DocumentTemplateProps) {
           <Text style={styles.sectionTitle}>Client</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Name</Text>
-            <Text style={styles.value}>{ride.client.name ?? "-"}</Text>
+            <Text style={styles.value}>{ride.client.companyName ?? ride.client.name ?? "-"}</Text>
           </View>
+          {ride.client.companyName ? (
+            <View style={styles.row}>
+              <Text style={styles.label}>Contact person</Text>
+              <Text style={styles.value}>{ride.client.name ?? "-"}</Text>
+            </View>
+          ) : null}
           <View style={styles.row}>
             <Text style={styles.label}>Contact</Text>
             <Text style={styles.value}>{ride.client.phone ?? ride.client.email ?? "-"}</Text>

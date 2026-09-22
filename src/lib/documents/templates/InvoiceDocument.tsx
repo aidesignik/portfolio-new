@@ -20,8 +20,14 @@ export function InvoiceDocument({ ride, number }: DocumentTemplateProps) {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Billed to</Text>
-          <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
+          <Text style={styles.value}>{ride.client.companyName ?? ride.client.name ?? ride.client.email}</Text>
         </View>
+        {ride.client.companyName ? (
+          <View style={styles.row}>
+            <Text style={styles.label}>Contact person</Text>
+            <Text style={styles.value}>{ride.client.name ?? ride.client.email}</Text>
+          </View>
+        ) : null}
         <View style={styles.row}>
           <Text style={styles.label}>Issue date</Text>
           <Text style={styles.value}>{formatDateTime(new Date())}</Text>

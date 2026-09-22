@@ -7,6 +7,7 @@ import { cityLocationSchema } from "./request.schema";
 // request → offer → accept dance when the carrier is on both sides.
 export const carrierRideSchema = z
   .object({
+    clientCompanyName: z.string().optional(),
     clientName: z.string().min(1),
     clientEmail: z.string().email(),
     clientPhone: z.string().optional(),
