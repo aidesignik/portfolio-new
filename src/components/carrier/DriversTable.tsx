@@ -1,8 +1,9 @@
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
-import { AssignmentChip, EmptyAssignmentChip } from "@/components/ui/AssignmentChip";
 import { DocumentChipsRow } from "@/components/carrier/DocumentChipsRow";
 import { RowActionsMenu } from "@/components/carrier/RowActionsMenu";
+import { ClickableRow } from "@/components/carrier/ClickableRow";
+import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
 import { driverDocumentChips } from "@/lib/documentChips";
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
@@ -19,64 +20,77 @@ export interface DriversTableDriver {
   vehicles: { id: string; type: string; model: string; photos: string[] }[];
 }
 
+const GRID = "grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1.4fr)_minmax(0,1.5fr)_44px]";
+const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
+
 export function DriversTable({ drivers, t }: { drivers: DriversTableDriver[]; t: Translate }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
-      <table className="min-w-full divide-y divide-zinc-200 text-sm">
-        <thead className="bg-zinc-50 text-left text-xs font-medium uppercase tracking-wide text-zinc-500">
-          <tr>
-            <th className="px-4 py-3">{t("carrier.driversTable.driver")}</th>
-            <th className="px-4 py-3">{t("carrier.driversTable.licenseNumber")}</th>
-            <th className="px-4 py-3">{t("carrier.driversTable.assignedVehicle")}</th>
-            <th className="px-4 py-3">{t("carrier.table.documents")}</th>
-            <th className="px-4 py-3">
-              <span className="sr-only">{t("common.actions")}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-100">
-          {drivers.map((driver) => {
-            const chips = driverDocumentChips(driver);
-            return (
-              <tr key={driver.id} className="hover:bg-zinc-50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <DriverAvatar name={driver.name} />
-                    <div>
-                      <p className="font-medium text-zinc-900">{driver.name}</p>
-                      <p className="text-xs text-zinc-500">{driver.phone}</p>
-                    </div>
+    <div role="table" className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+      <div
+        role="row"
+        className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3`}
+      >
+        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.driver")}</span>
+        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.licenseNumber")}</span>
+        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.assignedVehicle")}</span>
+        <span role="columnheader" className={EYEBROW}>{t("carrier.table.documents")}</span>
+        <span role="columnheader" className="sr-only">{t("common.actions")}</span>
+      </div>
+      <div role="rowgroup">
+        {drivers.map((driver) => {
+          const chips = driverDocumentChips(driver);
+          return (
+            <ClickableRow
+              key={driver.id}
+              href={`/carrier/drivers/${driver.id}`}
+              className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0`}
+            >
+              <div role="cell" className="flex min-w-0 items-center gap-[10px]">
+                <DriverAvatar name={driver.name} id={driver.id} />
+                <div className="min-w-0">
+                  <p className="truncate text-[14.5px] font-bold text-[var(--ink-primary)]">{driver.name}</p>
+                  <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">{driver.phone}</p>
+                </div>
+              </div>
+              <div role="cell" className="min-w-0 truncate font-mono text-[13.5px] text-[var(--ink-secondary)]">
+                {driver.licenseNumber || "—"}
+              </div>
+              <div role="cell" className="min-w-0">
+                {driver.vehicles.length === 0 ? (
+                  <div className="flex items-center gap-[10px]">
+                    <VehicleAvatar empty size="sm" />
+                    <span className="truncate text-[13.5px] text-[var(--ink-disabled)]">
+                      {t("carrier.assignment.noVehicleAssigned")}
+                    </span>
                   </div>
-                </td>
-                <td className="px-4 py-3 text-zinc-600">{driver.licenseNumber || "—"}</td>
-                <td className="px-4 py-3">
-                  {driver.vehicles.length === 0 ? (
-                    <EmptyAssignmentChip>{t("carrier.assignment.noVehicleAssigned")}</EmptyAssignmentChip>
-                  ) : (
-                    <div className="flex flex-wrap gap-1">
-                      {driver.vehicles.map((vehicle) => (
-                        <AssignmentChip key={vehicle.id}>
-                          <VehicleAvatar type={vehicle.type} photoUrl={vehicle.photos[0] ?? null} size="sm" />
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {driver.vehicles.slice(0, 2).map((vehicle) => (
+                      <div key={vehicle.id} className="flex min-w-0 items-center gap-[10px]">
+                        <VehicleAvatar
+                          type={vehicle.type}
+                          typeLabel={t(`vehicleType.${vehicle.type}`)}
+                          photoUrl={vehicle.photos[0] ?? null}
+                          size="sm"
+                        />
+                        <span className="truncate text-[13.5px] text-[var(--ink-secondary)]">
                           {t(`vehicleType.${vehicle.type}`)} {vehicle.model}
-                        </AssignmentChip>
-                      ))}
-                    </div>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <DocumentChipsRow chips={chips} t={t} />
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <RowActionsMenu
-                    editHref={`/carrier/drivers/${driver.id}`}
-                    deleteUrl={`/api/carrier/drivers/${driver.id}`}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div role="cell" className="min-w-0">
+                <DocumentChipsRow chips={chips} t={t} />
+              </div>
+              <StopClickPropagation className="flex justify-end">
+                <RowActionsMenu editHref={`/carrier/drivers/${driver.id}`} deleteUrl={`/api/carrier/drivers/${driver.id}`} />
+              </StopClickPropagation>
+            </ClickableRow>
+          );
+        })}
+      </div>
     </div>
   );
 }

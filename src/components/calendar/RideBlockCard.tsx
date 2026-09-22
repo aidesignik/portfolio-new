@@ -14,20 +14,23 @@ export function RideBlockCard({
 }) {
   const time = new Date(ride.departureAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const clientLabel = clientDisplayName(ride.client);
+  const statusStyle = RIDE_STATUS_STYLES[ride.status];
   return (
     <button
       type="button"
       onClick={onClick}
       style={style}
-      className={`min-w-0 truncate rounded-md px-2 py-1 text-left text-xs shadow-sm transition-shadow hover:shadow-md ${RIDE_STATUS_STYLES[ride.status].block}`}
+      className={`flex min-w-0 flex-col gap-[3px] rounded-[11px] px-[11px] pb-[10px] pt-[9px] text-left transition-shadow duration-[.12s] ease-out ${statusStyle.card}`}
       title={`${clientLabel} · ${ride.pickupCity} → ${ride.destinationCity}`}
     >
-      <div className="truncate font-medium">
-        {time} · {clientLabel}
-      </div>
-      <div className="truncate opacity-80">
+      <span className="h-1 w-7 shrink-0 rounded-full" style={{ background: statusStyle.accent }} />
+      <span className={`truncate text-[13px] font-bold ${statusStyle.text}`}>
         {ride.pickupCity} → {ride.destinationCity}
-      </div>
+      </span>
+      <span className="truncate text-[11.5px] font-semibold text-[var(--ink-2)]">{clientLabel}</span>
+      <span className="truncate font-mono text-[11px] text-[var(--ink-muted)]">
+        {time} · {ride.passengerCount} pax
+      </span>
     </button>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/Card";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import type { CalendarRide } from "./types";
 
@@ -21,10 +20,10 @@ export function UnassignedQueue({
   return (
     <div className="space-y-3">
       <div>
-        <h2 className="text-sm font-semibold text-zinc-900">{t("unassignedTitle")}</h2>
-        <p className="text-xs text-zinc-500">{t("unassignedHint")}</p>
+        <h2 className="text-[14px] font-bold text-[var(--ink-primary)]">{t("unassignedTitle")}</h2>
+        <p className="text-[12.5px] text-[var(--ink-muted)]">{t("unassignedHint")}</p>
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
         {rides.map((ride) => (
           <div
             key={ride.id}
@@ -35,20 +34,16 @@ export function UnassignedQueue({
             }}
             onDragEnd={onDragEnd}
             onClick={() => onRideClick(ride.id)}
-            className="cursor-grab active:cursor-grabbing"
+            className="flex min-w-[190px] flex-1 basis-[210px] cursor-grab flex-col gap-[3px] rounded-[11px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-[11px] pb-[10px] pt-[9px] active:cursor-grabbing"
           >
-            <Card className="space-y-1 border-dashed transition-shadow hover:shadow-md">
-              <p className="text-sm font-medium text-zinc-900">{clientDisplayName(ride.client)}</p>
-              <p className="text-xs text-zinc-600">
-                {new Date(ride.departureAt).toLocaleString()}
-              </p>
-              <p className="text-xs text-zinc-600">
-                {ride.pickupCity} → {ride.destinationCity}
-              </p>
-              <p className="text-xs text-zinc-500">
-                {ride.passengerCount} {t("pax")}
-              </p>
-            </Card>
+            <span className="h-1 w-7 shrink-0 rounded-full bg-[#F97316]" />
+            <p className="truncate text-[13px] font-semibold text-[var(--ink-primary)]">
+              {ride.pickupCity} → {ride.destinationCity}
+            </p>
+            <p className="truncate text-[11.5px] font-semibold text-[var(--ink-2)]">{clientDisplayName(ride.client)}</p>
+            <p className="truncate font-mono text-[11px] text-[var(--ink-muted)]">
+              {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} {t("pax")}
+            </p>
           </div>
         ))}
       </div>

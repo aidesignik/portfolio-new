@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
@@ -162,22 +164,24 @@ export function RideDetailDrawer({
 
   return (
     <SidePanel onClose={onClose}>
-      <div className="shrink-0 border-b border-zinc-200 p-6">
+      <div className="shrink-0 border-b border-[var(--border-soft)] px-5 py-[18px]">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-900">
+          <div className="min-w-0">
+            <h2 className="truncate text-[18px] font-bold text-[var(--ink-primary)]">
               {ride.pickupCity} → {ride.destinationCity}
               {ride.isRoundTrip ? ` → ${ride.pickupCity}` : ""}
             </h2>
-            <p className="text-sm text-zinc-600">{clientDisplayName(ride.client)}</p>
-            <p className="text-sm text-zinc-600">{new Date(ride.departureAt).toLocaleString()}</p>
+            <p className="mt-[2px] text-[12.5px] text-[var(--ink-muted)]">{clientDisplayName(ride.client)}</p>
+            <p className="font-mono text-[12.5px] text-[var(--ink-muted)]">
+              {new Date(ride.departureAt).toLocaleString()}
+            </p>
             {ride.isRoundTrip && ride.returnAt ? (
-              <p className="text-sm text-zinc-600">
+              <p className="font-mono text-[12.5px] text-[var(--ink-muted)]">
                 {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
               </p>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1">
             {editable && !editing ? (
               <button
                 type="button"
@@ -186,20 +190,20 @@ export function RideDetailDrawer({
                   setEditError(null);
                   setEditing(true);
                 }}
-                className="text-zinc-400 hover:text-zinc-700"
+                className="flex h-8 w-8 items-center justify-center rounded-[9px] text-[var(--ink-disabled)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)] hover:text-[var(--ink-2)]"
                 aria-label={t("common.edit")}
                 title={t("common.edit")}
               >
-                ✎
+                <Pencil size={16} strokeWidth={1.9} />
               </button>
             ) : null}
             <button
               type="button"
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-700"
+              className="flex h-8 w-8 items-center justify-center rounded-[9px] text-[var(--ink-disabled)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)] hover:text-[var(--ink-2)]"
               aria-label={t("common.close")}
             >
-              ✕
+              <X size={17} strokeWidth={1.9} />
             </button>
           </div>
         </div>
@@ -209,27 +213,29 @@ export function RideDetailDrawer({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="space-y-1 text-sm">
-          {ride.client.companyName ? <p className="text-zinc-600">{ride.client.name ?? "—"}</p> : null}
-          <p className="text-zinc-600">{ride.client.phone}</p>
+      <div className="flex-1 overflow-y-auto px-5 py-[18px]">
+        <div className="space-y-1 text-[13.5px]">
+          {ride.client.companyName ? <p className="text-[var(--ink-secondary)]">{ride.client.name ?? "—"}</p> : null}
+          <p className="text-[var(--ink-secondary)]">{ride.client.phone}</p>
         </div>
 
-        <div className="mt-4 space-y-3 border-t border-zinc-200 pt-4">
+        <div className="mt-4 space-y-3 border-t border-[var(--border-soft)] pt-4">
           {!editing ? (
-            <div className="space-y-1 text-sm">
-              <p className="text-zinc-600">
+            <div className="space-y-1 text-[13.5px]">
+              <p className="text-[var(--ink-secondary)]">
                 {ride.pickupLocation} → {ride.destinationLocation}
               </p>
               {ride.isRoundTrip && (ride.returnPickupCity || ride.returnDestinationCity) ? (
-                <p className="text-zinc-600">
+                <p className="text-[var(--ink-secondary)]">
                   {t("client.requestForm.differentReturnRoute")}:{" "}
                   {ride.returnPickupLocation ?? ride.destinationLocation} →{" "}
                   {ride.returnDestinationLocation ?? ride.pickupLocation}
                 </p>
               ) : null}
-              <p className="text-zinc-600">{ride.passengerCount} {t("carrier.calendar.pax")}</p>
-              {ride.specialRequests ? <p className="text-zinc-700">{ride.specialRequests}</p> : null}
+              <p className="text-[var(--ink-secondary)]">
+                {ride.passengerCount} {t("carrier.calendar.pax")}
+              </p>
+              {ride.specialRequests ? <p className="text-[var(--ink-2)]">{ride.specialRequests}</p> : null}
             </div>
           ) : (
             <div className="space-y-3">
@@ -243,15 +249,15 @@ export function RideDetailDrawer({
               />
 
               {editForm.stops.map((stop, index) => (
-                <div key={index} className="space-y-2 rounded-md border border-dashed border-zinc-300 p-3">
+                <div key={index} className="space-y-2 rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-zinc-500">
+                    <span className="text-[12.5px] font-semibold text-[var(--ink-muted)]">
                       {t("client.requestForm.stop")} {index + 1}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeStop(index)}
-                      className="text-xs font-medium text-red-600 hover:underline"
+                      className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
                     >
                       {t("client.requestForm.removeStop")}
                     </button>
@@ -267,7 +273,7 @@ export function RideDetailDrawer({
                 </div>
               ))}
               {editForm.stops.length < 5 ? (
-                <button type="button" onClick={addStop} className="text-sm font-medium text-zinc-700 underline">
+                <button type="button" onClick={addStop} className="text-[14px] font-semibold text-[var(--action-bg)] hover:underline">
                   + {t("client.requestForm.addStop")}
                 </button>
               ) : null}
@@ -290,7 +296,7 @@ export function RideDetailDrawer({
                 />
               </Field>
 
-              <label className="flex items-center gap-2 text-sm">
+              <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
                 <input
                   type="checkbox"
                   checked={editForm.isRoundTrip}
@@ -339,7 +345,7 @@ export function RideDetailDrawer({
                 />
               </Field>
 
-              {editError ? <p className="text-sm text-red-600">{editError}</p> : null}
+              {editError ? <p className="text-[13.5px] text-[#7F1D1D]">{editError}</p> : null}
 
               <div className="flex gap-2">
                 <Button type="button" disabled={busy === "edit"} onClick={saveEdit}>
@@ -353,7 +359,7 @@ export function RideDetailDrawer({
           )}
         </div>
 
-        <div className="mt-4 space-y-2 border-t border-zinc-200 pt-4">
+        <div className="mt-4 space-y-2 border-t border-[var(--border-soft)] pt-4">
           {!reassigning ? (
             <div className="flex items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
@@ -380,29 +386,21 @@ export function RideDetailDrawer({
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <select
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                  value={vehicleId}
-                  onChange={(e) => setVehicleId(e.target.value)}
-                >
+              <div className="grid gap-[10px] sm:grid-cols-2">
+                <Select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
                   {vehicles.map((v) => (
                     <option key={v.id} value={v.id}>
                       {tType(v.type)} {v.model}
                     </option>
                   ))}
-                </select>
-                <select
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                  value={driverId}
-                  onChange={(e) => setDriverId(e.target.value)}
-                >
+                </Select>
+                <Select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
                   {drivers.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="flex gap-2">
                 <Button type="button" disabled={busy === "reassign"} onClick={reassign}>
@@ -417,14 +415,14 @@ export function RideDetailDrawer({
         </div>
 
         {ride.price !== null ? (
-          <p className="mt-4 text-lg font-semibold text-zinc-900">
+          <p className="mt-4 text-[20px] font-bold tracking-[-0.015em] text-[var(--ink-primary)]">
             {Number(ride.price).toLocaleString()} {ride.currency}
           </p>
         ) : null}
 
-        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="mt-2 text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
 
-        <div className="mt-4 flex flex-wrap gap-2 border-t border-zinc-200 pt-4">
+        <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--border-soft)] pt-4">
           {ride.status !== "CANCELLED" && ride.status !== "COMPLETED" ? (
             <Button type="button" variant="danger" disabled={busy === "cancel"} onClick={cancelRide}>
               {busy === "cancel" ? t("common.loading") : t("carrier.calendar.cancelRide")}
@@ -432,8 +430,10 @@ export function RideDetailDrawer({
           ) : null}
         </div>
 
-        <div className="mt-4 border-t border-zinc-200 pt-4">
-          <h3 className="mb-3 text-sm font-semibold text-zinc-900">{t("documents.generateAll")}</h3>
+        <div className="mt-4 border-t border-[var(--border-soft)] pt-4">
+          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]">
+            {t("documents.generateAll")}
+          </h3>
           <DocumentDownloads bookingId={ride.id} initialDocuments={[]} />
         </div>
       </div>

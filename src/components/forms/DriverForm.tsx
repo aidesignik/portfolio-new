@@ -36,23 +36,26 @@ function DocSideUpload({
 
   return (
     <div className="space-y-1">
-      <p className="text-xs font-medium text-zinc-500">{label}</p>
+      <p className="text-[12.5px] font-semibold text-[var(--ink-muted)]">{label}</p>
       {url ? (
         <div className="space-y-1 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="" className="h-24 w-full rounded-md border border-zinc-200 object-cover" />
-          <button type="button" onClick={onRemove} className="text-xs font-medium text-red-600 hover:underline">
+          <img src={url} alt="" className="h-24 w-full rounded-[10px] border border-[var(--border-hairline)] object-cover" />
+          <button type="button" onClick={onRemove} className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline">
             {t("common.remove")}
           </button>
         </div>
       ) : (
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          disabled={uploading}
-          onChange={onChange}
-          className="w-full text-xs text-zinc-700 file:mr-2 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-2 file:py-1 file:text-xs file:font-medium file:text-zinc-700 hover:file:bg-zinc-50"
-        />
+        <label className="flex cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-[11px] text-center text-[12.5px] font-semibold text-[var(--action-bg)]">
+          {label}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={uploading}
+            onChange={onChange}
+            className="hidden"
+          />
+        </label>
       )}
     </div>
   );
@@ -116,8 +119,8 @@ function DriverDocumentSection({
   }
 
   return (
-    <div className="space-y-3 rounded-md border border-zinc-200 p-3">
-      <p className="text-sm font-medium text-zinc-900">{title}</p>
+    <div className="space-y-3 rounded-[10px] border border-[var(--border-hairline)] p-3">
+      <p className="text-[14px] font-bold text-[var(--ink-primary)]">{title}</p>
       <Field label={t("carrier.driverForm.expiryDate")}>
         <Input
           type="date"
@@ -128,7 +131,7 @@ function DriverDocumentSection({
           }}
         />
       </Field>
-      {suggested ? <p className="text-xs text-amber-600">{t("carrier.driverForm.expirySuggested")}</p> : null}
+      {suggested ? <p className="text-[12.5px] text-[#9A3412]">{t("carrier.driverForm.expirySuggested")}</p> : null}
       <div className="grid grid-cols-2 gap-3">
         <DocSideUpload
           label={t("carrier.driverForm.front")}
@@ -145,8 +148,8 @@ function DriverDocumentSection({
           onRemove={() => onBackChange("")}
         />
       </div>
-      {uploadingSide ? <p className="text-xs text-zinc-500">{t("common.loading")}</p> : null}
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {uploadingSide ? <p className="text-[12.5px] text-[var(--ink-muted)]">{t("common.loading")}</p> : null}
+      {error ? <p className="text-[12.5px] text-[#7F1D1D]">{error}</p> : null}
     </div>
   );
 }
@@ -278,7 +281,7 @@ export function DriverForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-[18px]">
       <Field label={t("carrier.driverForm.name")}>
         <Input required value={form.name} onChange={(e) => set("name", e.target.value)} />
       </Field>
@@ -288,7 +291,7 @@ export function DriverForm({
       <Field label={t("carrier.driverForm.licenseNumber")}>
         <Input value={form.licenseNumber} onChange={(e) => set("licenseNumber", e.target.value)} />
       </Field>
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
         <input
           type="checkbox"
           checked={form.isAvailable}
@@ -299,11 +302,11 @@ export function DriverForm({
 
       <Field label={t("carrier.driverForm.assignedVehicles")}>
         {vehicles.length === 0 ? (
-          <p className="text-sm text-zinc-500">{t("carrier.noVehicles")}</p>
+          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noVehicles")}</p>
         ) : (
           <div className="flex flex-wrap gap-3">
             {vehicles.map((vehicle) => (
-              <label key={vehicle.id} className="flex items-center gap-2 text-sm">
+              <label key={vehicle.id} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
                 <input
                   type="checkbox"
                   checked={form.vehicleIds.includes(vehicle.id)}
@@ -316,8 +319,10 @@ export function DriverForm({
         )}
       </Field>
 
-      <div className="space-y-3 border-t border-zinc-200 pt-4">
-        <p className="text-sm font-semibold text-zinc-900">{t("carrier.driverForm.documentsTitle")}</p>
+      <div className="space-y-3 border-t border-[var(--border-soft)] pt-4">
+        <p className="text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]">
+          {t("carrier.driverForm.documentsTitle")}
+        </p>
         <DriverDocumentSection
           title={t("carrier.driverForm.idCard")}
           docType="idCard"
@@ -360,7 +365,7 @@ export function DriverForm({
         />
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}

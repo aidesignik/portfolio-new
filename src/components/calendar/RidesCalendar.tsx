@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
 import { UnassignedQueue } from "./UnassignedQueue";
@@ -128,10 +129,10 @@ export function RidesCalendar() {
   }
 
   if (loading && !data) {
-    return <p className="text-sm text-zinc-600">{t("loading")}</p>;
+    return <p className="text-[13.5px] text-[var(--ink-disabled)]">{t("loading")}</p>;
   }
   if (!data) {
-    return <p className="text-sm text-red-600">{t("loadError")}</p>;
+    return <p className="text-[13.5px] text-[#7F1D1D]">{t("loadError")}</p>;
   }
 
   const weekLabel = `${weekStart.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${new Date(
@@ -142,36 +143,59 @@ export function RidesCalendar() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}>
-            ←
-          </Button>
-          <span className="min-w-[10rem] text-center text-sm font-medium text-zinc-900">{weekLabel}</span>
-          <Button variant="secondary" onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}>
-            →
-          </Button>
-          <Button variant="ghost" onClick={() => setWeekStart(startOfWeek(new Date()))}>
+          <button
+            type="button"
+            onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
+            aria-label={t("today")}
+            className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
+          >
+            <ChevronLeft size={17} strokeWidth={1.9} />
+          </button>
+          <span className="min-w-[10rem] text-center font-mono text-[13px] font-medium text-[var(--ink-secondary)]">
+            {weekLabel}
+          </span>
+          <button
+            type="button"
+            onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
+            aria-label={t("today")}
+            className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
+          >
+            <ChevronRight size={17} strokeWidth={1.9} />
+          </button>
+          <Button variant="ghost" compact onClick={() => setWeekStart(startOfWeek(new Date()))}>
             {t("today")}
           </Button>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex rounded-md border border-zinc-300 p-0.5 text-sm">
+          <div className="flex items-center gap-1 rounded-[10px] border border-[var(--border-hairline)] p-[3px]">
             <button
               type="button"
               onClick={() => setGrouping("vehicle")}
-              className={`rounded px-3 py-1 ${grouping === "vehicle" ? "bg-zinc-900 text-white" : "text-zinc-600"}`}
+              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-colors duration-[.12s] ease-out ${
+                grouping === "vehicle"
+                  ? "bg-[var(--border-soft)] text-[var(--ink-primary)]"
+                  : "text-[var(--ink-secondary)]"
+              }`}
             >
               {t("byVehicle")}
             </button>
             <button
               type="button"
               onClick={() => setGrouping("driver")}
-              className={`rounded px-3 py-1 ${grouping === "driver" ? "bg-zinc-900 text-white" : "text-zinc-600"}`}
+              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-colors duration-[.12s] ease-out ${
+                grouping === "driver"
+                  ? "bg-[var(--border-soft)] text-[var(--ink-primary)]"
+                  : "text-[var(--ink-secondary)]"
+              }`}
             >
               {t("byDriver")}
             </button>
           </div>
-          <Button onClick={() => setShowNewRide(true)}>+ {t("newRide")}</Button>
+          <Button onClick={() => setShowNewRide(true)}>
+            <Plus size={16} strokeWidth={2} />
+            {t("newRide")}
+          </Button>
         </div>
       </div>
 

@@ -7,7 +7,7 @@ export const Input = forwardRef<
   return (
     <input
       ref={ref}
-      className={`w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none ${className}`}
+      className={`h-[42px] w-full rounded-[10px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-3 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-disabled)] transition-[border-color,box-shadow] duration-[.12s] ease-out focus:outline-none focus:border-[#2563EB] focus:shadow-[var(--focus-ring)] ${className}`}
       {...props}
     />
   );

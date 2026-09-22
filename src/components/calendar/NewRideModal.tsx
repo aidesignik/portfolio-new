@@ -2,10 +2,12 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
+import { PanelHeader } from "@/components/ui/PanelHeader";
+import { PanelFooter } from "@/components/ui/PanelFooter";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
@@ -149,21 +151,11 @@ export function NewRideModal({
 
   return (
     <SidePanel onClose={onClose}>
-      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-zinc-200 p-6">
-        <h2 className="text-lg font-semibold text-zinc-900">{t("carrier.calendar.newRideTitle")}</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="shrink-0 text-zinc-400 hover:text-zinc-700"
-          aria-label={t("common.close")}
-        >
-          ✕
-        </button>
-      </div>
+      <PanelHeader title={t("carrier.calendar.newRideTitle")} onClose={onClose} closeLabel={t("common.close")} />
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+      <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+        <div className="flex-1 space-y-[18px] overflow-y-auto px-5 py-[18px]">
+          <div className="grid gap-[10px] sm:grid-cols-2">
             <Field label={t("carrier.rideForm.client")}>
               <Input
                 placeholder={t("carrier.rideForm.clientPlaceholder")}
@@ -204,15 +196,15 @@ export function NewRideModal({
           />
 
           {form.stops.map((stop, index) => (
-            <div key={index} className="space-y-2 rounded-md border border-dashed border-zinc-300 p-3">
+            <div key={index} className="space-y-2 rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
+                <span className="text-[12.5px] font-semibold text-[var(--ink-muted)]">
                   {t("client.requestForm.stop")} {index + 1}
                 </span>
                 <button
                   type="button"
                   onClick={() => removeStop(index)}
-                  className="text-xs font-medium text-red-600 hover:underline"
+                  className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
                 >
                   {t("client.requestForm.removeStop")}
                 </button>
@@ -228,7 +220,7 @@ export function NewRideModal({
             </div>
           ))}
           {form.stops.length < 5 ? (
-            <button type="button" onClick={addStop} className="text-sm font-medium text-zinc-700 underline">
+            <button type="button" onClick={addStop} className="text-[14px] font-semibold text-[var(--action-bg)] hover:underline">
               + {t("client.requestForm.addStop")}
             </button>
           ) : null}
@@ -251,7 +243,7 @@ export function NewRideModal({
             />
           </Field>
 
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
             <input
               type="checkbox"
               checked={form.isRoundTrip}
@@ -300,15 +292,14 @@ export function NewRideModal({
             />
           </Field>
 
-          <div className="space-y-2 rounded-md border border-zinc-200 p-3">
-            <p className="text-sm font-medium text-zinc-700">{t("carrier.calendar.assignNowTitle")}</p>
-            <p className="text-xs text-zinc-500">
+          <div className="space-y-2 rounded-[10px] border border-[var(--border-hairline)] p-3">
+            <p className="text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.calendar.assignNowTitle")}</p>
+            <p className="text-[12.5px] text-[var(--ink-muted)]">
               {form.departureAt ? t("carrier.calendar.assignNowHint") : t("carrier.calendar.assignNowHintNoDate")}
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-[10px] sm:grid-cols-2">
               <Field label={t("carrier.offerForm.vehicle")}>
-                <select
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                <Select
                   value={form.vehicleId}
                   onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
                   disabled={loadingAvailability}
@@ -320,11 +311,10 @@ export function NewRideModal({
                       {v.licensePlate ? ` · ${v.licensePlate}` : ""}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field label={t("carrier.offerForm.driver")}>
-                <select
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                <Select
                   value={form.driverId}
                   onChange={(e) => setForm({ ...form, driverId: e.target.value })}
                   disabled={loadingAvailability}
@@ -335,23 +325,27 @@ export function NewRideModal({
                       {d.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
             </div>
             {loadingAvailability ? (
-              <p className="text-xs text-zinc-500">{t("common.loading")}</p>
+              <p className="text-[12.5px] text-[var(--ink-muted)]">{t("common.loading")}</p>
             ) : form.departureAt && availableVehicles.length === 0 && availableDrivers.length === 0 ? (
-              <p className="text-xs text-zinc-500">{t("carrier.calendar.noneAvailableThatDay")}</p>
+              <p className="text-[12.5px] text-[var(--ink-muted)]">{t("carrier.calendar.noneAvailableThatDay")}</p>
             ) : null}
           </div>
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
+        </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? t("common.loading") : t("carrier.calendar.newRideSubmit")}
-          </Button>
-        </form>
-      </div>
+        <PanelFooter
+          onCancel={onClose}
+          cancelLabel={t("common.cancel")}
+          submitLabel={t("carrier.calendar.newRideSubmit")}
+          loading={loading}
+          loadingLabel={t("common.loading")}
+        />
+      </form>
     </SidePanel>
   );
 }

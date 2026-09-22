@@ -3,49 +3,58 @@ import { Link } from "@/i18n/navigation";
 import type { ExpiringItem } from "@/lib/expiryStatus";
 
 const DOC_LABEL_KEY: Record<ExpiringItem["docKind"], string> = {
-  registration: "carrier.expiry.registration",
-  inspection: "carrier.expiry.inspection",
-  idCard: "carrier.driverForm.idCard",
-  license: "carrier.driverForm.license",
-  cpc: "carrier.driverForm.cpc",
-  medicalCert: "carrier.driverForm.medicalCert",
+  registration: "carrier.docChip.registration",
+  inspection: "carrier.docChip.inspection",
+  idCard: "carrier.docChip.idCard",
+  license: "carrier.docChip.license",
+  cpc: "carrier.docChip.cpc",
+  medicalCert: "carrier.docChip.medicalCert",
 };
 
-// Deliberately loud — an amber/red bordered banner right at the top of the
-// dashboard, not a badge tucked away somewhere — so a carrier can't miss a
-// vehicle or driver document that's expired or about to.
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// The "needs attention" rail: a quiet list (8px status dot + name + mono
+// issue/countdown), not a loud banner — expired and expiring-soon items
+// stay easy to scan without dominating the dashboard.
 export async function ExpiringDocumentsBanner({ items }: { items: ExpiringItem[] }) {
   if (items.length === 0) return null;
 
   const t = await getTranslations();
-  const hasExpired = items.some((item) => item.status === "expired");
+  const now = new Date().getTime();
 
   return (
-    <div
-      className={`rounded-lg border-2 p-4 ${
-        hasExpired ? "border-red-300 bg-red-50" : "border-amber-300 bg-amber-50"
-      }`}
-    >
-      <p className={`text-sm font-semibold ${hasExpired ? "text-red-800" : "text-amber-800"}`}>
-        ⚠ {t("carrier.expiry.bannerTitle")}
-      </p>
-      <ul className="mt-2 space-y-1">
-        {items.map((item, index) => (
-          <li key={index} className="text-sm">
+    <div className="overflow-hidden rounded-[12px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+      <div className="border-b border-[var(--border-soft)] px-4 py-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]">
+          {t("carrier.expiry.bannerTitle")}
+        </p>
+      </div>
+      <div>
+        {items.map((item, index) => {
+          const label = t(DOC_LABEL_KEY[item.docKind]);
+          const daysLeft = Math.max(0, Math.ceil((item.expiryDate.getTime() - now) / DAY_MS));
+          const issue =
+            item.status === "expired"
+              ? t("carrier.docChip.expired", { label })
+              : t("carrier.docChip.expiringSoon", { label, days: daysLeft });
+          return (
             <Link
+              key={index}
               href={item.entityType === "vehicle" ? `/carrier/fleet/${item.entityId}` : `/carrier/drivers/${item.entityId}`}
-              className="font-medium text-zinc-900 underline hover:no-underline"
+              className="flex items-center gap-[10px] border-b border-[var(--border-soft)] px-4 py-[10px] transition-colors duration-[.12s] ease-out last:border-b-0 hover:bg-[var(--bg-subtle)]"
             >
-              {item.entityLabel}
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ background: item.status === "expired" ? "#F87171" : "#FDBA74" }}
+              />
+              <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[var(--ink-primary)]">
+                {item.entityLabel}
+              </span>
+              <span className="shrink-0 font-mono text-[11.5px] text-[var(--ink-muted)]">{issue}</span>
             </Link>
-            {" — "}
-            <span className={item.status === "expired" ? "text-red-700" : "text-amber-700"}>
-              {t(DOC_LABEL_KEY[item.docKind])} {t(`carrier.expiry.${item.status}`).toLowerCase()} (
-              {item.expiryDate.toLocaleDateString()})
-            </span>
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
     </div>
   );
 }

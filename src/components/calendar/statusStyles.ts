@@ -1,26 +1,42 @@
 import type { CSSProperties } from "react";
 import type { RideStatus } from "./types";
 
-// Ride-block styling by status. Colors drawn from this app's existing
-// palette (zinc/amber/emerald/red via the Badge/Button components) rather
-// than introducing new ones — "solid accent" here means this app's own
-// accent (zinc-900, the same color primary buttons use), not blue.
-export const RIDE_STATUS_STYLES: Record<RideStatus, { block: string; label: string }> = {
+// Ride-card styling by status, per the Atlas design system's accent-color
+// set: a blue top-of-card accent bar for a normal confirmed/scheduled ride,
+// green for completed, and a distinct dashed amber treatment (no shadow) for
+// pending/unconfirmed rides so they read as "not locked in yet" at a glance.
+// Cancelled rides stay flat and muted.
+export const RIDE_STATUS_STYLES: Record<
+  RideStatus,
+  { card: string; accent: string; dashed: boolean; text: string; label: string }
+> = {
   PENDING: {
-    block: "border border-dashed border-amber-400 bg-amber-50 text-amber-800",
-    label: "border border-dashed border-amber-400 bg-amber-50",
+    card: "border-[1.5px] border-dashed border-[#F97316] bg-[#FFF7ED]",
+    accent: "#F97316",
+    dashed: true,
+    text: "text-[var(--ink-2)]",
+    label: "bg-[#FFF7ED] border border-dashed border-[#F97316]",
   },
   CONFIRMED: {
-    block: "border border-zinc-900 bg-zinc-900 text-white",
-    label: "bg-zinc-900",
+    card: "border border-[var(--border-hairline)] bg-[var(--bg-panel)] shadow-[var(--shadow-card)]",
+    accent: "#2563EB",
+    dashed: false,
+    text: "text-[var(--ink-primary)]",
+    label: "bg-[#2563EB]",
   },
   COMPLETED: {
-    block: "border border-emerald-200 bg-emerald-50 text-emerald-800",
-    label: "bg-emerald-50 border border-emerald-200",
+    card: "border border-[var(--border-hairline)] bg-[var(--bg-panel)] shadow-[var(--shadow-card)]",
+    accent: "#16A34A",
+    dashed: false,
+    text: "text-[var(--ink-primary)]",
+    label: "bg-[#16A34A]",
   },
   CANCELLED: {
-    block: "border border-dashed border-zinc-300 bg-zinc-100 text-zinc-500 line-through",
-    label: "bg-zinc-100 border border-dashed border-zinc-300",
+    card: "border border-dashed border-[var(--border-strong)] bg-[var(--bg-subtle)] opacity-70",
+    accent: "#A9A9B2",
+    dashed: true,
+    text: "text-[var(--ink-disabled)] line-through",
+    label: "bg-[var(--border-strong)] border border-dashed border-[var(--border-strong)]",
   },
 };
 

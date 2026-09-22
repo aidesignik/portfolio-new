@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { MoreVertical } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 
 export function RowActionsMenu({ editHref, deleteUrl }: { editHref: string; deleteUrl: string }) {
@@ -34,17 +35,17 @@ export function RowActionsMenu({ editHref, deleteUrl }: { editHref: string; dele
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+        className="justify-self-end rounded-[9px] p-2 text-[var(--ink-disabled)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
         aria-label={t("actions")}
       >
-        ⋮
+        <MoreVertical size={17} strokeWidth={1.9} />
       </button>
       {open ? (
-        <div className="absolute right-0 z-10 mt-1 w-32 rounded-md border border-zinc-200 bg-white py-1 shadow-lg">
+        <div className="absolute right-0 z-[60] mt-1 w-36 rounded-[12px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] py-1 shadow-[var(--shadow-card)]">
           <Link
             href={editHref}
             onClick={() => setOpen(false)}
-            className="block px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+            className="block h-9 px-3 text-[14px] leading-9 text-[var(--ink-2)] hover:bg-[var(--border-soft)]"
           >
             {t("edit")}
           </Link>
@@ -52,7 +53,7 @@ export function RowActionsMenu({ editHref, deleteUrl }: { editHref: string; dele
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-zinc-50 disabled:opacity-50"
+            className="block h-9 w-full px-3 text-left text-[14px] leading-9 text-[#7F1D1D] hover:bg-[var(--border-soft)] disabled:opacity-50"
           >
             {t("delete")}
           </button>

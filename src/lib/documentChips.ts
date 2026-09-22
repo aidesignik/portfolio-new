@@ -41,6 +41,18 @@ export function vehicleDocumentChips(
   ].filter((c): c is DocumentChipData => c !== null);
 }
 
+// The design system caps a table row at one status chip: the single worst
+// problem across a driver/vehicle's documents, or none at all when
+// everything's valid (the caller then shows an "All documents valid" chip).
+export function worstDocumentChip(chips: DocumentChipData[]): DocumentChipData | null {
+  const problems = chips.filter((c) => c.status !== "valid");
+  if (problems.length === 0) return null;
+  return [...problems].sort((a, b) => {
+    if (a.status !== b.status) return a.status === "expired" ? -1 : 1;
+    return a.expiryDate.getTime() - b.expiryDate.getTime();
+  })[0];
+}
+
 export function driverDocumentChips(
   driver: {
     idCardExpiry: Date | null;

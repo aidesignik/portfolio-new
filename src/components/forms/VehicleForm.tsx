@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Select";
 import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validation/vehicle.schema";
 
 function toDateInputValue(date: Date | string | null | undefined): string {
@@ -203,20 +204,16 @@ export function VehicleForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={onSubmit} className="space-y-[18px]">
+      <div className="grid gap-[10px] sm:grid-cols-2">
         <Field label={t("carrier.vehicleForm.type")}>
-          <select
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-            value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
-          >
+          <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
             {vehicleTypes.map((type) => (
               <option key={type} value={type}>
                 {t(`vehicleType.${type}`)}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Field label={t("carrier.vehicleForm.model")}>
           <Input required value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
@@ -261,7 +258,7 @@ export function VehicleForm({
       <Field label={t("carrier.vehicleForm.amenities")}>
         <div className="flex flex-wrap gap-3">
           {vehicleAmenities.map((amenity) => (
-            <label key={amenity} className="flex items-center gap-2 text-sm">
+            <label key={amenity} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
               <input
                 type="checkbox"
                 checked={form.amenities.includes(amenity)}
@@ -280,17 +277,13 @@ export function VehicleForm({
       </Field>
 
       <Field label={t("carrier.vehicleForm.status")}>
-        <select
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-        >
+        <Select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
           {vehicleStatuses.map((status) => (
             <option key={status} value={status}>
               {t(`vehicleStatus.${status}`)}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
 
       <div className="space-y-2">
@@ -298,7 +291,7 @@ export function VehicleForm({
             buttons need to be normal, independently clickable controls,
             and a <button> nested inside a <label> is invalid HTML that
             browsers handle inconsistently. */}
-        <span className="block text-sm font-medium text-zinc-700">{t("carrier.vehicleForm.photos")}</span>
+        <span className="block text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.vehicleForm.photos")}</span>
         {form.photos.length > 0 ? (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {form.photos.map((url) => (
@@ -307,12 +300,12 @@ export function VehicleForm({
                 <img
                   src={url}
                   alt=""
-                  className="h-20 w-full rounded-md border border-zinc-200 object-cover"
+                  className="h-20 w-full rounded-[10px] border border-[var(--border-hairline)] object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => removePhoto(url)}
-                  className="text-xs font-medium text-red-600 hover:underline"
+                  className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
                 >
                   {t("common.remove")}
                 </button>
@@ -321,34 +314,40 @@ export function VehicleForm({
           </div>
         ) : null}
         {form.photos.length < 10 ? (
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            multiple
-            disabled={photoUploading}
-            onChange={onPhotosSelected}
-            className="text-sm text-zinc-700 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-50"
-          />
+          <label className="flex cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-[11px] text-center text-[12.5px] font-semibold text-[var(--action-bg)]">
+            {t("common.chooseFiles")}
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              disabled={photoUploading}
+              onChange={onPhotosSelected}
+              className="hidden"
+            />
+          </label>
         ) : null}
-        <p className="text-xs text-zinc-500">
+        <p className="text-[12.5px] text-[var(--ink-muted)]">
           {photoUploading ? t("common.loading") : t("carrier.vehicleForm.photosUploadHint")}
         </p>
-        {photoError ? <p className="text-xs text-red-600">{photoError}</p> : null}
+        {photoError ? <p className="text-[12.5px] text-[#7F1D1D]">{photoError}</p> : null}
       </div>
 
       <div className="space-y-2">
-        <span className="block text-sm font-medium text-zinc-700">{t("carrier.vehicleForm.documents")}</span>
+        <span className="block text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.vehicleForm.documents")}</span>
         {form.documentUrls.length > 0 ? (
           <ul className="space-y-1">
             {form.documentUrls.map((url) => (
-              <li key={url} className="flex items-center justify-between gap-3 rounded-md border border-zinc-200 px-3 py-2 text-sm">
-                <a href={url} target="_blank" rel="noreferrer" className="truncate text-zinc-700 underline">
+              <li
+                key={url}
+                className="flex items-center justify-between gap-3 rounded-[10px] border border-[var(--border-hairline)] px-3 py-2 text-[13.5px]"
+              >
+                <a href={url} target="_blank" rel="noreferrer" className="truncate text-[var(--ink-2)] underline">
                   {docNameFromUrl(url)}
                 </a>
                 <button
                   type="button"
                   onClick={() => removeDocument(url)}
-                  className="shrink-0 text-xs font-medium text-red-600 hover:underline"
+                  className="shrink-0 text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
                 >
                   {t("common.remove")}
                 </button>
@@ -357,22 +356,25 @@ export function VehicleForm({
           </ul>
         ) : null}
         {form.documentUrls.length < 10 ? (
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp,application/pdf"
-            multiple
-            disabled={docUploading}
-            onChange={onDocumentsSelected}
-            className="text-sm text-zinc-700 file:mr-3 file:rounded-md file:border file:border-zinc-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-50"
-          />
+          <label className="flex cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-[11px] text-center text-[12.5px] font-semibold text-[var(--action-bg)]">
+            {t("common.chooseFiles")}
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,application/pdf"
+              multiple
+              disabled={docUploading}
+              onChange={onDocumentsSelected}
+              className="hidden"
+            />
+          </label>
         ) : null}
-        <p className="text-xs text-zinc-500">
+        <p className="text-[12.5px] text-[var(--ink-muted)]">
           {docUploading ? t("common.loading") : t("carrier.vehicleForm.documentsUploadHint")}
         </p>
-        {docError ? <p className="text-xs text-red-600">{docError}</p> : null}
+        {docError ? <p className="text-[12.5px] text-[#7F1D1D]">{docError}</p> : null}
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}

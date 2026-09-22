@@ -3,6 +3,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { AddDriverButton } from "@/components/forms/AddDriverButton";
 import { DriversTable } from "@/components/carrier/DriversTable";
+import { PageHeader } from "@/components/carrier/PageHeader";
 
 export default async function DriversPage() {
   const [session, t] = await Promise.all([auth(), getTranslations()]);
@@ -19,23 +20,25 @@ export default async function DriversPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">{t("carrier.driversTitle")}</h1>
-        <AddDriverButton vehicles={vehicles} />
+    <>
+      <PageHeader
+        title={t("carrier.driversTitle")}
+        context={`${drivers.length}`}
+        actions={<AddDriverButton vehicles={vehicles} />}
+      />
+      <div className="px-5 py-4">
+        {drivers.length === 0 ? (
+          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noDrivers")}</p>
+        ) : (
+          <DriversTable
+            drivers={drivers.map((driver) => ({
+              ...driver,
+              vehicles: driver.vehicles.map((dv) => dv.vehicle),
+            }))}
+            t={t}
+          />
+        )}
       </div>
-
-      {drivers.length === 0 ? (
-        <p className="text-sm text-zinc-600">{t("carrier.noDrivers")}</p>
-      ) : (
-        <DriversTable
-          drivers={drivers.map((driver) => ({
-            ...driver,
-            vehicles: driver.vehicles.map((dv) => dv.vehicle),
-          }))}
-          t={t}
-        />
-      )}
-    </div>
+    </>
   );
 }

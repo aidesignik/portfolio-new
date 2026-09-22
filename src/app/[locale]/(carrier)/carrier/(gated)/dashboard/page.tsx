@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { StatStrip } from "@/components/calendar/StatStrip";
 import { RidesCalendar } from "@/components/calendar/RidesCalendar";
 import { ExpiringDocumentsBanner } from "@/components/carrier/ExpiringDocumentsBanner";
+import { PageHeader } from "@/components/carrier/PageHeader";
 import { vehicleExpiringItems, driverExpiringItems, sortExpiringItems } from "@/lib/expiryStatus";
 
 export default async function CarrierDashboardPage({
@@ -66,36 +67,38 @@ export default async function CarrierDashboardPage({
   const readyForCalendar = vehicleCount > 0 && driverCount > 0;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">{t("dashboardTitle")}</h1>
-      <ExpiringDocumentsBanner items={expiringItems} />
-      <StatStrip tiles={tiles} />
+    <>
+      <PageHeader title={t("dashboardTitle")} />
+      <div className="space-y-4 px-5 py-4">
+        <ExpiringDocumentsBanner items={expiringItems} />
+        <StatStrip tiles={tiles} />
 
-      {readyForCalendar ? (
-        <RidesCalendar />
-      ) : (
-        <Card className="space-y-4 text-center">
-          <p className="text-sm text-zinc-600">
-            {vehicleCount === 0 && driverCount === 0
-              ? t("setupBothPrompt")
-              : vehicleCount === 0
-                ? t("setupVehiclePrompt")
-                : t("setupDriverPrompt")}
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {vehicleCount === 0 ? (
-              <Link href="/carrier/fleet/new">
-                <Button>{t("addVehicle")}</Button>
-              </Link>
-            ) : null}
-            {driverCount === 0 ? (
-              <Link href="/carrier/drivers/new">
-                <Button variant={vehicleCount === 0 ? "secondary" : "primary"}>{t("addDriver")}</Button>
-              </Link>
-            ) : null}
-          </div>
-        </Card>
-      )}
-    </div>
+        {readyForCalendar ? (
+          <RidesCalendar />
+        ) : (
+          <Card className="space-y-4 text-center">
+            <p className="text-sm text-zinc-600">
+              {vehicleCount === 0 && driverCount === 0
+                ? t("setupBothPrompt")
+                : vehicleCount === 0
+                  ? t("setupVehiclePrompt")
+                  : t("setupDriverPrompt")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {vehicleCount === 0 ? (
+                <Link href="/carrier/fleet/new">
+                  <Button>{t("addVehicle")}</Button>
+                </Link>
+              ) : null}
+              {driverCount === 0 ? (
+                <Link href="/carrier/drivers/new">
+                  <Button variant={vehicleCount === 0 ? "secondary" : "primary"}>{t("addDriver")}</Button>
+                </Link>
+              ) : null}
+            </div>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }

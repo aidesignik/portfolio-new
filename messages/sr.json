@@ -27,6 +27,7 @@
     "createdAt": "Kreirano",
     "currency": "RSD",
     "close": "Zatvori",
+    "chooseFiles": "Izaberi fajlove",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
   },
   "nav": {
@@ -42,6 +43,7 @@
     "fleet": "Vozni park",
     "drivers": "Vozači",
     "calendar": "Kalendar",
+    "settings": "Podešavanja",
     "carriers": "Prevoznici",
     "forCarriers": "Za prevoznike"
   },
@@ -174,7 +176,7 @@
       "license": "Vozačka",
       "cpc": "CPC",
       "medicalCert": "Lekarsko",
-      "valid": "✓ {label}",
+      "allValid": "Sva dokumenta važe",
       "expiringSoon": "{label} · {days}d",
       "expired": "{label} isteklo"
     },

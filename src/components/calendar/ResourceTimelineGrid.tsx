@@ -93,22 +93,24 @@ export function ResourceTimelineGrid({
 
   if (resources.length === 0) {
     return (
-      <p className="rounded-lg border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500">
+      <p className="rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] p-6 text-center text-[13.5px] text-[var(--ink-muted)]">
         {grouping === "vehicle" ? t("noVehicles") : t("noDrivers")}
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
       <div className="min-w-[860px]">
-        <div className="grid" style={{ gridTemplateColumns: "180px repeat(7, minmax(100px, 1fr))" }}>
-          <div className="border-b border-r border-zinc-200 bg-zinc-50" />
+        <div className="grid" style={{ gridTemplateColumns: "208px repeat(7, minmax(100px, 1fr))" }}>
+          <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-subtle)]" />
           {days.map((day, i) => (
             <div
               key={i}
-              className={`border-b border-zinc-200 px-2 py-2 text-center text-xs font-medium ${
-                day.getTime() === today.getTime() ? "bg-zinc-900 text-white" : "bg-zinc-50 text-zinc-600"
+              className={`border-b border-[var(--border-hairline)] px-2 py-2 text-center text-[13px] font-bold ${
+                day.getTime() === today.getTime()
+                  ? "bg-[var(--select-tint)] text-[var(--action-800)]"
+                  : "bg-[var(--bg-subtle)] text-[var(--ink-secondary)]"
               }`}
             >
               {day.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
@@ -144,13 +146,13 @@ export function ResourceTimelineGrid({
             <div
               key={resource.id}
               className="grid"
-              style={{ gridTemplateColumns: "180px repeat(7, minmax(100px, 1fr))" }}
+              style={{ gridTemplateColumns: "208px repeat(7, minmax(100px, 1fr))" }}
             >
-              <div className="flex items-center border-b border-r border-zinc-200 px-3 py-3 text-sm font-medium text-zinc-900">
+              <div className="flex items-center border-b border-r border-[var(--border-hairline)] px-3 py-3 text-[14px] font-semibold text-[var(--ink-primary)]">
                 {resource.label}
               </div>
               <div
-                className="relative col-span-7 grid border-b border-zinc-200"
+                className="relative col-span-7 grid border-b border-[var(--border-hairline)]"
                 style={{
                   gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
                   gridTemplateRows: `repeat(${laneCount}, minmax(3.75rem, auto))`,
@@ -169,8 +171,12 @@ export function ResourceTimelineGrid({
                 {days.map((_, i) => (
                   <div
                     key={i}
-                    className={`border-r border-zinc-100 last:border-r-0 ${
-                      isDragTarget ? (dragOverTarget?.conflict ? "bg-red-50" : "bg-emerald-50") : ""
+                    className={`border-r border-[var(--border-soft)] last:border-r-0 ${
+                      isDragTarget
+                        ? dragOverTarget?.conflict
+                          ? "bg-[var(--chip-critical)]/30"
+                          : "bg-[var(--chip-positive)]/30"
+                        : ""
                     }`}
                     style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
                   />
@@ -179,7 +185,7 @@ export function ResourceTimelineGrid({
                 {resourceBlocks.map(({ block, startIdx, endIdx }) => (
                   <div
                     key={block.id}
-                    className="z-0 flex items-center truncate rounded-md border border-zinc-300 px-2 py-1 text-xs text-zinc-600"
+                    className="z-0 flex items-center truncate rounded-[10px] border border-[var(--border-strong)] px-2 py-1 text-[12.5px] text-[var(--ink-secondary)]"
                     style={{
                       gridRow: (laneOf.get(block.id) ?? 0) + 1,
                       gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
@@ -208,8 +214,14 @@ export function ResourceTimelineGrid({
 
                 {isDragTarget && dragOverTarget?.conflict && dragOverTarget.message ? (
                   <div
-                    className="z-20 flex items-center rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white shadow-lg"
-                    style={{ gridRow: 1, gridColumn: "1 / 8", margin: "0.25rem", justifySelf: "start" }}
+                    className="z-20 flex items-center rounded-[10px] px-2 py-1 text-[12.5px] font-semibold text-white"
+                    style={{
+                      gridRow: 1,
+                      gridColumn: "1 / 8",
+                      margin: "0.25rem",
+                      justifySelf: "start",
+                      background: "#F87171",
+                    }}
                   >
                     {dragOverTarget.message}
                   </div>

@@ -3,13 +3,54 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Atlas design system — semantic tokens (see design/AGENTS notes) */
+  --bg-canvas: #f4f5f7;
+  --bg-panel: #ffffff;
+  --bg-subtle: #fafafa;
+  --border-hairline: #e9e9eb;
+  --border-soft: #f4f4f5;
+  --border-strong: #d8d8dc;
+
+  --ink-primary: #18181b;
+  --ink-strong: #27272b;
+  --ink-2: #3f3f46;
+  --ink-secondary: #55555c;
+  --ink-muted: #6b6b72;
+  --ink-eyebrow: #6e6e76;
+  --ink-disabled: #a9a9b2;
+
+  --action-bg: #2563eb;
+  --action-bg-hover: #1d4ed8;
+  --action-100: #dbe6fe;
+  --action-800: #1e40af;
+  --select-tint: #eff4ff;
+
+  --chip-positive: #c8f5b0;
+  --chip-warning: #fbe3a8;
+  --chip-critical: #fbbec0;
+  --chip-info: #c9c2f7;
+  --chip-neutral: #e6e6ea;
+  --chip-ink: #27272b;
+
+  --accent-scheduled: #2563eb;
+  --accent-completed: #16a34a;
+  --accent-pending: #f97316;
+  --accent-block: #7c3aed;
+  --accent-expired: #f87171;
+  --accent-due-soon: #fdba74;
+  --accent-watch: #fde68a;
+
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
+  --shadow-card: 0 6px 18px rgba(24, 24, 27, 0.1), 0 1px 2px rgba(24, 24, 27, 0.06);
+  --shadow-panel: -18px 0 44px rgba(24, 24, 27, 0.16);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-data);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,6 +62,15 @@
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink-primary);
+  font-family: var(--font-ui), Helvetica, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
 }

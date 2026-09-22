@@ -27,6 +27,7 @@
     "createdAt": "Created",
     "currency": "RSD",
     "close": "Close",
+    "chooseFiles": "Choose files",
     "saveFailed": "Couldn't save — please check the fields and try again."
   },
   "nav": {
@@ -42,6 +43,7 @@
     "fleet": "Fleet",
     "drivers": "Drivers",
     "calendar": "Calendar",
+    "settings": "Settings",
     "carriers": "Carriers",
     "forCarriers": "For carriers"
   },
@@ -174,7 +176,7 @@
       "license": "License",
       "cpc": "CPC",
       "medicalCert": "Medical cert",
-      "valid": "✓ {label}",
+      "allValid": "All documents valid",
       "expiringSoon": "{label} · {days}d",
       "expired": "{label} expired"
     },

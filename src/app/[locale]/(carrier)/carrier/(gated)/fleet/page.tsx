@@ -3,6 +3,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { AddVehicleButton } from "@/components/forms/AddVehicleButton";
 import { FleetTable } from "@/components/carrier/FleetTable";
+import { PageHeader } from "@/components/carrier/PageHeader";
 
 export default async function FleetPage() {
   const [session, t] = await Promise.all([auth(), getTranslations()]);
@@ -14,23 +15,25 @@ export default async function FleetPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">{t("carrier.fleetTitle")}</h1>
-        <AddVehicleButton />
+    <>
+      <PageHeader
+        title={t("carrier.fleetTitle")}
+        context={`${vehicles.length}`}
+        actions={<AddVehicleButton />}
+      />
+      <div className="px-5 py-4">
+        {vehicles.length === 0 ? (
+          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noVehicles")}</p>
+        ) : (
+          <FleetTable
+            vehicles={vehicles.map((vehicle) => ({
+              ...vehicle,
+              drivers: vehicle.drivers.map((dv) => dv.driver),
+            }))}
+            t={t}
+          />
+        )}
       </div>
-
-      {vehicles.length === 0 ? (
-        <p className="text-sm text-zinc-600">{t("carrier.noVehicles")}</p>
-      ) : (
-        <FleetTable
-          vehicles={vehicles.map((vehicle) => ({
-            ...vehicle,
-            drivers: vehicle.drivers.map((dv) => dv.driver),
-          }))}
-          t={t}
-        />
-      )}
-    </div>
+    </>
   );
 }

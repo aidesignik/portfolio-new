@@ -10,10 +10,10 @@ export function Field({
   error?: string;
 }) {
   return (
-    <label className="block space-y-1">
-      <span className="block text-sm font-medium text-zinc-700">{label}</span>
+    <label className="block space-y-[5px]">
+      <span className="block text-[13px] font-semibold text-[var(--ink-2)]">{label}</span>
       {children}
-      {error ? <span className="block text-xs text-red-600">{error}</span> : null}
+      {error ? <span className="block text-[12.5px] text-[#7F1D1D]">{error}</span> : null}
     </label>
   );
 }

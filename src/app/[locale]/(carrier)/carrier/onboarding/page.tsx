@@ -27,7 +27,7 @@ export default async function CarrierOnboardingPage() {
   const isNew = carrier === null;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">
           {isNew ? t("completeProfileTitle") : t("onboardingTitle")}
