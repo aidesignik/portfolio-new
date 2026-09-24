@@ -35,7 +35,7 @@ export default async function DriversPage() {
               ...driver,
               vehicles: driver.vehicles.map((dv) => dv.vehicle),
             }))}
-            t={t}
+            vehicles={vehicles}
           />
         )}
       </div>

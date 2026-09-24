@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MoreVertical } from "lucide-react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 
-export function RowActionsMenu({ editHref, deleteUrl }: { editHref: string; deleteUrl: string }) {
+export function RowActionsMenu({ onEdit, deleteUrl }: { onEdit: () => void; deleteUrl: string }) {
   const t = useTranslations("common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -42,13 +42,16 @@ export function RowActionsMenu({ editHref, deleteUrl }: { editHref: string; dele
       </button>
       {open ? (
         <div className="absolute right-0 z-[60] mt-1 w-36 rounded-[12px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] py-1 shadow-[var(--shadow-card)]">
-          <Link
-            href={editHref}
-            onClick={() => setOpen(false)}
-            className="block h-9 px-3 text-[14px] leading-9 text-[var(--ink-2)] hover:bg-[var(--border-soft)]"
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onEdit();
+            }}
+            className="block h-9 w-full px-3 text-left text-[14px] leading-9 text-[var(--ink-2)] hover:bg-[var(--border-soft)]"
           >
             {t("edit")}
-          </Link>
+          </button>
           <button
             type="button"
             onClick={onDelete}

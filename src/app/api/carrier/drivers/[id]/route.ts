@@ -29,7 +29,10 @@ function removeOrphanedDocs(
 
 async function loadOwnedDriver(userId: string, driverId: string) {
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId } });
-  return prisma.driver.findFirst({ where: { id: driverId, carrierId: carrier.id } });
+  return prisma.driver.findFirst({
+    where: { id: driverId, carrierId: carrier.id },
+    include: { vehicles: { select: { vehicleId: true } } },
+  });
 }
 
 export async function GET(

@@ -29,7 +29,8 @@
     "close": "Close",
     "chooseFiles": "Choose files",
     "search": "Search",
-    "saveFailed": "Couldn't save — please check the fields and try again."
+    "saveFailed": "Couldn't save — please check the fields and try again.",
+    "loadFailed": "Couldn't load — try refreshing."
   },
   "nav": {
     "home": "Home",

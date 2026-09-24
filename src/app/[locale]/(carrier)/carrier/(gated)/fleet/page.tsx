@@ -30,7 +30,6 @@ export default async function FleetPage() {
               ...vehicle,
               drivers: vehicle.drivers.map((dv) => dv.driver),
             }))}
-            t={t}
           />
         )}
       </div>

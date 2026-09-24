@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/Badge";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
@@ -5,9 +9,9 @@ import { DocumentChipsRow } from "@/components/carrier/DocumentChipsRow";
 import { RowActionsMenu } from "@/components/carrier/RowActionsMenu";
 import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
+import { EditVehiclePanel } from "@/components/forms/EditVehiclePanel";
+import { useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips } from "@/lib/documentChips";
-
-type Translate = (key: string, values?: Record<string, string | number>) => string;
 
 export interface FleetTableVehicle {
   id: string;
@@ -26,7 +30,16 @@ export interface FleetTableVehicle {
 const GRID = "grid-cols-[minmax(0,2.1fr)_120px_104px_minmax(0,1.9fr)_64px_40px]";
 const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
 
-export function FleetTable({ vehicles, t }: { vehicles: FleetTableVehicle[]; t: Translate }) {
+export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
+  const t = useTranslations();
+  const router = useRouter();
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+
+  function onSaved() {
+    setEditingVehicleId(null);
+    router.refresh();
+  }
+
   return (
     <div role="table" className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
       <div
@@ -47,7 +60,7 @@ export function FleetTable({ vehicles, t }: { vehicles: FleetTableVehicle[]; t: 
           return (
             <ClickableRow
               key={vehicle.id}
-              href={`/carrier/fleet/${vehicle.id}`}
+              onClick={() => setEditingVehicleId(vehicle.id)}
               className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0`}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
@@ -83,12 +96,23 @@ export function FleetTable({ vehicles, t }: { vehicles: FleetTableVehicle[]; t: 
                 )}
               </StopClickPropagation>
               <StopClickPropagation className="flex justify-end">
-                <RowActionsMenu editHref={`/carrier/fleet/${vehicle.id}`} deleteUrl={`/api/carrier/vehicles/${vehicle.id}`} />
+                <RowActionsMenu
+                  onEdit={() => setEditingVehicleId(vehicle.id)}
+                  deleteUrl={`/api/carrier/vehicles/${vehicle.id}`}
+                />
               </StopClickPropagation>
             </ClickableRow>
           );
         })}
       </div>
+
+      {editingVehicleId ? (
+        <EditVehiclePanel
+          vehicleId={editingVehicleId}
+          onClose={() => setEditingVehicleId(null)}
+          onSaved={onSaved}
+        />
+      ) : null}
     </div>
   );
 }

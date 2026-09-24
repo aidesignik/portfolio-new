@@ -29,7 +29,8 @@
     "close": "Zatvori",
     "chooseFiles": "Izaberi fajlove",
     "search": "Pretraga",
-    "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
+    "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
+    "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo."
   },
   "nav": {
     "home": "Početna",
