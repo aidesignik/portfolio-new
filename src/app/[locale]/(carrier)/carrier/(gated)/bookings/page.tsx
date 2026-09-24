@@ -2,11 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 import { formatRoute } from "@/lib/location";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { PageHeader } from "@/components/carrier/PageHeader";
+import { AddRideButton } from "@/components/forms/AddRideButton";
 
 export default async function CarrierBookingsPage() {
   const [session, t] = await Promise.all([auth(), getTranslations("carrier")]);
@@ -22,11 +22,7 @@ export default async function CarrierBookingsPage() {
       <PageHeader
         title={t("bookingsTitle")}
         context={`${bookings.length}`}
-        actions={
-          <Link href="/carrier/bookings/new">
-            <Button>{t("addRide")}</Button>
-          </Link>
-        }
+        actions={<AddRideButton />}
       />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {bookings.length === 0 ? (
