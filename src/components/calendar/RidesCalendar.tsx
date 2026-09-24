@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
 import { UnassignedQueue } from "./UnassignedQueue";
 import { CalendarLegend } from "./CalendarLegend";
 import { NewRideModal } from "./NewRideModal";
 import { RideDetailDrawer } from "./RideDetailDrawer";
+import { useNewRide } from "./NewRideContext";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
@@ -45,7 +46,7 @@ export function RidesCalendar() {
   const [grouping, setGrouping] = useState<ResourceGrouping>("vehicle");
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showNewRide, setShowNewRide] = useState(false);
+  const { showNewRide, closeNewRide } = useNewRide();
   const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
   const [draggingRideId, setDraggingRideId] = useState<string | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<DragOverTarget | null>(null);
@@ -167,35 +168,29 @@ export function RidesCalendar() {
           </Button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-[2px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
-            <button
-              type="button"
-              onClick={() => setGrouping("vehicle")}
-              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
-                grouping === "vehicle"
-                  ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
-                  : "text-[var(--ink-secondary)]"
-              }`}
-            >
-              {t("byVehicle")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setGrouping("driver")}
-              className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
-                grouping === "driver"
-                  ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
-                  : "text-[var(--ink-secondary)]"
-              }`}
-            >
-              {t("byDriver")}
-            </button>
-          </div>
-          <Button onClick={() => setShowNewRide(true)}>
-            <Plus size={16} strokeWidth={2} />
-            {t("newRide")}
-          </Button>
+        <div className="flex items-center gap-[2px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
+          <button
+            type="button"
+            onClick={() => setGrouping("vehicle")}
+            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
+              grouping === "vehicle"
+                ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
+                : "text-[var(--ink-secondary)]"
+            }`}
+          >
+            {t("byVehicle")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setGrouping("driver")}
+            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
+              grouping === "driver"
+                ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
+                : "text-[var(--ink-secondary)]"
+            }`}
+          >
+            {t("byDriver")}
+          </button>
         </div>
       </div>
 
@@ -231,9 +226,9 @@ export function RidesCalendar() {
 
       {showNewRide ? (
         <NewRideModal
-          onClose={() => setShowNewRide(false)}
+          onClose={closeNewRide}
           onCreated={() => {
-            setShowNewRide(false);
+            closeNewRide();
             load();
           }}
           onDepartureDateChange={(date) => setWeekStart(startOfWeek(date))}

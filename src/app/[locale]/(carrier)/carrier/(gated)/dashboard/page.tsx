@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 import { RidesCalendar } from "@/components/calendar/RidesCalendar";
+import { NewRideProvider } from "@/components/calendar/NewRideContext";
+import { NewRideTriggerButton } from "@/components/calendar/NewRideTriggerButton";
 import { PageHeader } from "@/components/carrier/PageHeader";
 
 export default async function CarrierDashboardPage({
@@ -35,8 +37,11 @@ export default async function CarrierDashboardPage({
   const readyForCalendar = vehicleCount > 0 && driverCount > 0;
 
   return (
-    <>
-      <PageHeader title={t("calendarTitle")} />
+    <NewRideProvider>
+      <PageHeader
+        title={t("calendarTitle")}
+        actions={readyForCalendar ? <NewRideTriggerButton /> : undefined}
+      />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {readyForCalendar ? (
           <RidesCalendar />
@@ -64,6 +69,6 @@ export default async function CarrierDashboardPage({
           </Card>
         )}
       </div>
-    </>
+    </NewRideProvider>
   );
 }
