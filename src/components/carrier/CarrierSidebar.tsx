@@ -2,7 +2,7 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Inbox, Bookmark, Bus, UserRound, Settings } from "lucide-react";
+import { Calendar, Inbox, Bookmark, Bus, UserRound, Settings } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 
 interface NavItem {
@@ -68,7 +68,7 @@ export function CarrierSidebar({
   const t = useTranslations("carrier");
 
   const mainItems: NavItem[] = [
-    { href: "/carrier/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+    { href: "/carrier/dashboard", labelKey: "calendar", icon: Calendar },
     { href: "/carrier/requests", labelKey: "requests", icon: Inbox, count: requestCount },
     { href: "/carrier/bookings", labelKey: "bookings", icon: Bookmark, count: bookingCount },
     { href: "/carrier/fleet", labelKey: "fleet", icon: Bus, count: fleetCount },

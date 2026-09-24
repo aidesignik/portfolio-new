@@ -36,7 +36,7 @@ export default async function CarrierDashboardPage({
 
   return (
     <>
-      <PageHeader title={t("dashboardTitle")} />
+      <PageHeader title={t("calendarTitle")} />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {readyForCalendar ? (
           <RidesCalendar />
