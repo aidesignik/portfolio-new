@@ -8,10 +8,12 @@ export function CityCombobox({
   value,
   onChange,
   required,
+  className = "",
 }: {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,7 @@ export function CityCombobox({
   }, []);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={`relative ${className}`}>
       <Input
         required={required}
         value={value}

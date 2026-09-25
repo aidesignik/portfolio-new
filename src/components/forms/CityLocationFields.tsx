@@ -1,9 +1,16 @@
 "use client";
 
 import { Input } from "@/components/ui/Input";
-import { Field } from "@/components/ui/Field";
 import { CityCombobox } from "@/components/forms/CityCombobox";
 
+const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-2)]";
+
+// On narrow viewports the pair stacks as city-label/city-input then
+// location-label/location-input (natural DOM order). At sm: and up, both
+// labels move to their own row above both inputs — via responsive `order`,
+// not by pairing label+input per column — so a long "Exact pickup location
+// (hotel, stop, address)" label wrapping to two lines doesn't push its
+// input lower than the "Pickup city" input next to it.
 export function CityLocationFields({
   cityLabel,
   locationLabel,
@@ -20,13 +27,16 @@ export function CityLocationFields({
   onLocationChange: (value: string) => void;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Field label={cityLabel}>
-        <CityCombobox required value={city} onChange={onCityChange} />
-      </Field>
-      <Field label={locationLabel}>
-        <Input required value={location} onChange={(e) => onLocationChange(e.target.value)} />
-      </Field>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-3 sm:gap-y-[5px]">
+      <span className={`order-1 ${LABEL_CLASS}`}>{cityLabel}</span>
+      <CityCombobox className="order-2 sm:order-3" required value={city} onChange={onCityChange} />
+      <span className={`order-3 sm:order-2 ${LABEL_CLASS}`}>{locationLabel}</span>
+      <Input
+        className="order-4"
+        required
+        value={location}
+        onChange={(e) => onLocationChange(e.target.value)}
+      />
     </div>
   );
 }
