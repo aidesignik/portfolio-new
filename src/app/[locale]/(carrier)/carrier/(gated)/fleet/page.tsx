@@ -6,8 +6,14 @@ import { FleetTable } from "@/components/carrier/FleetTable";
 import { PageHeader } from "@/components/carrier/PageHeader";
 import { FLEET_TABLE_WIDTH } from "@/lib/tableLayout";
 
-export default async function FleetPage() {
-  const [session, t] = await Promise.all([auth(), getTranslations()]);
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export default async function FleetPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const [session, t, params] = await Promise.all([auth(), getTranslations(), searchParams]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const vehicles = await prisma.vehicle.findMany({
     where: { carrierId: carrier.id },
@@ -20,7 +26,7 @@ export default async function FleetPage() {
       <PageHeader
         title={t("carrier.fleetTitle")}
         context={`${vehicles.length}`}
-        actions={<AddVehicleButton />}
+        actions={<AddVehicleButton autoOpen={params.new === "1"} />}
         contentWidth={FLEET_TABLE_WIDTH}
       />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">

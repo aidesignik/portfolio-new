@@ -58,12 +58,12 @@ export default async function CarrierDashboardPage({
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {vehicleCount === 0 ? (
-                <Link href="/carrier/fleet/new">
+                <Link href="/carrier/fleet?new=1">
                   <Button>{t("addVehicle")}</Button>
                 </Link>
               ) : null}
               {driverCount === 0 ? (
-                <Link href="/carrier/drivers/new">
+                <Link href="/carrier/drivers?new=1">
                   <Button variant={vehicleCount === 0 ? "secondary" : "primary"}>{t("addDriver")}</Button>
                 </Link>
               ) : null}
