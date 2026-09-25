@@ -180,7 +180,7 @@ export function ResourceTimelineGrid({
                             : "bg-[var(--chip-positive)]/30"
                           : isToday
                             ? "bg-[var(--select-tint)]"
-                            : ""
+                            : "bg-[var(--bg-calendar-cell)]"
                       }`}
                       style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
                     />
