@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AddDriverButton } from "@/components/forms/AddDriverButton";
 import { DriversTable } from "@/components/carrier/DriversTable";
 import { PageHeader } from "@/components/carrier/PageHeader";
+import { DRIVERS_TABLE_WIDTH } from "@/lib/tableLayout";
 
 export default async function DriversPage() {
   const [session, t] = await Promise.all([auth(), getTranslations()]);
@@ -25,6 +26,7 @@ export default async function DriversPage() {
         title={t("carrier.driversTitle")}
         context={`${drivers.length}`}
         actions={<AddDriverButton vehicles={vehicles} />}
+        contentWidth={DRIVERS_TABLE_WIDTH}
       />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {drivers.length === 0 ? (

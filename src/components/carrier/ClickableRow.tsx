@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 // A table row that's clickable in full (opens the edit side panel) with at
 // most one nested interactive element (the row-actions "···" menu) — cells
@@ -9,10 +9,12 @@ import type { ReactNode } from "react";
 export function ClickableRow({
   onClick,
   className = "",
+  style,
   children,
 }: {
   onClick: () => void;
   className?: string;
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   return (
@@ -20,6 +22,7 @@ export function ClickableRow({
       role="row"
       onClick={onClick}
       className={`cursor-pointer transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)] ${className}`}
+      style={style}
     >
       {children}
     </div>

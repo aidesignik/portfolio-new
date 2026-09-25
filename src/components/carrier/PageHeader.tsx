@@ -9,10 +9,16 @@ export async function PageHeader({
   title,
   context,
   actions,
+  contentWidth,
 }: {
   title: string;
   context?: string;
   actions?: ReactNode;
+  // Caps the title row to the same width as the table/calendar rendered
+  // below it, so the primary action lines up with its right edge instead
+  // of the window's. The utility bar above never takes this — it's a
+  // persistent, page-agnostic control, not page content.
+  contentWidth?: number;
 }) {
   const [session, t] = await Promise.all([auth(), getTranslations("common")]);
   const carrier = session
@@ -39,12 +45,17 @@ export async function PageHeader({
           size={34}
         />
       </div>
-      <div className="flex min-h-[60px] items-center justify-between gap-4 px-5 py-3">
-        <div className="flex min-w-0 items-baseline gap-3">
-          <h1 className="truncate text-[25px] font-extrabold tracking-[-0.02em] text-[var(--ink-primary)]">{title}</h1>
-          {context ? <span className="shrink-0 font-mono text-[13.5px] text-[var(--ink-muted)]">{context}</span> : null}
+      <div className="px-5 py-3">
+        <div
+          className="flex min-h-[36px] w-full items-center justify-between gap-4"
+          style={contentWidth ? { maxWidth: contentWidth } : undefined}
+        >
+          <div className="flex min-w-0 items-baseline gap-3">
+            <h1 className="truncate text-[25px] font-extrabold tracking-[-0.02em] text-[var(--ink-primary)]">{title}</h1>
+            {context ? <span className="shrink-0 font-mono text-[13.5px] text-[var(--ink-muted)]">{context}</span> : null}
+          </div>
+          {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
         </div>
-        {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
       </div>
     </div>
   );

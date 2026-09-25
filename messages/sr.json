@@ -211,6 +211,11 @@
       "licenseNumber": "Broj dozvole",
       "assignedVehicle": "Dodeljeno vozilo"
     },
+    "bookingsTable": {
+      "route": "Relacija",
+      "dateTime": "Datum i vreme",
+      "passengers": "Putnici"
+    },
     "calendarTitle": "Kalendar zauzetosti",
     "calendar": {
       "today": "Danas",

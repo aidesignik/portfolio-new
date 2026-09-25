@@ -9,6 +9,7 @@ import { RidesCalendar } from "@/components/calendar/RidesCalendar";
 import { NewRideProvider } from "@/components/calendar/NewRideContext";
 import { NewRideTriggerButton } from "@/components/calendar/NewRideTriggerButton";
 import { PageHeader } from "@/components/carrier/PageHeader";
+import { CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
 
 export default async function CarrierDashboardPage({
   params,
@@ -41,6 +42,7 @@ export default async function CarrierDashboardPage({
       <PageHeader
         title={t("calendarTitle")}
         actions={readyForCalendar ? <NewRideTriggerButton /> : undefined}
+        contentWidth={readyForCalendar ? CALENDAR_GRID_WIDTH : undefined}
       />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {readyForCalendar ? (

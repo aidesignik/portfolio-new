@@ -11,6 +11,7 @@ import { StopClickPropagation } from "@/components/carrier/StopClickPropagation"
 import { EditDriverPanel } from "@/components/forms/EditDriverPanel";
 import { useRouter } from "@/i18n/navigation";
 import { driverDocumentChips } from "@/lib/documentChips";
+import { DRIVERS_GRID_TEMPLATE } from "@/lib/tableLayout";
 
 export interface DriversTableDriver {
   id: string;
@@ -24,7 +25,6 @@ export interface DriversTableDriver {
   vehicles: { id: string; type: string; model: string; photos: string[] }[];
 }
 
-const GRID = "grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1.4fr)_minmax(0,1.5fr)_44px]";
 const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
 
 export function DriversTable({
@@ -44,10 +44,11 @@ export function DriversTable({
   }
 
   return (
-    <div role="table" className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+    <div role="table" className="w-fit overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
       <div
         role="row"
-        className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3`}
+        className="grid items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3"
+        style={{ gridTemplateColumns: DRIVERS_GRID_TEMPLATE }}
       >
         <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.driver")}</span>
         <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.licenseNumber")}</span>
@@ -62,7 +63,8 @@ export function DriversTable({
             <ClickableRow
               key={driver.id}
               onClick={() => setEditingDriverId(driver.id)}
-              className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0`}
+              className="grid items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0"
+              style={{ gridTemplateColumns: DRIVERS_GRID_TEMPLATE }}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
                 <DriverAvatar name={driver.name} id={driver.id} />

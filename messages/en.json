@@ -211,6 +211,11 @@
       "licenseNumber": "License #",
       "assignedVehicle": "Assigned vehicle"
     },
+    "bookingsTable": {
+      "route": "Route",
+      "dateTime": "Date & time",
+      "passengers": "Passengers"
+    },
     "calendarTitle": "Availability calendar",
     "calendar": {
       "today": "Today",

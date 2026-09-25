@@ -12,6 +12,7 @@ import { RideDetailDrawer } from "./RideDetailDrawer";
 import { useNewRide } from "./NewRideContext";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
+import { CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
 import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -141,7 +142,7 @@ export function RidesCalendar() {
   ).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={{ width: CALENDAR_GRID_WIDTH }}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button

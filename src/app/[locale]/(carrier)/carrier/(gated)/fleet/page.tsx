@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AddVehicleButton } from "@/components/forms/AddVehicleButton";
 import { FleetTable } from "@/components/carrier/FleetTable";
 import { PageHeader } from "@/components/carrier/PageHeader";
+import { FLEET_TABLE_WIDTH } from "@/lib/tableLayout";
 
 export default async function FleetPage() {
   const [session, t] = await Promise.all([auth(), getTranslations()]);
@@ -20,6 +21,7 @@ export default async function FleetPage() {
         title={t("carrier.fleetTitle")}
         context={`${vehicles.length}`}
         actions={<AddVehicleButton />}
+        contentWidth={FLEET_TABLE_WIDTH}
       />
       <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
         {vehicles.length === 0 ? (

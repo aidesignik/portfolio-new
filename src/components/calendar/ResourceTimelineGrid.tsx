@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 import { RideBlockCard } from "./RideBlockCard";
 import { BLOCK_PATTERN_STYLE } from "./statusStyles";
+import { CALENDAR_GRID_TEMPLATE, CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
 import type { CalendarBlock, CalendarDriver, CalendarRide, CalendarVehicle, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const GRID_TEMPLATE_COLUMNS = "208px repeat(7, minmax(100px, 1fr))";
+const GRID_TEMPLATE_COLUMNS = CALENDAR_GRID_TEMPLATE;
 
 export interface DragOverTarget {
   resourceId: string;
@@ -100,7 +101,7 @@ export function ResourceTimelineGrid({
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[860px]">
+      <div style={{ width: CALENDAR_GRID_WIDTH }}>
         <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
           <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-subtle)]" />
           {days.map((day, i) => {

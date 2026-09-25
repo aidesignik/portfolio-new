@@ -12,6 +12,7 @@ import { StopClickPropagation } from "@/components/carrier/StopClickPropagation"
 import { EditVehiclePanel } from "@/components/forms/EditVehiclePanel";
 import { useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips } from "@/lib/documentChips";
+import { FLEET_GRID_TEMPLATE } from "@/lib/tableLayout";
 
 export interface FleetTableVehicle {
   id: string;
@@ -27,7 +28,6 @@ export interface FleetTableVehicle {
   drivers: { id: string; name: string }[];
 }
 
-const GRID = "grid-cols-[minmax(0,2.1fr)_120px_104px_minmax(0,1.9fr)_64px_40px]";
 const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
 
 export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
@@ -41,10 +41,11 @@ export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
   }
 
   return (
-    <div role="table" className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+    <div role="table" className="w-fit overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
       <div
         role="row"
-        className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3`}
+        className="grid items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3"
+        style={{ gridTemplateColumns: FLEET_GRID_TEMPLATE }}
       >
         <span role="columnheader" className={EYEBROW}>{t("carrier.fleetTable.vehicle")}</span>
         <span role="columnheader" className={EYEBROW}>{t("carrier.fleetTable.details")}</span>
@@ -61,7 +62,8 @@ export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
             <ClickableRow
               key={vehicle.id}
               onClick={() => setEditingVehicleId(vehicle.id)}
-              className={`grid ${GRID} items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0`}
+              className="grid items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0"
+              style={{ gridTemplateColumns: FLEET_GRID_TEMPLATE }}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
                 <VehicleAvatar type={vehicle.type} typeLabel={typeLabel} photoUrl={vehicle.photos[0] ?? null} />
