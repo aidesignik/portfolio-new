@@ -103,14 +103,14 @@ export function ResourceTimelineGrid({
     <div className="overflow-x-auto">
       <div style={{ width: CALENDAR_GRID_WIDTH }}>
         <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-          <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-subtle)]" />
+          <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-panel)]" />
           {days.map((day, i) => {
             const isToday = day.getTime() === today.getTime();
             return (
               <div
                 key={i}
                 className={`flex h-11 items-center justify-center border-b border-r border-[var(--border-hairline)] px-2 text-[13px] font-bold last:border-r-0 ${
-                  isToday ? "bg-[var(--select-tint)] text-[var(--action-800)]" : "bg-[var(--bg-subtle)] text-[var(--ink-2)]"
+                  isToday ? "bg-[var(--select-tint)] text-[var(--action-800)]" : "bg-[var(--bg-panel)] text-[var(--ink-2)]"
                 }`}
               >
                 {day.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
