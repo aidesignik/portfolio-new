@@ -33,7 +33,7 @@ export function UnassignedQueue({
           }}
           onDragEnd={onDragEnd}
           onClick={() => onRideClick(ride.id)}
-          className="flex min-w-[190px] flex-1 basis-[210px] cursor-grab flex-col gap-[3px] rounded-[11px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-[11px] pb-[10px] pt-[9px] active:cursor-grabbing"
+          className="flex min-w-[190px] flex-1 basis-[210px] cursor-grab flex-col gap-[3px] rounded-[11px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-[11px] pb-[10px] pt-[9px] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)] active:cursor-grabbing"
         >
           <span className="h-1 w-7 shrink-0 rounded-full bg-[#FDBA74]" />
           <p className="truncate text-[13px] font-semibold text-[var(--ink-primary)]">

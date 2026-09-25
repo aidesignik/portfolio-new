@@ -74,3 +74,11 @@ h2,
 h3 {
   letter-spacing: -0.02em;
 }
+
+/* Tailwind's preflight resets buttons to `cursor: default` (matching the
+   browser default) — every clickable button in the app needs the pointer
+   back, without having to add cursor-pointer to each one individually. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}

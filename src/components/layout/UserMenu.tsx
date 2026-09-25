@@ -66,7 +66,7 @@ export function UserMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         style={{ height: size, width: size }}
-        className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-medium text-white"
+        className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-medium text-white transition-opacity duration-[.12s] ease-out hover:opacity-80"
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element

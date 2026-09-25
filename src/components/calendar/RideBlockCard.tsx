@@ -20,7 +20,7 @@ export function RideBlockCard({
       type="button"
       onClick={onClick}
       style={style}
-      className={`flex w-full min-w-0 flex-col gap-[3px] rounded-[11px] px-[11px] pb-[10px] pt-[9px] text-left transition-shadow duration-[.12s] ease-out ${statusStyle.card}`}
+      className={`flex w-full min-w-0 flex-col gap-[3px] rounded-[11px] px-[11px] pb-[10px] pt-[9px] text-left transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)] ${statusStyle.card}`}
       title={`${clientLabel} · ${ride.pickupCity} → ${ride.destinationCity}`}
     >
       <span className="h-1 w-7 shrink-0 rounded-full" style={{ background: statusStyle.accent }} />

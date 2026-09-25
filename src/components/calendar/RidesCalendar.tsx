@@ -173,10 +173,10 @@ export function RidesCalendar() {
           <button
             type="button"
             onClick={() => setGrouping("vehicle")}
-            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
+            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "vehicle"
                 ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
-                : "text-[var(--ink-secondary)]"
+                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
             {t("byVehicle")}
@@ -184,10 +184,10 @@ export function RidesCalendar() {
           <button
             type="button"
             onClick={() => setGrouping("driver")}
-            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow] duration-[.12s] ease-out ${
+            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "driver"
                 ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
-                : "text-[var(--ink-secondary)]"
+                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
             {t("byDriver")}
