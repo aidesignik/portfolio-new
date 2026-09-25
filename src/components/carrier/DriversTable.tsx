@@ -25,7 +25,7 @@ export interface DriversTableDriver {
   vehicles: { id: string; type: string; model: string; photos: string[] }[];
 }
 
-const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
+const HEADER_CLASS = "text-[13px] text-[var(--ink-secondary)]";
 
 export function DriversTable({
   drivers,
@@ -44,43 +44,43 @@ export function DriversTable({
   }
 
   return (
-    <div role="table" className="w-fit overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+    <div role="table" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-[var(--border-container)] bg-white">
       <div
         role="row"
-        className="grid items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3"
+        className="grid h-11 shrink-0 items-center gap-3 border-b border-[var(--border-hairline)] px-5"
         style={{ gridTemplateColumns: DRIVERS_GRID_TEMPLATE }}
       >
-        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.driver")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.licenseNumber")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.driversTable.assignedVehicle")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.table.documents")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.driversTable.driver")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.driversTable.licenseNumber")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.driversTable.assignedVehicle")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.table.documents")}</span>
         <span role="columnheader" className="sr-only">{t("common.actions")}</span>
       </div>
-      <div role="rowgroup">
+      <div role="rowgroup" className="min-h-0 flex-1 overflow-y-auto">
         {drivers.map((driver) => {
           const chips = driverDocumentChips(driver);
           return (
             <ClickableRow
               key={driver.id}
               onClick={() => setEditingDriverId(driver.id)}
-              className="grid items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0"
+              className="grid h-[68px] items-center gap-3 border-b border-[var(--border-hairline)] px-5 last:border-b-0"
               style={{ gridTemplateColumns: DRIVERS_GRID_TEMPLATE }}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
                 <DriverAvatar name={driver.name} id={driver.id} />
                 <div className="min-w-0">
-                  <p className="truncate text-[14.5px] font-bold text-[var(--ink-primary)]">{driver.name}</p>
-                  <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">{driver.phone}</p>
+                  <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">{driver.name}</p>
+                  <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{driver.phone}</p>
                 </div>
               </div>
-              <div role="cell" className="min-w-0 truncate font-mono text-[13.5px] text-[var(--ink-secondary)]">
+              <div role="cell" className="min-w-0 truncate font-mono text-[13px] text-[var(--ink-secondary)]">
                 {driver.licenseNumber || "—"}
               </div>
               <div role="cell" className="min-w-0">
                 {driver.vehicles.length === 0 ? (
                   <div className="flex items-center gap-[10px]">
-                    <VehicleAvatar empty size="sm" />
-                    <span className="truncate text-[13.5px] text-[var(--ink-disabled)]">
+                    <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-[var(--border-strong)]" />
+                    <span className="truncate text-[13.5px] font-medium text-[var(--action-bg)]">
                       {t("carrier.assignment.noVehicleAssigned")}
                     </span>
                   </div>

@@ -29,6 +29,7 @@
     "close": "Zatvori",
     "chooseFiles": "Izaberi fajlove",
     "search": "Pretraga",
+    "notifications": "Obaveštenja",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
     "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo."
   },
@@ -46,6 +47,7 @@
     "drivers": "Vozači",
     "calendar": "Kalendar",
     "settings": "Podešavanja",
+    "help": "Pomoć",
     "carriers": "Prevoznici",
     "forCarriers": "Za prevoznike"
   },
@@ -161,14 +163,14 @@
     "setupDriverPrompt": "Dodajte vozača da biste počeli sa zakazivanjem vožnji.",
     "setupBothPrompt": "Dodajte svoje prvo vozilo i vozača da biste počeli sa zakazivanjem vožnji.",
     "expiry": {
-      "bannerTitle": "Dokumenti koji zahtevaju pažnju",
+      "bannerTitle": "Zahteva pažnju",
       "expired": "Isteklo",
       "expiringSoon": "Uskoro ističe",
       "registration": "Registracija",
       "inspection": "Tehnički pregled"
     },
     "assignment": {
-      "noVehicleAssigned": "Nije dodeljeno vozilo",
+      "noVehicleAssigned": "Dodeli vozilo",
       "noDriverAssigned": "Nije dodeljen vozač"
     },
     "docChip": {
@@ -214,13 +216,16 @@
     "bookingsTable": {
       "route": "Relacija",
       "dateTime": "Datum i vreme",
-      "passengers": "Putnici"
+      "passengers": "Putnici",
+      "upcoming": "Predstojeće",
+      "past": "Prošle",
+      "all": "Sve"
     },
     "calendarTitle": "Kalendar zauzetosti",
     "calendar": {
       "today": "Danas",
-      "byVehicle": "Po vozilu",
-      "byDriver": "Po vozaču",
+      "byVehicle": "Vozila",
+      "byDriver": "Vozači",
       "newRide": "Nova vožnja",
       "newRideTitle": "Dodaj vožnju",
       "newRideSubmit": "Kreiraj vožnju",
@@ -235,6 +240,8 @@
       "pax": "put.",
       "noVehicles": "Dodajte vozilo da biste ga videli ovde.",
       "noDrivers": "Dodajte vozača da biste ga videli ovde.",
+      "vehicleCount": "{count} vozila",
+      "driverCount": "{count} vozača",
       "unassignedTitle": "Nedodeljene vožnje",
       "unassignedHint": "Prevucite vožnju na red da je dodelite.",
       "reassign": "Promeni dodelu",

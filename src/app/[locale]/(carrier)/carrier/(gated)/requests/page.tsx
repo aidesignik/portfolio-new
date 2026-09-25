@@ -1,10 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { Badge } from "@/components/ui/Badge";
 import { Link } from "@/i18n/navigation";
 import { formatRoute } from "@/lib/location";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { PageHeader } from "@/components/carrier/PageHeader";
+import { PageContent } from "@/components/carrier/PageContent";
+import { StatusDot } from "@/components/carrier/StatusDot";
 
 export default async function CarrierRequestsPage() {
   const t = await getTranslations("carrier");
@@ -15,31 +16,33 @@ export default async function CarrierRequestsPage() {
   });
 
   return (
-    <>
+    <PageContent>
       <PageHeader title={t("requestsTitle")} context={`${requests.length}`} />
-      <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
-        {requests.length === 0 ? (
-          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("noIncomingRequests")}</p>
-        ) : (
-          <div className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+      {requests.length === 0 ? (
+        <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("noIncomingRequests")}</p>
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-[var(--border-container)] bg-white">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             {requests.map((req) => (
               <Link
                 key={req.id}
                 href={`/carrier/requests/${req.id}`}
-                className="flex items-center justify-between gap-3 border-b border-[var(--border-soft)] px-4 py-[14px] transition-colors duration-[.12s] ease-out last:border-b-0 hover:bg-[var(--bg-subtle)]"
+                className="flex h-[68px] items-center justify-between gap-3 border-b border-[var(--border-hairline)] px-5 transition-colors duration-[.12s] ease-out last:border-b-0 hover:bg-[var(--bg-subtle)]"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-[14.5px] font-bold text-[var(--ink-primary)]">{formatRoute(req)}</p>
-                  <p className="truncate text-[13.5px] text-[var(--ink-secondary)]">
-                    {new Date(req.departureAt).toLocaleString()} · {req.passengerCount} pax · {clientDisplayName(req.client)}
+                  <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">{formatRoute(req)}</p>
+                  <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">
+                    {new Date(req.departureAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+                    {" · "}
+                    {req.passengerCount} pax · {clientDisplayName(req.client)}
                   </p>
                 </div>
-                <Badge tone="warning">{req.status}</Badge>
+                <StatusDot color="#F97316" label={req.status} />
               </Link>
             ))}
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </PageContent>
   );
 }

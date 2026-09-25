@@ -29,6 +29,7 @@
     "close": "Close",
     "chooseFiles": "Choose files",
     "search": "Search",
+    "notifications": "Notifications",
     "saveFailed": "Couldn't save — please check the fields and try again.",
     "loadFailed": "Couldn't load — try refreshing."
   },
@@ -46,6 +47,7 @@
     "drivers": "Drivers",
     "calendar": "Calendar",
     "settings": "Settings",
+    "help": "Help",
     "carriers": "Carriers",
     "forCarriers": "For carriers"
   },
@@ -161,14 +163,14 @@
     "setupDriverPrompt": "Add a driver to start scheduling rides.",
     "setupBothPrompt": "Add your first vehicle and driver to start scheduling rides.",
     "expiry": {
-      "bannerTitle": "Documents needing attention",
+      "bannerTitle": "Needs attention",
       "expired": "Expired",
       "expiringSoon": "Expiring soon",
       "registration": "Registration",
       "inspection": "Technical inspection"
     },
     "assignment": {
-      "noVehicleAssigned": "No vehicle assigned",
+      "noVehicleAssigned": "Assign vehicle",
       "noDriverAssigned": "No driver assigned"
     },
     "docChip": {
@@ -214,14 +216,17 @@
     "bookingsTable": {
       "route": "Route",
       "dateTime": "Date & time",
-      "passengers": "Passengers"
+      "passengers": "Passengers",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "all": "All"
     },
     "calendarTitle": "Availability calendar",
     "calendar": {
       "today": "Today",
-      "byVehicle": "By Vehicle",
-      "byDriver": "By Driver",
-      "newRide": "New Ride",
+      "byVehicle": "Vehicles",
+      "byDriver": "Drivers",
+      "newRide": "New ride",
       "newRideTitle": "Add a ride",
       "newRideSubmit": "Create ride",
       "assignNowTitle": "Assign now (optional)",
@@ -235,6 +240,8 @@
       "pax": "pax",
       "noVehicles": "Add a vehicle to see it here.",
       "noDrivers": "Add a driver to see them here.",
+      "vehicleCount": "{count} vehicles",
+      "driverCount": "{count} drivers",
       "unassignedTitle": "Unassigned rides",
       "unassignedHint": "Drag a ride onto a row to assign it.",
       "reassign": "Reassign",

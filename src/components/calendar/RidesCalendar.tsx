@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { ChevronLeft, ChevronRight, Bus, UserRound } from "lucide-react";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
 import { UnassignedQueue } from "./UnassignedQueue";
 import { CalendarLegend } from "./CalendarLegend";
@@ -12,7 +11,6 @@ import { RideDetailDrawer } from "./RideDetailDrawer";
 import { useNewRide } from "./NewRideContext";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
-import { CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
 import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -40,6 +38,9 @@ function windowsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   const pad = 3 * 60 * 60 * 1000;
   return aStart.getTime() - pad <= bEnd.getTime() && aEnd.getTime() + pad >= bStart.getTime();
 }
+
+const NAV_BUTTON_CLASS =
+  "flex h-8 w-8 items-center justify-center rounded-[8px] border border-[var(--border-control)] text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
 
 export function RidesCalendar() {
   const t = useTranslations("carrier.calendar");
@@ -131,73 +132,79 @@ export function RidesCalendar() {
   }
 
   if (loading && !data) {
-    return <p className="text-[13.5px] text-[var(--ink-disabled)]">{t("loading")}</p>;
+    return <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("loading")}</p>;
   }
   if (!data) {
-    return <p className="text-[13.5px] text-[#7F1D1D]">{t("loadError")}</p>;
+    return <p className="text-[13.5px] text-[var(--ink-destructive)]">{t("loadError")}</p>;
   }
 
-  const weekLabel = `${weekStart.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${new Date(
-    weekStart.getTime() + 6 * DAY_MS,
-  ).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`;
+  const weekEnd = new Date(weekStart.getTime() + 6 * DAY_MS);
+  const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
+  const weekLabel = sameMonth
+    ? `${weekStart.getDate()} – ${weekEnd.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`
+    : `${weekStart.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`;
 
   return (
-    <div className="space-y-4" style={{ width: CALENDAR_GRID_WIDTH }}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
-            aria-label={t("today")}
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-panel)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
-          >
-            <ChevronLeft size={17} strokeWidth={1.9} />
-          </button>
-          <span className="min-w-[10rem] text-center font-mono text-[13.5px] font-medium text-[var(--ink-2)]">
-            {weekLabel}
-          </span>
-          <button
-            type="button"
-            onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
-            aria-label={t("today")}
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-panel)] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]"
-          >
-            <ChevronRight size={17} strokeWidth={1.9} />
-          </button>
-          <Button variant="secondary" compact onClick={() => setWeekStart(startOfWeek(new Date()))}>
-            {t("today")}
-          </Button>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-[var(--border-container)] bg-white">
+      <div className="flex h-[60px] shrink-0 items-center gap-2 border-b border-[var(--border-hairline)] px-4">
+        <button
+          type="button"
+          onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
+          aria-label={t("today")}
+          className={NAV_BUTTON_CLASS}
+        >
+          <ChevronLeft size={16} strokeWidth={1.9} />
+        </button>
+        <span className="min-w-[136px] text-center text-[14px] font-medium text-[var(--ink-body)]">{weekLabel}</span>
+        <button
+          type="button"
+          onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
+          aria-label={t("today")}
+          className={NAV_BUTTON_CLASS}
+        >
+          <ChevronRight size={16} strokeWidth={1.9} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setWeekStart(startOfWeek(new Date()))}
+          className={`ml-1 h-8 px-3 text-[13.5px] font-medium ${NAV_BUTTON_CLASS}`}
+        >
+          {t("today")}
+        </button>
+
+        <div className="ml-auto">
+          <CalendarLegend />
         </div>
 
-        <div className="flex items-center gap-[2px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
+        <div className="ml-4 flex shrink-0 items-center gap-[3px] rounded-[9px] bg-[var(--border-soft)] p-[3px]">
           <button
             type="button"
             onClick={() => setGrouping("vehicle")}
-            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "vehicle"
-                ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
+                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
                 : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
+            <Bus size={14} strokeWidth={1.9} />
             {t("byVehicle")}
           </button>
           <button
             type="button"
             onClick={() => setGrouping("driver")}
-            className={`rounded-[7px] px-3 py-[6px] text-[14px] font-semibold transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "driver"
-                ? "bg-[var(--bg-panel)] text-[var(--ink-primary)] shadow-[0_1px_2px_rgba(24,24,27,.08)]"
+                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
                 : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
+            <UserRound size={14} strokeWidth={1.9} />
             {t("byDriver")}
           </button>
         </div>
       </div>
 
-      <CalendarLegend />
-
-      <div className="overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <ResourceTimelineGrid
           weekStart={weekStart}
           grouping={grouping}
@@ -211,6 +218,7 @@ export function RidesCalendar() {
           onDragOverResource={handleDragOverResource}
           onDragLeave={() => setDragOverTarget(null)}
           draggingRideId={draggingRideId}
+          onResourceAdded={load}
         />
         {data.unassigned.length > 0 ? (
           <UnassignedQueue

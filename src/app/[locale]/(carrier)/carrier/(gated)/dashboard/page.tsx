@@ -9,7 +9,15 @@ import { RidesCalendar } from "@/components/calendar/RidesCalendar";
 import { NewRideProvider } from "@/components/calendar/NewRideContext";
 import { NewRideTriggerButton } from "@/components/calendar/NewRideTriggerButton";
 import { PageHeader } from "@/components/carrier/PageHeader";
-import { CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
+import { PageContent } from "@/components/carrier/PageContent";
+
+function isoWeekNumber(date: Date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
 
 export default async function CarrierDashboardPage({
   params,
@@ -39,12 +47,12 @@ export default async function CarrierDashboardPage({
 
   return (
     <NewRideProvider>
-      <PageHeader
-        title={t("calendarTitle")}
-        actions={readyForCalendar ? <NewRideTriggerButton /> : undefined}
-        contentWidth={readyForCalendar ? CALENDAR_GRID_WIDTH : undefined}
-      />
-      <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
+      <PageContent>
+        <PageHeader
+          title={t("calendarTitle")}
+          context={readyForCalendar ? `Week ${isoWeekNumber(new Date())}` : undefined}
+          actions={readyForCalendar ? <NewRideTriggerButton /> : undefined}
+        />
         {readyForCalendar ? (
           <RidesCalendar />
         ) : (
@@ -70,7 +78,7 @@ export default async function CarrierDashboardPage({
             </div>
           </Card>
         )}
-      </div>
+      </PageContent>
     </NewRideProvider>
   );
 }

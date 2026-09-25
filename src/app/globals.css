@@ -4,22 +4,29 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Atlas design system — semantic tokens (see design/AGENTS notes) */
+  /* Atlas design system v2 — "Atlas Build Review" pass: a calm, quiet
+     workspace. No grey page canvas; separation comes from hairlines, not
+     fills. Weight 500 by default, 600 only for titles/headers/names. */
   --bg-canvas: #ffffff;
   --bg-panel: #ffffff;
   --bg-subtle: #fafafa;
-  --bg-calendar-cell: #fcfbfc;
-  --border-hairline: #e9e9eb;
+  --bg-weekend: #fcfcfc;
+  --bg-today: #fafbff;
+  --border-hairline: #eeeef0;
   --border-soft: #f4f4f5;
   --border-strong: #d8d8dc;
+  --border-control: #e4e4e7;
+  --border-container: #e9e9eb;
 
   --ink-primary: #18181b;
   --ink-strong: #27272b;
   --ink-2: #3f3f46;
-  --ink-secondary: #55555c;
-  --ink-muted: #6b6b72;
+  --ink-body: #3f3f46;
+  --ink-secondary: #6b6b72;
+  --ink-muted: #a1a1aa;
   --ink-eyebrow: #6e6e76;
   --ink-disabled: #a9a9b2;
+  --ink-destructive: #dc2626;
 
   --action-bg: #2563eb;
   --action-bg-hover: #1d4ed8;
@@ -37,13 +44,14 @@
   --accent-scheduled: #2563eb;
   --accent-completed: #16a34a;
   --accent-pending: #f97316;
-  --accent-block: #7c3aed;
+  --accent-block: #a78bfa;
   --accent-expired: #f87171;
   --accent-due-soon: #fdba74;
   --accent-watch: #fde68a;
 
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
-  --shadow-card: 0 6px 18px rgba(24, 24, 27, 0.1), 0 1px 2px rgba(24, 24, 27, 0.06);
+  --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 14px rgba(24, 24, 27, 0.06);
+  --shadow-pill: 0 1px 2px rgba(24, 24, 27, 0.08);
   --shadow-panel: -18px 0 44px rgba(24, 24, 27, 0.16);
 }
 
@@ -65,8 +73,10 @@ body {
   background: var(--background);
   color: var(--ink-primary);
   font-family: var(--font-ui), Helvetica, sans-serif;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.5;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 

@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { AddDriverButton } from "@/components/forms/AddDriverButton";
 import { DriversTable } from "@/components/carrier/DriversTable";
 import { PageHeader } from "@/components/carrier/PageHeader";
-import { DRIVERS_TABLE_WIDTH } from "@/lib/tableLayout";
+import { PageContent } from "@/components/carrier/PageContent";
+import { FilterButton } from "@/components/carrier/FilterButton";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -27,17 +28,19 @@ export default async function DriversPage({
   ]);
 
   return (
-    <>
+    <PageContent>
       <PageHeader
         title={t("carrier.driversTitle")}
         context={`${drivers.length}`}
         actions={<AddDriverButton vehicles={vehicles} autoOpen={params.new === "1"} />}
-        contentWidth={DRIVERS_TABLE_WIDTH}
       />
-      <div className="flex-1 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
-        {drivers.length === 0 ? (
-          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noDrivers")}</p>
-        ) : (
+      {drivers.length === 0 ? (
+        <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("carrier.noDrivers")}</p>
+      ) : (
+        <>
+          <div className="flex shrink-0 items-center">
+            <FilterButton label={t("carrier.driversTable.assignedVehicle")} />
+          </div>
           <DriversTable
             drivers={drivers.map((driver) => ({
               ...driver,
@@ -45,8 +48,8 @@ export default async function DriversPage({
             }))}
             vehicles={vehicles}
           />
-        )}
-      </div>
-    </>
+        </>
+      )}
+    </PageContent>
   );
 }

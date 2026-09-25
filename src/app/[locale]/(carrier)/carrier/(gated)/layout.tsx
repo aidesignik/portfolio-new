@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Link } from "@/i18n/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { CarrierSidebar } from "@/components/carrier/CarrierSidebar";
+import { TopBar } from "@/components/carrier/TopBar";
 import { vehicleExpiringItems, driverExpiringItems, sortExpiringItems } from "@/lib/expiryStatus";
 
 const DOC_LABEL_KEY = {
@@ -106,7 +107,7 @@ export default async function CarrierGatedLayout({
   });
 
   return (
-    <div className="grid h-dvh grid-cols-[252px_1fr] overflow-hidden bg-white">
+    <div className="grid h-dvh grid-cols-[240px_1fr] overflow-hidden bg-white">
       <CarrierSidebar
         requestCount={requestCount}
         bookingCount={bookingCount}
@@ -114,7 +115,10 @@ export default async function CarrierGatedLayout({
         driverCount={drivers.length}
         expiringItems={sidebarExpiringItems}
       />
-      <div className="flex h-dvh min-w-0 flex-col">{children}</div>
+      <div className="flex h-dvh min-w-0 flex-col">
+        <TopBar />
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      </div>
     </div>
   );
 }

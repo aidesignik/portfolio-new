@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/Badge";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { DocumentChipsRow } from "@/components/carrier/DocumentChipsRow";
 import { RowActionsMenu } from "@/components/carrier/RowActionsMenu";
 import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
+import { StatusDot } from "@/components/carrier/StatusDot";
 import { EditVehiclePanel } from "@/components/forms/EditVehiclePanel";
 import { useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips } from "@/lib/documentChips";
@@ -28,7 +28,7 @@ export interface FleetTableVehicle {
   drivers: { id: string; name: string }[];
 }
 
-const EYEBROW = "text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]";
+const HEADER_CLASS = "text-[13px] text-[var(--ink-secondary)]";
 
 export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
   const t = useTranslations();
@@ -41,20 +41,20 @@ export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
   }
 
   return (
-    <div role="table" className="w-fit overflow-hidden rounded-[14px] border border-[var(--border-hairline)] bg-[var(--bg-panel)]">
+    <div role="table" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-[var(--border-container)] bg-white">
       <div
         role="row"
-        className="grid items-center gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-4 py-3"
+        className="grid h-11 shrink-0 items-center gap-3 border-b border-[var(--border-hairline)] px-5"
         style={{ gridTemplateColumns: FLEET_GRID_TEMPLATE }}
       >
-        <span role="columnheader" className={EYEBROW}>{t("carrier.fleetTable.vehicle")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.fleetTable.details")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("common.status")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.table.documents")}</span>
-        <span role="columnheader" className={EYEBROW}>{t("carrier.fleetTable.assignedDriver")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.fleetTable.vehicle")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.fleetTable.details")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("common.status")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.table.documents")}</span>
+        <span role="columnheader" className={HEADER_CLASS}>{t("carrier.fleetTable.assignedDriver")}</span>
         <span role="columnheader" className="sr-only">{t("common.actions")}</span>
       </div>
-      <div role="rowgroup">
+      <div role="rowgroup" className="min-h-0 flex-1 overflow-y-auto">
         {vehicles.map((vehicle) => {
           const chips = vehicleDocumentChips(vehicle);
           const typeLabel = t(`vehicleType.${vehicle.type}`);
@@ -62,16 +62,16 @@ export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
             <ClickableRow
               key={vehicle.id}
               onClick={() => setEditingVehicleId(vehicle.id)}
-              className="grid items-center gap-3 border-b border-[var(--border-soft)] px-4 py-3.5 last:border-b-0"
+              className="grid h-[68px] items-center gap-3 border-b border-[var(--border-hairline)] px-5 last:border-b-0"
               style={{ gridTemplateColumns: FLEET_GRID_TEMPLATE }}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
                 <VehicleAvatar type={vehicle.type} typeLabel={typeLabel} photoUrl={vehicle.photos[0] ?? null} />
                 <div className="min-w-0">
-                  <p className="truncate text-[14.5px] font-bold text-[var(--ink-primary)]">
+                  <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
                     {typeLabel} {vehicle.model}
                   </p>
-                  <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">
+                  <p className="truncate font-mono text-[12.5px] text-[var(--ink-secondary)]">
                     {vehicle.licensePlate ?? "—"}
                   </p>
                 </div>
@@ -81,9 +81,10 @@ export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
                 {vehicle.seats} {t("carrier.fleetTable.seats")}
               </div>
               <div role="cell" className="min-w-0">
-                <Badge tone={vehicle.status === "ACTIVE" ? "positive" : "neutral"}>
-                  {t(`vehicleStatus.${vehicle.status}`)}
-                </Badge>
+                <StatusDot
+                  color={vehicle.status === "ACTIVE" ? "#16A34A" : "#A1A1AA"}
+                  label={t(`vehicleStatus.${vehicle.status}`)}
+                />
               </div>
               <div role="cell" className="min-w-0">
                 <DocumentChipsRow chips={chips} t={t} />

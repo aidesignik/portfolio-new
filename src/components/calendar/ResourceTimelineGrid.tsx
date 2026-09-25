@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Wrench, Plus } from "lucide-react";
 import { RideBlockCard } from "./RideBlockCard";
-import { BLOCK_PATTERN_STYLE } from "./statusStyles";
-import { CALENDAR_GRID_TEMPLATE, CALENDAR_GRID_WIDTH } from "@/lib/tableLayout";
+import { AddVehiclePanel } from "@/components/forms/AddVehiclePanel";
+import { AddDriverPanel } from "@/components/forms/AddDriverPanel";
+import { CALENDAR_GRID_TEMPLATE } from "@/lib/tableLayout";
 import type { CalendarBlock, CalendarDriver, CalendarRide, CalendarVehicle, ResourceGrouping } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -19,6 +22,7 @@ interface Resource {
   id: string;
   name: string;
   plate: string | null;
+  seats: number | null;
 }
 
 function startOfDay(date: Date) {
@@ -67,6 +71,7 @@ export function ResourceTimelineGrid({
   onDragOverResource,
   onDragLeave,
   draggingRideId,
+  onResourceAdded,
 }: {
   weekStart: Date;
   grouping: ResourceGrouping;
@@ -80,162 +85,245 @@ export function ResourceTimelineGrid({
   onDragOverResource: (resourceId: string) => void;
   onDragLeave: () => void;
   draggingRideId: string | null;
+  onResourceAdded: () => void;
 }) {
   const t = useTranslations("carrier.calendar");
+  const tCarrier = useTranslations("carrier");
   const tType = useTranslations("vehicleType");
+  const [addingResource, setAddingResource] = useState(false);
   const today = startOfDay(new Date());
   const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * DAY_MS));
 
   const resources: Resource[] =
     grouping === "vehicle"
-      ? vehicles.map((v) => ({ id: v.id, name: `${tType(v.type)} ${v.model}`, plate: v.licensePlate }))
-      : drivers.map((d) => ({ id: d.id, name: d.name, plate: null }));
+      ? vehicles.map((v) => ({ id: v.id, name: `${tType(v.type)} ${v.model}`, plate: v.licensePlate, seats: v.seats }))
+      : drivers.map((d) => ({ id: d.id, name: d.name, plate: null, seats: null }));
 
-  if (resources.length === 0) {
-    return (
-      <p className="p-6 text-center text-[13.5px] text-[var(--ink-muted)]">
-        {grouping === "vehicle" ? t("noVehicles") : t("noDrivers")}
-      </p>
-    );
+  const resourceCountLabel =
+    grouping === "vehicle"
+      ? t("vehicleCount", { count: vehicles.length })
+      : t("driverCount", { count: drivers.length });
+
+  function driverFor(ride: CalendarRide) {
+    return ride.driverId ? drivers.find((d) => d.id === ride.driverId) : undefined;
+  }
+  function seatsFor(ride: CalendarRide) {
+    return ride.vehicleId ? vehicles.find((v) => v.id === ride.vehicleId)?.seats ?? null : null;
   }
 
   return (
-    <div className="overflow-x-auto">
-      <div style={{ width: CALENDAR_GRID_WIDTH }}>
-        <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-          <div className="border-b border-r border-[var(--border-hairline)] bg-[var(--bg-panel)]" />
-          {days.map((day, i) => {
-            const isToday = day.getTime() === today.getTime();
-            return (
-              <div
-                key={i}
-                className={`flex h-11 items-center justify-center border-b border-r border-[var(--border-hairline)] px-2 text-[13px] font-bold last:border-r-0 ${
-                  isToday ? "bg-[var(--select-tint)] text-[var(--action-800)]" : "bg-[var(--bg-panel)] text-[var(--ink-2)]"
-                }`}
-              >
-                {day.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
-              </div>
-            );
-          })}
-        </div>
-
-        {resources.map((resource) => {
-          const resourceRides = rides
-            .filter((r) => (grouping === "vehicle" ? r.vehicleId : r.driverId) === resource.id)
-            .map((ride) => {
-              const startIdx = Math.max(0, dayIndex(weekStart, ride.departureAt));
-              const endIdx = ride.returnAt ? Math.min(6, dayIndex(weekStart, ride.returnAt)) : startIdx;
-              return { ride, startIdx, endIdx };
-            });
-          const resourceBlocks = blocks
-            .filter((b) => (grouping === "vehicle" ? b.vehicleId : b.driverId) === resource.id)
-            .map((block) => ({
-              block,
-              startIdx: Math.max(0, dayIndex(weekStart, block.startAt)),
-              endIdx: Math.min(6, dayIndex(weekStart, block.endAt)),
-            }));
-          const isDragTarget = dragOverTarget?.resourceId === resource.id;
-
-          // Overlapping rides/blocks for this resource get their own lane
-          // (row) instead of sitting on top of each other.
-          const { laneOf, laneCount } = assignLanes([
-            ...resourceRides.map(({ ride, startIdx, endIdx }) => ({ id: ride.id, startIdx, endIdx })),
-            ...resourceBlocks.map(({ block, startIdx, endIdx }) => ({ id: block.id, startIdx, endIdx })),
-          ]);
-
-          return (
-            <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-              <div className="flex flex-col justify-center gap-[1px] border-r border-b border-[var(--border-hairline)] px-[14px] py-3">
-                <p className="truncate text-[13.5px] font-bold text-[var(--ink-primary)]">{resource.name}</p>
-                {resource.plate ? (
-                  <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">{resource.plate}</p>
-                ) : null}
-              </div>
-              <div
-                className="relative col-span-7 grid border-b border-[var(--border-hairline)]"
-                style={{
-                  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                  gridTemplateRows: `repeat(${laneCount}, minmax(96px, auto))`,
-                }}
-                onDragOver={(e) => {
-                  if (!draggingRideId) return;
-                  e.preventDefault();
-                  onDragOverResource(resource.id);
-                }}
-                onDragLeave={onDragLeave}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (draggingRideId) onDropRide(resource.id);
-                }}
-              >
-                {days.map((day, i) => {
-                  const isToday = day.getTime() === today.getTime();
-                  return (
-                    <div
-                      key={i}
-                      className={`border-r border-b border-[var(--border-soft)] last:border-r-0 ${
-                        isDragTarget
-                          ? dragOverTarget?.conflict
-                            ? "bg-[var(--chip-critical)]/30"
-                            : "bg-[var(--chip-positive)]/30"
-                          : isToday
-                            ? "bg-[var(--select-tint)]"
-                            : "bg-[var(--bg-calendar-cell)]"
-                      }`}
-                      style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
-                    />
-                  );
-                })}
-
-                {resourceBlocks.map(({ block, startIdx, endIdx }) => (
-                  <div
-                    key={block.id}
-                    className="z-0 flex items-center truncate rounded-[10px] border border-[var(--border-strong)] px-2 py-1 text-[12.5px] text-[var(--ink-secondary)]"
-                    style={{
-                      gridRow: (laneOf.get(block.id) ?? 0) + 1,
-                      gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                      margin: "6px",
-                      ...BLOCK_PATTERN_STYLE,
-                    }}
-                    title={block.note ?? undefined}
-                  >
-                    {t(`blockReason.${block.reason}`)}
-                  </div>
-                ))}
-
-                {resourceRides.map(({ ride, startIdx, endIdx }) => (
-                  <div
-                    key={ride.id}
-                    className="z-10"
-                    style={{
-                      gridRow: (laneOf.get(ride.id) ?? 0) + 1,
-                      gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                      margin: "10px",
-                    }}
-                  >
-                    <RideBlockCard ride={ride} onClick={() => onRideClick(ride.id)} style={{ height: "100%" }} />
-                  </div>
-                ))}
-
-                {isDragTarget && dragOverTarget?.conflict && dragOverTarget.message ? (
-                  <div
-                    className="z-20 flex items-center rounded-[10px] px-2 py-1 text-[12.5px] font-semibold text-white"
-                    style={{
-                      gridRow: 1,
-                      gridColumn: "1 / 8",
-                      margin: "6px",
-                      justifySelf: "start",
-                      background: "#F87171",
-                    }}
-                  >
-                    {dragOverTarget.message}
-                  </div>
-                ) : null}
-              </div>
+    <>
+      <div className="overflow-x-auto">
+        <div className="min-w-full">
+          <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
+            <div className="flex h-12 items-center border-b border-r border-[var(--border-hairline)] px-[14px] text-[13px] text-[var(--ink-secondary)]">
+              {resources.length > 0 ? resourceCountLabel : ""}
             </div>
-          );
-        })}
+            {days.map((day, i) => {
+              const isToday = day.getTime() === today.getTime();
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+              const weekday = day.toLocaleDateString(undefined, { weekday: "short" });
+              const dateNum = day.getDate();
+              return (
+                <div
+                  key={i}
+                  className={`flex h-12 items-center gap-[8px] border-b border-r border-[var(--border-hairline)] px-[14px] last:border-r-0 ${
+                    isWeekend && !isToday ? "bg-[var(--bg-weekend)]" : ""
+                  }`}
+                >
+                  <span
+                    className="text-[13.5px]"
+                    style={{ color: isToday ? "#2563EB" : isWeekend ? "#A1A1AA" : "#6B6B72" }}
+                  >
+                    {weekday}
+                  </span>
+                  {isToday ? (
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] text-[12.5px] font-semibold text-white">
+                      {dateNum}
+                    </span>
+                  ) : (
+                    <span
+                      className="text-[13.5px] font-medium"
+                      style={{ color: isWeekend ? "#6B6B72" : "#27272B" }}
+                    >
+                      {dateNum}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {resources.length === 0 ? (
+            <p className="p-6 text-center text-[13.5px] text-[var(--ink-secondary)]">
+              {grouping === "vehicle" ? t("noVehicles") : t("noDrivers")}
+            </p>
+          ) : (
+            resources.map((resource) => {
+              const resourceRides = rides
+                .filter((r) => (grouping === "vehicle" ? r.vehicleId : r.driverId) === resource.id)
+                .map((ride) => {
+                  const startIdx = Math.max(0, dayIndex(weekStart, ride.departureAt));
+                  const endIdx = ride.returnAt ? Math.min(6, dayIndex(weekStart, ride.returnAt)) : startIdx;
+                  return { ride, startIdx, endIdx };
+                });
+              const resourceBlocks = blocks
+                .filter((b) => (grouping === "vehicle" ? b.vehicleId : b.driverId) === resource.id)
+                .map((block) => ({
+                  block,
+                  startIdx: Math.max(0, dayIndex(weekStart, block.startAt)),
+                  endIdx: Math.min(6, dayIndex(weekStart, block.endAt)),
+                }));
+              const isDragTarget = dragOverTarget?.resourceId === resource.id;
+
+              // Overlapping rides/blocks for this resource get their own lane
+              // (row) instead of sitting on top of each other.
+              const { laneOf, laneCount } = assignLanes([
+                ...resourceRides.map(({ ride, startIdx, endIdx }) => ({ id: ride.id, startIdx, endIdx })),
+                ...resourceBlocks.map(({ block, startIdx, endIdx }) => ({ id: block.id, startIdx, endIdx })),
+              ]);
+
+              return (
+                <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
+                  <div className="flex min-h-[132px] flex-col justify-center gap-[2px] border-r border-b border-[var(--border-hairline)] px-5 py-[18px]">
+                    <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
+                    {resource.plate || resource.seats ? (
+                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">
+                        {resource.plate ? <span className="font-mono text-[12.5px]">{resource.plate}</span> : null}
+                        {resource.plate && resource.seats ? " · " : ""}
+                        {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div
+                    className="relative col-span-7 grid border-b border-[var(--border-hairline)]"
+                    style={{
+                      gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                      gridTemplateRows: `repeat(${laneCount}, minmax(132px, auto))`,
+                    }}
+                    onDragOver={(e) => {
+                      if (!draggingRideId) return;
+                      e.preventDefault();
+                      onDragOverResource(resource.id);
+                    }}
+                    onDragLeave={onDragLeave}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggingRideId) onDropRide(resource.id);
+                    }}
+                  >
+                    {days.map((day, i) => {
+                      const isToday = day.getTime() === today.getTime();
+                      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                      return (
+                        <div
+                          key={i}
+                          className={`border-r border-b border-[var(--border-soft)] last:border-r-0 ${
+                            isDragTarget
+                              ? dragOverTarget?.conflict
+                                ? "bg-[var(--chip-critical)]/30"
+                                : "bg-[var(--chip-positive)]/30"
+                              : isToday
+                                ? "bg-[var(--bg-today)]"
+                                : isWeekend
+                                  ? "bg-[var(--bg-weekend)]"
+                                  : ""
+                          }`}
+                          style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
+                        />
+                      );
+                    })}
+
+                    {resourceBlocks.map(({ block, startIdx, endIdx }) => (
+                      <div
+                        key={block.id}
+                        className="z-0 flex h-10 items-center gap-[6px] truncate rounded-[9px] px-[10px] text-[13.5px] font-medium"
+                        style={{
+                          gridRow: (laneOf.get(block.id) ?? 0) + 1,
+                          gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
+                          margin: "12px 10px",
+                          background: "#EDE9FE",
+                          color: "#3B1F87",
+                          alignSelf: "start",
+                        }}
+                        title={block.note ?? undefined}
+                      >
+                        <Wrench size={14} strokeWidth={1.9} className="shrink-0" />
+                        <span className="truncate">{t(`blockReason.${block.reason}`)}</span>
+                      </div>
+                    ))}
+
+                    {resourceRides.map(({ ride, startIdx, endIdx }) => (
+                      <div
+                        key={ride.id}
+                        className="z-10"
+                        style={{
+                          gridRow: (laneOf.get(ride.id) ?? 0) + 1,
+                          gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
+                          margin: "12px 10px",
+                        }}
+                      >
+                        <RideBlockCard
+                          ride={ride}
+                          onClick={() => onRideClick(ride.id)}
+                          style={{ height: "100%" }}
+                          seats={seatsFor(ride)}
+                          driverName={driverFor(ride)?.name}
+                          driverId={driverFor(ride)?.id}
+                        />
+                      </div>
+                    ))}
+
+                    {isDragTarget && dragOverTarget?.conflict && dragOverTarget.message ? (
+                      <div
+                        className="z-20 flex items-center rounded-[10px] px-2 py-1 text-[12.5px] font-semibold text-white"
+                        style={{
+                          gridRow: 1,
+                          gridColumn: "1 / 8",
+                          margin: "6px",
+                          justifySelf: "start",
+                          background: "#F87171",
+                        }}
+                      >
+                        {dragOverTarget.message}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          <button
+            type="button"
+            onClick={() => setAddingResource(true)}
+            className="flex h-12 w-full items-center gap-[6px] border-t border-[var(--border-hairline)] px-5 text-[13.5px] font-medium text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+          >
+            <Plus size={14} strokeWidth={1.9} />
+            {grouping === "vehicle" ? tCarrier("addVehicle") : tCarrier("addDriver")}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {addingResource && grouping === "vehicle" ? (
+        <AddVehiclePanel
+          onClose={() => setAddingResource(false)}
+          onCreated={() => {
+            setAddingResource(false);
+            onResourceAdded();
+          }}
+        />
+      ) : null}
+      {addingResource && grouping === "driver" ? (
+        <AddDriverPanel
+          vehicles={vehicles}
+          onClose={() => setAddingResource(false)}
+          onCreated={() => {
+            setAddingResource(false);
+            onResourceAdded();
+          }}
+        />
+      ) : null}
+    </>
   );
 }
