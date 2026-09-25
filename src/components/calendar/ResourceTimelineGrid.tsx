@@ -210,7 +210,7 @@ export function ResourceTimelineGrid({
                     style={{
                       gridRow: (laneOf.get(ride.id) ?? 0) + 1,
                       gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                      margin: "6px",
+                      margin: "10px",
                     }}
                   >
                     <RideBlockCard ride={ride} onClick={() => onRideClick(ride.id)} style={{ height: "100%" }} />
