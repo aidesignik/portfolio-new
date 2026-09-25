@@ -27,8 +27,8 @@ export async function PageHeader({
   const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
 
   return (
-    <div className="shrink-0 border-b border-[var(--border-hairline)] bg-[var(--bg-panel)]">
-      <div className="flex h-14 items-center justify-end gap-3 border-b border-[var(--border-hairline)] px-5">
+    <>
+      <div className="flex h-14 shrink-0 items-center justify-end gap-3 border-b border-[var(--border-hairline)] bg-[var(--bg-panel)] px-5">
         <div className="relative hidden sm:block">
           <Search size={14} strokeWidth={2} color="#A9A9B2" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -45,7 +45,7 @@ export async function PageHeader({
           size={34}
         />
       </div>
-      <div className="px-5 py-3">
+      <div className="shrink-0 bg-[var(--bg-canvas)] px-5 py-3">
         <div
           className="flex min-h-[36px] w-full items-center justify-between gap-4"
           style={contentWidth ? { maxWidth: contentWidth } : undefined}
@@ -57,6 +57,6 @@ export async function PageHeader({
           {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
         </div>
       </div>
-    </div>
+    </>
   );
 }
