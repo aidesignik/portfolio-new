@@ -124,20 +124,14 @@ export function ResourceTimelineGrid({
             </div>
             {days.map((day, i) => {
               const isToday = day.getTime() === today.getTime();
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
               const weekday = day.toLocaleDateString(undefined, { weekday: "short" });
               const dateNum = day.getDate();
               return (
                 <div
                   key={i}
-                  className={`flex h-12 items-center gap-[8px] border-b border-r border-[var(--border-hairline)] px-[14px] last:border-r-0 ${
-                    isWeekend && !isToday ? "bg-[var(--bg-weekend)]" : "bg-white"
-                  }`}
+                  className="flex h-12 items-center gap-[8px] border-b border-r border-[var(--border-hairline)] bg-white px-[14px] last:border-r-0"
                 >
-                  <span
-                    className="text-[13.5px]"
-                    style={{ color: isToday ? "#2563EB" : isWeekend ? "#A1A1AA" : "#6B6B72" }}
-                  >
+                  <span className="text-[13.5px]" style={{ color: isToday ? "#2563EB" : "#6B6B72" }}>
                     {weekday}
                   </span>
                   {isToday ? (
@@ -145,10 +139,7 @@ export function ResourceTimelineGrid({
                       {dateNum}
                     </span>
                   ) : (
-                    <span
-                      className="text-[13.5px] font-medium"
-                      style={{ color: isWeekend ? "#6B6B72" : "#27272B" }}
-                    >
+                    <span className="text-[13.5px] font-medium" style={{ color: "#27272B" }}>
                       {dateNum}
                     </span>
                   )}
@@ -217,7 +208,6 @@ export function ResourceTimelineGrid({
                   >
                     {days.map((day, i) => {
                       const isToday = day.getTime() === today.getTime();
-                      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                       return (
                         <div
                           key={i}
@@ -228,9 +218,7 @@ export function ResourceTimelineGrid({
                                 : "bg-[var(--chip-positive)]/30"
                               : isToday
                                 ? "bg-[var(--bg-today)]"
-                                : isWeekend
-                                  ? "bg-[var(--bg-weekend)]"
-                                  : ""
+                                : "bg-[var(--bg-day-cell)]"
                           }`}
                           style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
                         />
