@@ -6,7 +6,12 @@
 // the metadata columns (status, documents, pax, actions…) stay fixed-width.
 
 export const CALENDAR_RESOURCE_COLUMN_WIDTH = 220;
-export const CALENDAR_GRID_TEMPLATE = `${CALENDAR_RESOURCE_COLUMN_WIDTH}px repeat(7, minmax(0, 1fr))`;
+// Day columns flex to fill available width but never shrink below 120px —
+// without a floor they'd just keep compressing on a narrow viewport instead
+// of the grid ever overflowing, which would mean the horizontal scroll (and
+// the sticky resource column that depends on it) never actually kicks in.
+export const CALENDAR_DAY_COLUMN_MIN_WIDTH = 120;
+export const CALENDAR_GRID_TEMPLATE = `${CALENDAR_RESOURCE_COLUMN_WIDTH}px repeat(7, minmax(${CALENDAR_DAY_COLUMN_MIN_WIDTH}px, 1fr))`;
 
 // vehicle, details, status, documents, assignedDriver, actions
 export const FLEET_GRID_TEMPLATE = "minmax(0,1fr) 140px 110px 220px 100px 44px";

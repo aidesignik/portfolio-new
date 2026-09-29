@@ -204,7 +204,14 @@ export function RidesCalendar() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* The single scroll container for both axes — a sticky header (top)
+          and a sticky resource column (left) both need to resolve against
+          the SAME scrolling ancestor. Splitting x/y across nested divs
+          doesn't work: a div with only overflow-x set has its overflow-y
+          computed as auto too (CSS overflow rules), which makes it its own
+          (never-scrolling) "scroll box" and breaks sticky-to-the-real-
+          scroller for anything inside it. */}
+      <div className="min-h-0 flex-1 overflow-auto">
         <ResourceTimelineGrid
           weekStart={weekStart}
           grouping={grouping}

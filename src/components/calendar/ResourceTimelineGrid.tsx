@@ -113,10 +113,13 @@ export function ResourceTimelineGrid({
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <div className="min-w-full">
-          <div className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-            <div className="flex h-12 items-center border-b border-r border-[var(--border-hairline)] px-[14px] text-[13px] text-[var(--ink-secondary)]">
+      {/* No overflow/scroll declared here — the parent (RidesCalendar) owns
+          the single scroll container for both axes, which is what lets the
+          sticky header (top) and sticky resource column (left) below both
+          resolve against the same scrolling ancestor. */}
+      <div className="min-w-full">
+        <div className="sticky top-0 z-20 grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
+            <div className="sticky left-0 z-30 flex h-12 items-center border-b border-r border-[var(--border-hairline)] bg-white px-[14px] text-[13px] text-[var(--ink-secondary)]">
               {resources.length > 0 ? resourceCountLabel : ""}
             </div>
             {days.map((day, i) => {
@@ -128,7 +131,7 @@ export function ResourceTimelineGrid({
                 <div
                   key={i}
                   className={`flex h-12 items-center gap-[8px] border-b border-r border-[var(--border-hairline)] px-[14px] last:border-r-0 ${
-                    isWeekend && !isToday ? "bg-[var(--bg-weekend)]" : ""
+                    isWeekend && !isToday ? "bg-[var(--bg-weekend)]" : "bg-white"
                   }`}
                 >
                   <span
@@ -185,7 +188,7 @@ export function ResourceTimelineGrid({
 
               return (
                 <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-                  <div className="flex min-h-[132px] flex-col justify-center gap-[2px] border-r border-b border-[var(--border-hairline)] px-5 py-[18px]">
+                  <div className="sticky left-0 z-10 flex min-h-[132px] flex-col justify-center gap-[2px] border-r border-b border-[var(--border-hairline)] bg-white px-5 py-[18px]">
                     <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                     {resource.plate || resource.seats ? (
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">
@@ -303,8 +306,6 @@ export function ResourceTimelineGrid({
             {grouping === "vehicle" ? tCarrier("addVehicle") : tCarrier("addDriver")}
           </button>
         </div>
-      </div>
-
       {addingResource && grouping === "vehicle" ? (
         <AddVehiclePanel
           onClose={() => setAddingResource(false)}
