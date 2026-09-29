@@ -36,11 +36,11 @@ export function RideBlockCard({
       className="flex w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)]"
       title={`${clientLabel} · ${ride.pickupCity} → ${ride.destinationCity}`}
     >
-      <div className="flex h-[3px] w-full shrink-0">
-        <span className="h-full" style={{ width: 18, background: accent }} />
-        <span className="h-full flex-1" style={{ background: "#E4E4E7" }} />
-      </div>
       <div className="flex flex-col gap-[8px] px-[14px] py-[12px]">
+        <div className="flex h-[3px] shrink-0 items-center gap-[3px]">
+          <span className="h-full rounded-full" style={{ width: 26, background: accent }} />
+          <span className="h-full rounded-full" style={{ width: 10, background: "#E4E4E7" }} />
+        </div>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
