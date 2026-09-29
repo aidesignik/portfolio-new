@@ -41,6 +41,7 @@ export default async function FleetPage({
               ...vehicle,
               drivers: vehicle.drivers.map((dv) => dv.driver),
             }))}
+            initialEditingId={typeof params.edit === "string" ? params.edit : null}
           />
         </>
       )}

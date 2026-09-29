@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
@@ -9,7 +9,7 @@ import { RowActionsMenu } from "@/components/carrier/RowActionsMenu";
 import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
 import { EditDriverPanel } from "@/components/forms/EditDriverPanel";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { driverDocumentChips } from "@/lib/documentChips";
 import { DRIVERS_GRID_TEMPLATE } from "@/lib/tableLayout";
 
@@ -30,13 +30,24 @@ const HEADER_CLASS = "text-[13px] text-[var(--ink-secondary)]";
 export function DriversTable({
   drivers,
   vehicles,
+  initialEditingId = null,
 }: {
   drivers: DriversTableDriver[];
   vehicles: { id: string; type: string; model: string }[];
+  initialEditingId?: string | null;
 }) {
   const t = useTranslations();
   const router = useRouter();
-  const [editingDriverId, setEditingDriverId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const [editingDriverId, setEditingDriverId] = useState<string | null>(initialEditingId);
+
+  useEffect(() => {
+    // Consume the one-time deep-link signal (e.g. from the sidebar's
+    // "Needs attention" list) so the side panel opens instead of a full
+    // page, then strip it from the URL.
+    if (initialEditingId) router.replace(pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onSaved() {
     setEditingDriverId(null);

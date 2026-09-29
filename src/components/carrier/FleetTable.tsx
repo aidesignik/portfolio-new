@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
@@ -10,7 +10,7 @@ import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
 import { StatusDot } from "@/components/carrier/StatusDot";
 import { EditVehiclePanel } from "@/components/forms/EditVehiclePanel";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips } from "@/lib/documentChips";
 import { FLEET_GRID_TEMPLATE } from "@/lib/tableLayout";
 
@@ -30,10 +30,25 @@ export interface FleetTableVehicle {
 
 const HEADER_CLASS = "text-[13px] text-[var(--ink-secondary)]";
 
-export function FleetTable({ vehicles }: { vehicles: FleetTableVehicle[] }) {
+export function FleetTable({
+  vehicles,
+  initialEditingId = null,
+}: {
+  vehicles: FleetTableVehicle[];
+  initialEditingId?: string | null;
+}) {
   const t = useTranslations();
   const router = useRouter();
-  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(initialEditingId);
+
+  useEffect(() => {
+    // Consume the one-time deep-link signal (e.g. from the sidebar's
+    // "Needs attention" list) so the side panel opens instead of a full
+    // page, then strip it from the URL.
+    if (initialEditingId) router.replace(pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onSaved() {
     setEditingVehicleId(null);

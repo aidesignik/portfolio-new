@@ -96,7 +96,7 @@ export default async function CarrierGatedLayout({
     const daysLeft = Math.max(0, Math.ceil((item.expiryDate.getTime() - now) / DAY_MS));
     return {
       id: `${item.entityType}-${item.entityId}-${item.docKind}`,
-      href: item.entityType === "vehicle" ? `/carrier/fleet/${item.entityId}` : `/carrier/drivers/${item.entityId}`,
+      href: item.entityType === "vehicle" ? `/carrier/fleet?edit=${item.entityId}` : `/carrier/drivers?edit=${item.entityId}`,
       subject: item.entityLabel,
       status: item.status,
       issue:

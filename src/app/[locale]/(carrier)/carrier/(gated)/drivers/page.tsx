@@ -47,6 +47,7 @@ export default async function DriversPage({
               vehicles: driver.vehicles.map((dv) => dv.vehicle),
             }))}
             vehicles={vehicles}
+            initialEditingId={typeof params.edit === "string" ? params.edit : null}
           />
         </>
       )}
