@@ -39,8 +39,14 @@ function windowsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   return aStart.getTime() - pad <= bEnd.getTime() && aEnd.getTime() + pad >= bStart.getTime();
 }
 
-const NAV_BUTTON_CLASS =
-  "flex h-8 w-8 items-center justify-center rounded-[8px] border border-[var(--border-control)] text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+// Prev/next are plain icons — no border box, just a hover tint.
+const ICON_NAV_BUTTON_CLASS =
+  "flex h-8 w-8 items-center justify-center rounded-[8px] text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+// Today keeps the bordered-button treatment, sized by its padding — no
+// fixed width, so the border actually wraps the label instead of clipping
+// or overflowing it.
+const TODAY_BUTTON_CLASS =
+  "flex h-8 items-center rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
 
 export function RidesCalendar() {
   const t = useTranslations("carrier.calendar");
@@ -151,7 +157,7 @@ export function RidesCalendar() {
           type="button"
           onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
           aria-label={t("today")}
-          className={NAV_BUTTON_CLASS}
+          className={ICON_NAV_BUTTON_CLASS}
         >
           <ChevronLeft size={16} strokeWidth={1.9} />
         </button>
@@ -160,14 +166,14 @@ export function RidesCalendar() {
           type="button"
           onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
           aria-label={t("today")}
-          className={NAV_BUTTON_CLASS}
+          className={ICON_NAV_BUTTON_CLASS}
         >
           <ChevronRight size={16} strokeWidth={1.9} />
         </button>
         <button
           type="button"
           onClick={() => setWeekStart(startOfWeek(new Date()))}
-          className={`ml-1 h-8 px-3 text-[13.5px] font-medium ${NAV_BUTTON_CLASS}`}
+          className={`ml-1 ${TODAY_BUTTON_CLASS}`}
         >
           {t("today")}
         </button>
