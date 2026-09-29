@@ -83,7 +83,7 @@ export function CarrierSidebar({
   ];
 
   return (
-    <aside className="sticky top-0 flex h-dvh w-[240px] shrink-0 flex-col gap-[28px] border-r border-[var(--border-hairline)] bg-white px-4 pb-5 pt-6">
+    <aside className="sticky top-0 flex h-dvh w-[240px] shrink-0 flex-col gap-[28px] bg-[var(--bg-sidebar)] px-4 pb-5 pt-6">
       <div className="shrink-0 px-2 text-[19px] font-bold tracking-[-0.015em] text-[var(--ink-primary)]">Atlas</div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-[28px] overflow-y-auto">
