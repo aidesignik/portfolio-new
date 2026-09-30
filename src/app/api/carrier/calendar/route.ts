@@ -1,22 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
+import { STOPS_INCLUDE, splitLegs } from "@/lib/rideStopsShape";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const STOPS_INCLUDE = { orderBy: [{ leg: "asc" as const }, { order: "asc" as const }] };
-
-// Ride.stops holds both legs (tagged OUTBOUND/RETURN) — split back into the
-// two flat arrays the calendar UI expects.
-function splitLegs<T extends { stops: { leg: "OUTBOUND" | "RETURN"; city: string; location: string }[] }>(
-  ride: T,
-) {
-  const { stops, ...rest } = ride;
-  return {
-    ...rest,
-    stops: stops.filter((s) => s.leg === "OUTBOUND").map(({ city, location }) => ({ city, location })),
-    returnStops: stops.filter((s) => s.leg === "RETURN").map(({ city, location }) => ({ city, location })),
-  };
-}
 
 // Returns everything the resource-timeline calendar needs for one week:
 // the carrier's vehicles/drivers (rows), rides and blocks overlapping that
