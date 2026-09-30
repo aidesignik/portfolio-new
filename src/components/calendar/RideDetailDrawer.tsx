@@ -17,6 +17,7 @@ import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/compon
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
+import { displayRideStatus } from "@/lib/rideStatus";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
 
@@ -84,7 +85,12 @@ export function RideDetailDrawer({
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState(() => buildEditForm(ride));
   const [editError, setEditError] = useState<string | null>(null);
-  const editable = ride.status !== "CANCELLED" && ride.status !== "COMPLETED";
+  // Trip details freeze once a ride is cancelled or has effectively
+  // completed (past its date) — but Cancel below stays keyed to the raw
+  // stored status, since a "completed" ride here is only ever a display
+  // inference, not a real status change.
+  const status = displayRideStatus(ride);
+  const editable = status !== "CANCELLED" && status !== "COMPLETED";
 
   const vehicle = vehicles.find((v) => v.id === ride.vehicleId);
   const driver = drivers.find((d) => d.id === ride.driverId);
@@ -209,7 +215,7 @@ export function RideDetailDrawer({
         </div>
 
         <div className="mt-3">
-          <Badge tone={STATUS_TONE[ride.status]}>{t(`rideStatus.${ride.status}`)}</Badge>
+          <Badge tone={STATUS_TONE[status]}>{t(`rideStatus.${status}`)}</Badge>
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StatusDot } from "@/components/carrier/StatusDot";
 import { RideDetailDrawer } from "@/components/calendar/RideDetailDrawer";
 import { RIDE_STATUS_ACCENT } from "@/components/calendar/statusStyles";
+import { displayRideStatus } from "@/lib/rideStatus";
 import { useRouter } from "@/i18n/navigation";
 import { BOOKINGS_GRID_TEMPLATE } from "@/lib/tableLayout";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "@/components/calendar/types";
@@ -56,6 +57,7 @@ export function BookingsTable({
         {bookings.map((booking) => {
           const departure = new Date(booking.departureAt);
           const seats = vehicles.find((v) => v.id === booking.vehicleId)?.seats;
+          const status = displayRideStatus(booking);
           return (
             <ClickableRow
               key={booking.id}
@@ -77,8 +79,8 @@ export function BookingsTable({
               </div>
               <div role="cell" className="min-w-0">
                 <StatusDot
-                  color={RIDE_STATUS_ACCENT[booking.status] ?? "#A1A1AA"}
-                  label={t(`carrier.calendar.legend.${booking.status}`)}
+                  color={RIDE_STATUS_ACCENT[status] ?? "#A1A1AA"}
+                  label={t(`carrier.calendar.legend.${status}`)}
                 />
               </div>
             </ClickableRow>

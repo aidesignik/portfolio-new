@@ -3,6 +3,7 @@ import { Clock, Users } from "lucide-react";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
+import { displayRideStatus } from "@/lib/rideStatus";
 import type { CalendarRide } from "./types";
 
 export function RideBlockCard({
@@ -26,7 +27,7 @@ export function RideBlockCard({
     hour12: false,
   });
   const clientLabel = clientDisplayName(ride.client);
-  const accent = RIDE_STATUS_ACCENT[ride.status];
+  const accent = RIDE_STATUS_ACCENT[displayRideStatus(ride)];
 
   return (
     <button
