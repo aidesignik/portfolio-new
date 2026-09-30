@@ -16,10 +16,25 @@ import type { CalendarDriver, CalendarVehicle } from "./types";
 
 const DEPARTURE_JUMP_DEBOUNCE_MS = 400;
 
+export interface NewRideInitialValues {
+  clientCompanyName?: string;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  pickupCity?: string;
+  pickupLocation?: string;
+  destinationCity?: string;
+  destinationLocation?: string;
+  stops?: CityLocation[];
+  passengerCount?: string;
+  specialRequests?: string;
+}
+
 export function NewRideModal({
   onClose,
   onCreated,
   onDepartureDateChange,
+  initialValues,
 }: {
   onClose: () => void;
   onCreated: () => void;
@@ -27,6 +42,10 @@ export function NewRideModal({
   // dispatcher fills in the form, for live context — optional so this
   // component doesn't need a caller that wires it up.
   onDepartureDateChange?: (date: Date) => void;
+  // Prefills the trip fields (used by "Duplicate" on an existing ride) —
+  // deliberately leaves date/vehicle/driver blank so the dispatcher picks
+  // fresh availability rather than silently reusing a stale assignment.
+  initialValues?: NewRideInitialValues;
 }) {
   const t = useTranslations();
   const tType = useTranslations("vehicleType");
@@ -48,6 +67,7 @@ export function NewRideModal({
     specialRequests: "",
     vehicleId: "",
     driverId: "",
+    ...initialValues,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

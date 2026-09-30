@@ -5,6 +5,7 @@ import { rideAssignmentSchema } from "@/lib/validation/rideAssignment.schema";
 import { suggestPrice } from "@/lib/pricing";
 import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { estimateRouteDistance } from "@/lib/tripDistance";
+import { regenerateRideDocuments } from "@/lib/documents/regenerate";
 
 // Assigns (or reassigns) a vehicle and/or driver to a ride — either one
 // alone is fine, since the calendar's drag-and-drop assigns one resource at
@@ -108,6 +109,8 @@ export async function POST(
       status: ride.status === "PENDING" && finalVehicleId && finalDriverId ? "CONFIRMED" : undefined,
     },
   });
+
+  await regenerateRideDocuments(updated.id);
 
   return NextResponse.json({ ride: updated });
 }

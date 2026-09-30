@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createRideSchema } from "@/lib/validation/request.schema";
 import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
+import { regenerateRideDocuments } from "@/lib/documents/regenerate";
 
 // Editing a ride's own trip details (pickup/destination/stops, date/time,
 // round trip, passenger count, special requests) — separate from
@@ -66,6 +67,8 @@ export async function PATCH(
       },
     },
   });
+
+  await regenerateRideDocuments(updated.id);
 
   return NextResponse.json({ ride: updated });
 }

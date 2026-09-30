@@ -87,6 +87,7 @@ export default async function CarrierBookingsPage({
           )}
           vehicles={vehicles}
           drivers={drivers}
+          initialSelectedId={typeof params.edit === "string" ? params.edit : null}
         />
       )}
     </PageContent>

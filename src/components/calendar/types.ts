@@ -51,6 +51,7 @@ export interface CalendarVehicle {
 export interface CalendarDriver {
   id: string;
   name: string;
+  phone: string;
   isAvailable: boolean;
 }
 

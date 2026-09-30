@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { formatRoute } from "@/lib/location";
 import { clientDisplayName } from "@/lib/clientDisplay";
@@ -9,7 +10,7 @@ import { StatusDot } from "@/components/carrier/StatusDot";
 import { RideDetailDrawer } from "@/components/calendar/RideDetailDrawer";
 import { RIDE_STATUS_ACCENT } from "@/components/calendar/statusStyles";
 import { displayRideStatus } from "@/lib/rideStatus";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { BOOKINGS_GRID_TEMPLATE } from "@/lib/tableLayout";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "@/components/calendar/types";
 
@@ -26,15 +27,33 @@ export function BookingsTable({
   bookings,
   vehicles,
   drivers,
+  initialSelectedId = null,
 }: {
   bookings: CalendarRide[];
   vehicles: CalendarVehicle[];
   drivers: CalendarDriver[];
+  initialSelectedId?: string | null;
 }) {
   const t = useTranslations();
   const router = useRouter();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
   const selected = bookings.find((b) => b.id === selectedId) ?? null;
+
+  useEffect(() => {
+    // Consume the one-time deep-link signal (e.g. a copied ride link, or
+    // the sidebar's "Needs attention" list) so the side sheet opens
+    // directly, then strip it from the URL — preserving the active tab
+    // (?scope=) rather than dropping back to Upcoming.
+    if (initialSelectedId) {
+      const params = new URLSearchParams(searchParams);
+      params.delete("edit");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onChanged() {
     setSelectedId(null);
