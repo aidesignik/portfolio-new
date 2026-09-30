@@ -15,6 +15,7 @@ import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarVehicle } from "./types";
 
 const DEPARTURE_JUMP_DEBOUNCE_MS = 400;
+const DISTANCE_CALC_DEBOUNCE_MS = 900;
 
 export interface NewRideInitialValues {
   clientCompanyName?: string;
@@ -75,6 +76,56 @@ export function NewRideModal({
   const [availableVehicles, setAvailableVehicles] = useState<CalendarVehicle[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<CalendarDriver[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
+
+  // Live distance preview — recalculates as the pickup/destination/stops
+  // (and, for a round trip, the return leg) are filled in, same debounced
+  // pattern as CarrierRideForm. Stored with the ride on submit so
+  // assignment doesn't need to re-estimate it later.
+  useEffect(() => {
+    const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip, returnTrip } = form;
+    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDistanceKm(null);
+      return;
+    }
+    if (stops.some((s) => !s.city || !s.location)) return;
+    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city || !s.location)) return;
+
+    const timer = setTimeout(async () => {
+      setCalculatingDistance(true);
+      const res = await fetch("/api/carrier/distance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickupCity,
+          pickupLocation,
+          destinationCity,
+          destinationLocation,
+          stops,
+          isRoundTrip,
+          ...returnTripPayload(isRoundTrip, returnTrip),
+        }),
+      }).catch(() => null);
+      setCalculatingDistance(false);
+      if (!res?.ok) return;
+      const body = await res.json().catch(() => null);
+      if (typeof body?.distanceKm === "number") setDistanceKm(body.distanceKm);
+    }, DISTANCE_CALC_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    form.pickupCity,
+    form.pickupLocation,
+    form.destinationCity,
+    form.destinationLocation,
+    form.stops,
+    form.isRoundTrip,
+    form.returnTrip,
+  ]);
 
   useEffect(() => {
     // Always fetch — with no date picked yet this just returns the whole
@@ -153,6 +204,7 @@ export function NewRideModal({
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
         vehicleId: form.vehicleId || undefined,
         driverId: form.driverId || undefined,
+        distanceKm: distanceKm ?? undefined,
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
     );
@@ -230,8 +282,8 @@ export function NewRideModal({
                 </button>
               </div>
               <CityLocationFields
-                cityLabel={t("client.requestForm.pickupCity")}
-                locationLabel={t("client.requestForm.pickupLocation")}
+                cityLabel={t("client.requestForm.stopCity")}
+                locationLabel={t("client.requestForm.stopAddress")}
                 city={stop.city}
                 location={stop.location}
                 onCityChange={(v) => updateStop(index, { city: v })}
@@ -293,6 +345,14 @@ export function NewRideModal({
                 outboundStops={form.stops}
               />
             </>
+          ) : null}
+
+          {calculatingDistance ? (
+            <p className="text-[13px] text-[var(--ink-muted)]">{t("carrier.rideForm.calculatingDistance")}</p>
+          ) : distanceKm !== null ? (
+            <p className="text-[13px] text-[var(--ink-muted)]">
+              {t("carrier.rideForm.estimatedDistance", { km: Math.round(distanceKm) })}
+            </p>
           ) : null}
 
           <Field label={t("client.requestForm.passengerCount")}>

@@ -16,20 +16,19 @@ export interface RideReturnLegOverride {
   returnStops?: CityLocation[];
 }
 
-// A round trip's return leg defaults to the outbound leg reversed (same
-// pickup/destination/stops) — this resolves the actual route to use,
-// falling back to that reverse wherever the carrier hasn't set a different
-// pickup/destination/stops for the way back.
+// A round trip's return leg defaults to starting from the outbound
+// destination and ending back at the outbound pickup (the endpoints
+// swapped) — but its stops are NOT assumed to mirror the outbound leg's,
+// since a real return route often skips stops made on the way out (or adds
+// different ones). Stops on the way back only ever come from what was
+// explicitly added for the return leg.
 export function resolveReturnLeg(outbound: RideOutboundLeg, override: RideReturnLegOverride) {
   return {
     pickupCity: override.returnPickupCity ?? outbound.destinationCity,
     pickupLocation: override.returnPickupLocation ?? outbound.destinationLocation,
     destinationCity: override.returnDestinationCity ?? outbound.pickupCity,
     destinationLocation: override.returnDestinationLocation ?? outbound.pickupLocation,
-    stops:
-      override.returnStops && override.returnStops.length > 0
-        ? override.returnStops
-        : [...outbound.stops].reverse(),
+    stops: override.returnStops ?? [],
   };
 }
 

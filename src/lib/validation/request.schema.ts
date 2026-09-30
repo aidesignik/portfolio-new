@@ -25,6 +25,10 @@ export const createRideSchema = z
     returnDestinationLocation: z.string().min(1).optional(),
     passengerCount: z.coerce.number().int().min(1).max(200),
     specialRequests: z.string().optional(),
+    // The form's own live distance preview (see /api/carrier/distance) —
+    // only meaningful for the carrier-side ride edit, which stores it as
+    // Ride.estimatedDistanceKm; ignored by the client-facing request flow.
+    distanceKm: z.coerce.number().positive().optional(),
     // Set after the dispatcher confirms past an availability warning —
     // bypasses the conflict check rather than blocking the edit. Only
     // meaningful for the carrier-side ride edit (PATCH /api/carrier/rides/

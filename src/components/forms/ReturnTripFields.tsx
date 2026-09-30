@@ -23,11 +23,14 @@ export const EMPTY_RETURN_TRIP: ReturnTripValues = {
   returnDestinationLocation: "",
 };
 
-// Shared shape for the return-leg fields in a ride submit payload — leaves
-// them undefined/empty (server defaults to the outbound leg reversed)
-// unless the carrier picked a different route for the way back.
+// Shared shape for the return-leg fields in a ride submit payload.
+// returnStops travels independently of differentReturnRoute — stops on the
+// way back can be added whether or not the endpoints themselves differ.
+// The endpoint overrides only go through when differentReturnRoute is set;
+// otherwise the server defaults them to the outbound leg's endpoints
+// swapped (see resolveReturnLeg()).
 export function returnTripPayload(isRoundTrip: boolean, returnTrip: ReturnTripValues) {
-  if (!isRoundTrip || !returnTrip.differentReturnRoute) {
+  if (!isRoundTrip) {
     return {
       returnPickupCity: undefined,
       returnPickupLocation: undefined,
@@ -37,19 +40,22 @@ export function returnTripPayload(isRoundTrip: boolean, returnTrip: ReturnTripVa
     };
   }
   return {
-    returnPickupCity: returnTrip.returnPickupCity,
-    returnPickupLocation: returnTrip.returnPickupLocation,
+    returnPickupCity: returnTrip.differentReturnRoute ? returnTrip.returnPickupCity : undefined,
+    returnPickupLocation: returnTrip.differentReturnRoute ? returnTrip.returnPickupLocation : undefined,
     returnStops: returnTrip.returnStops,
-    returnDestinationCity: returnTrip.returnDestinationCity,
-    returnDestinationLocation: returnTrip.returnDestinationLocation,
+    returnDestinationCity: returnTrip.differentReturnRoute ? returnTrip.returnDestinationCity : undefined,
+    returnDestinationLocation: returnTrip.differentReturnRoute ? returnTrip.returnDestinationLocation : undefined,
   };
 }
 
 // Shown under the round-trip checkbox in every ride form (client request,
 // carrier quick-create, carrier full booking, ride edit). By default the
-// return leg is assumed to be the outbound leg reversed; checking "Different
-// route for the way back" reveals its own pickup/stops/destination, seeded
-// from that reverse so there's something sensible to edit from.
+// return leg starts from the outbound destination and ends back at the
+// outbound pickup (the endpoints swapped) with no stops assumed — stops on
+// the way back can be added independently of anything else. Checking
+// "Different route for the way back" additionally reveals editable
+// pickup/destination fields (seeded from that swap) for when even the
+// endpoints differ on the way back.
 export function ReturnTripFields({
   value,
   onChange,
@@ -71,9 +77,9 @@ export function ReturnTripFields({
 
   function toggleDifferentRoute(checked: boolean) {
     if (checked && !value.returnPickupCity && !value.returnDestinationCity) {
-      // Seed the fields with the outbound leg reversed (the same default
-      // the server falls back to), so there's something sensible to edit
-      // from rather than a blank form.
+      // Seed just the endpoints with the outbound leg's swapped — stops are
+      // independent of this toggle, so whatever the carrier already added
+      // to the way back is left untouched.
       const seeded = resolveReturnLeg(
         {
           pickupCity: outboundPickupCity,
@@ -89,7 +95,6 @@ export function ReturnTripFields({
         differentReturnRoute: true,
         returnPickupCity: seeded.pickupCity,
         returnPickupLocation: seeded.pickupLocation,
-        returnStops: seeded.stops,
         returnDestinationCity: seeded.destinationCity,
         returnDestinationLocation: seeded.destinationLocation,
       });
@@ -114,6 +119,41 @@ export function ReturnTripFields({
 
   return (
     <div className="space-y-3">
+      <p className="text-xs text-zinc-500">{t("differentReturnRouteHint")}</p>
+
+      <div className="space-y-2">
+        <span className="text-xs font-medium text-zinc-500">{t("returnStopsTitle")}</span>
+        {value.returnStops.map((stop, index) => (
+          <div key={index} className="space-y-2 rounded-md border border-dashed border-zinc-300 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-zinc-500">
+                {t("stop")} {index + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeStop(index)}
+                className="text-xs font-medium text-red-600 hover:underline"
+              >
+                {t("removeStop")}
+              </button>
+            </div>
+            <CityLocationFields
+              cityLabel={t("stopCity")}
+              locationLabel={t("stopAddress")}
+              city={stop.city}
+              location={stop.location}
+              onCityChange={(v) => updateStop(index, { city: v })}
+              onLocationChange={(v) => updateStop(index, { location: v })}
+            />
+          </div>
+        ))}
+        {value.returnStops.length < 5 ? (
+          <button type="button" onClick={addStop} className="text-sm font-medium text-zinc-700 underline">
+            + {t("addStop")}
+          </button>
+        ) : null}
+      </div>
+
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -125,8 +165,6 @@ export function ReturnTripFields({
 
       {value.differentReturnRoute ? (
         <div className="space-y-3 rounded-md border border-zinc-200 p-3">
-          <p className="text-xs text-zinc-500">{t("differentReturnRouteHint")}</p>
-
           <CityLocationFields
             cityLabel={t("returnPickupCity")}
             locationLabel={t("returnPickupLocation")}
@@ -135,36 +173,6 @@ export function ReturnTripFields({
             onCityChange={(v) => onChange({ ...value, returnPickupCity: v })}
             onLocationChange={(v) => onChange({ ...value, returnPickupLocation: v })}
           />
-
-          {value.returnStops.map((stop, index) => (
-            <div key={index} className="space-y-2 rounded-md border border-dashed border-zinc-300 p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
-                  {t("stop")} {index + 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeStop(index)}
-                  className="text-xs font-medium text-red-600 hover:underline"
-                >
-                  {t("removeStop")}
-                </button>
-              </div>
-              <CityLocationFields
-                cityLabel={t("pickupCity")}
-                locationLabel={t("pickupLocation")}
-                city={stop.city}
-                location={stop.location}
-                onCityChange={(v) => updateStop(index, { city: v })}
-                onLocationChange={(v) => updateStop(index, { location: v })}
-              />
-            </div>
-          ))}
-          {value.returnStops.length < 5 ? (
-            <button type="button" onClick={addStop} className="text-sm font-medium text-zinc-700 underline">
-              + {t("addStop")}
-            </button>
-          ) : null}
 
           <CityLocationFields
             cityLabel={t("returnDestinationCity")}

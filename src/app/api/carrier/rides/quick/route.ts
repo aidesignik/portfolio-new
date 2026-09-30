@@ -89,6 +89,7 @@ export async function POST(request: Request) {
       ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
+      estimatedDistanceKm: data.distanceKm,
       status: data.vehicleId && data.driverId ? "CONFIRMED" : "PENDING",
       stops: { create: buildStopsCreate(data) },
     },

@@ -232,8 +232,8 @@ export function CarrierRideForm({
               </button>
             </div>
             <CityLocationFields
-              cityLabel={t("client.requestForm.pickupCity")}
-              locationLabel={t("client.requestForm.pickupLocation")}
+              cityLabel={t("client.requestForm.stopCity")}
+              locationLabel={t("client.requestForm.stopAddress")}
               city={stop.city}
               location={stop.location}
               onCityChange={(v) => updateStop(index, { city: v })}

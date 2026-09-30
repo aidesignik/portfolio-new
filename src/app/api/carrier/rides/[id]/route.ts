@@ -61,6 +61,7 @@ export async function PATCH(
       ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
+      estimatedDistanceKm: data.distanceKm ?? ride.estimatedDistanceKm,
       stops: {
         deleteMany: {},
         create: buildStopsCreate(data),

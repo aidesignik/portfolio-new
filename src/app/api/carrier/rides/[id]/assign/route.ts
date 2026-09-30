@@ -6,6 +6,8 @@ import { suggestPrice } from "@/lib/pricing";
 import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { estimateRouteDistance } from "@/lib/tripDistance";
 import { regenerateRideDocuments } from "@/lib/documents/regenerate";
+import { STOPS_INCLUDE, splitLegs } from "@/lib/rideStopsShape";
+import { resolveReturnLeg } from "@/lib/rideReturnLeg";
 
 // Assigns (or reassigns) a vehicle and/or driver to a ride — either one
 // alone is fine, since the calendar's drag-and-drop assigns one resource at
@@ -34,11 +36,12 @@ export async function POST(
     return NextResponse.json({ error: "CARRIER_NOT_APPROVED" }, { status: 403 });
   }
 
-  const ride = await prisma.ride.findUnique({
+  const rideRow = await prisma.ride.findUnique({
     where: { id: rideId },
-    include: { stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } } },
+    include: { stops: STOPS_INCLUDE },
   });
-  if (!ride) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  if (!rideRow) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  const ride = splitLegs(rideRow);
   if (ride.carrierId && ride.carrierId !== carrier.id) {
     return NextResponse.json({ error: "ALREADY_CLAIMED" }, { status: 409 });
   }
@@ -75,13 +78,34 @@ export async function POST(
 
   let distanceKm = data.distanceKm ?? ride.estimatedDistanceKm ?? undefined;
   if (!distanceKm) {
-    const waypoints = [
+    const outboundWaypoints = [
       { city: ride.pickupCity, location: ride.pickupLocation },
       ...ride.stops,
       { city: ride.destinationCity, location: ride.destinationLocation },
     ];
-    const estimate = await estimateRouteDistance(waypoints).catch(() => null);
-    distanceKm = estimate?.distanceKm;
+    const outboundEstimate = await estimateRouteDistance(outboundWaypoints).catch(() => null);
+    distanceKm = outboundEstimate?.distanceKm;
+
+    // Round trips are priced for the whole journey, not just the way
+    // there — sum in the return leg's own distance too (endpoints
+    // defaulting to the outbound swapped, stops only if the carrier added
+    // return-specific ones; see resolveReturnLeg()).
+    if (distanceKm !== undefined && ride.isRoundTrip) {
+      const returnLeg = resolveReturnLeg(ride, {
+        returnPickupCity: ride.returnPickupCity ?? undefined,
+        returnPickupLocation: ride.returnPickupLocation ?? undefined,
+        returnDestinationCity: ride.returnDestinationCity ?? undefined,
+        returnDestinationLocation: ride.returnDestinationLocation ?? undefined,
+        returnStops: ride.returnStops,
+      });
+      const returnWaypoints = [
+        { city: returnLeg.pickupCity, location: returnLeg.pickupLocation },
+        ...returnLeg.stops,
+        { city: returnLeg.destinationCity, location: returnLeg.destinationLocation },
+      ];
+      const returnEstimate = await estimateRouteDistance(returnWaypoints).catch(() => null);
+      distanceKm = returnEstimate ? distanceKm + returnEstimate.distanceKm : undefined;
+    }
   }
 
   const price =

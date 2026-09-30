@@ -95,8 +95,8 @@ export function PublicSearchForm({ defaults }: { defaults: TripSearchState }) {
             </button>
           </div>
           <CityLocationFields
-            cityLabel={t("pickupCity")}
-            locationLabel={t("pickupLocation")}
+            cityLabel={t("stopCity")}
+            locationLabel={t("stopAddress")}
             city={stop.city}
             location={stop.location}
             onCityChange={(v) => updateStop(index, { city: v })}

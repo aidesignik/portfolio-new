@@ -115,8 +115,56 @@ export function RideDetailDrawer({
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState(() => buildEditForm(ride));
   const [editError, setEditError] = useState<string | null>(null);
+  const [editDistanceKm, setEditDistanceKm] = useState<number | null>(ride.estimatedDistanceKm ?? null);
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
 
   const [duplicating, setDuplicating] = useState(false);
+
+  // Live distance preview while editing trip details — recalculates as
+  // pickup/destination/stops (and, for a round trip, the return leg)
+  // change, same pattern as NewRideModal/CarrierRideForm. Seeded from the
+  // ride's already-stored estimate, not recalculated until something
+  // actually changes.
+  useEffect(() => {
+    if (!editing) return;
+    const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip, returnTrip } = editForm;
+    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) return;
+    if (stops.some((s) => !s.city || !s.location)) return;
+    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city || !s.location)) return;
+
+    const timer = setTimeout(async () => {
+      setCalculatingDistance(true);
+      const res = await fetch("/api/carrier/distance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickupCity,
+          pickupLocation,
+          destinationCity,
+          destinationLocation,
+          stops,
+          isRoundTrip,
+          ...returnTripPayload(isRoundTrip, returnTrip),
+        }),
+      }).catch(() => null);
+      setCalculatingDistance(false);
+      if (!res?.ok) return;
+      const body = await res.json().catch(() => null);
+      if (typeof body?.distanceKm === "number") setEditDistanceKm(body.distanceKm);
+    }, 900);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    editing,
+    editForm.pickupCity,
+    editForm.pickupLocation,
+    editForm.destinationCity,
+    editForm.destinationLocation,
+    editForm.stops,
+    editForm.isRoundTrip,
+    editForm.returnTrip,
+  ]);
 
   // Trip details freeze once a ride is cancelled or has effectively
   // completed (past its date) — but the footer's Cancel button and the
@@ -259,6 +307,7 @@ export function RideDetailDrawer({
         ...returnTripPayload(editForm.isRoundTrip, editForm.returnTrip),
         passengerCount: Number(editForm.passengerCount),
         specialRequests: editForm.specialRequests || undefined,
+        distanceKm: editDistanceKm ?? undefined,
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
     );
@@ -500,8 +549,8 @@ export function RideDetailDrawer({
                       </button>
                     </div>
                     <CityLocationFields
-                      cityLabel={t("client.requestForm.pickupCity")}
-                      locationLabel={t("client.requestForm.pickupLocation")}
+                      cityLabel={t("client.requestForm.stopCity")}
+                      locationLabel={t("client.requestForm.stopAddress")}
                       city={stop.city}
                       location={stop.location}
                       onCityChange={(v) => updateStop(index, { city: v })}
@@ -563,6 +612,14 @@ export function RideDetailDrawer({
                       outboundStops={editForm.stops}
                     />
                   </>
+                ) : null}
+
+                {calculatingDistance ? (
+                  <p className="text-[13px] text-[var(--ink-muted)]">{t("carrier.rideForm.calculatingDistance")}</p>
+                ) : editDistanceKm !== null ? (
+                  <p className="text-[13px] text-[var(--ink-muted)]">
+                    {t("carrier.rideForm.estimatedDistance", { km: Math.round(editDistanceKm) })}
+                  </p>
                 ) : null}
 
                 <Field label={t("client.requestForm.passengerCount")}>
@@ -756,6 +813,7 @@ export function RideDetailDrawer({
                 onClick={() => {
                   setEditForm(buildEditForm(ride));
                   setEditError(null);
+                  setEditDistanceKm(ride.estimatedDistanceKm ?? null);
                   setEditing(true);
                 }}
                 className="flex h-9 items-center gap-[6px] rounded-[9px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]"
