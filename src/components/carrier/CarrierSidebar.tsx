@@ -37,10 +37,12 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       className={`${NAV_ITEM_CLASS} ${
-        active ? "bg-[var(--action-bg)] text-white" : "text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
+        active
+          ? "bg-[var(--select-tint)] text-[var(--ink-primary)]"
+          : "text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
       }`}
     >
-      <Icon size={16} strokeWidth={1.9} color={active ? "#FFFFFF" : "#6B6B72"} className="shrink-0" />
+      <Icon size={16} strokeWidth={1.9} color={active ? "#18181B" : "#6B6B72"} className="shrink-0" />
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
       {showCount ? (
         item.badge ? (
@@ -48,9 +50,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
             {item.count}
           </span>
         ) : (
-          <span className={`shrink-0 text-[13px] ${active ? "text-white/75" : "text-[var(--ink-muted)]"}`}>
-            {item.count}
-          </span>
+          <span className="shrink-0 text-[13px] text-[var(--ink-muted)]">{item.count}</span>
         )
       ) : null}
     </Link>
