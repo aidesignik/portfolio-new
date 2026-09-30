@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Clock, Users, Ellipsis } from "lucide-react";
+import { Clock, Users } from "lucide-react";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
@@ -41,14 +41,11 @@ export function RideBlockCard({
           <span className="h-full rounded-full" style={{ width: 26, background: accent }} />
           <span className="h-full rounded-full" style={{ width: 10, background: "#E4E4E7" }} />
         </div>
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
-              {ride.pickupCity} → {ride.destinationCity}
-            </p>
-            <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
-          </div>
-          <Ellipsis size={16} strokeWidth={1.9} color="#71717A" className="mt-[1px] shrink-0" />
+        <div className="min-w-0">
+          <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
+            {ride.pickupCity} → {ride.destinationCity}
+          </p>
+          <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
         <div className="flex items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
           <div className="flex min-w-0 flex-1 items-center gap-[10px] overflow-hidden">

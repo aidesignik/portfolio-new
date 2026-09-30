@@ -25,7 +25,7 @@ export default async function CarrierBookingDetailPage({
       documents: true,
     },
   });
-  if (!booking || !booking.vehicle || !booking.driver) notFound();
+  if (!booking) notFound();
 
   return (
     <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
@@ -44,7 +44,9 @@ export default async function CarrierBookingDetailPage({
         <p className="text-sm text-zinc-600">{t("common.email")}: {booking.client.email}</p>
         <p className="text-sm text-zinc-600">{t("common.phone")}: {booking.client.phone}</p>
         <p className="text-sm text-zinc-600">
-          {t(`vehicleType.${booking.vehicle.type}`)} {booking.vehicle.model} · {booking.driver.name}
+          {booking.vehicle ? `${t(`vehicleType.${booking.vehicle.type}`)} ${booking.vehicle.model}` : t("carrier.assignment.noVehicleAssigned")}
+          {" · "}
+          {booking.driver ? booking.driver.name : t("carrier.assignment.noDriverAssigned")}
         </p>
         <p className="text-lg font-semibold text-zinc-900">
           {Number(booking.price ?? 0).toLocaleString()} {booking.currency}
