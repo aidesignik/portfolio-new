@@ -38,7 +38,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       className={`${NAV_ITEM_CLASS} ${
         active
-          ? "bg-[var(--select-tint)] text-[var(--ink-primary)]"
+          ? "bg-[var(--bg-nav-active)] text-[var(--ink-primary)]"
           : "text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
       }`}
     >
