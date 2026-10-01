@@ -401,7 +401,7 @@ export function NewRideModal({
               <div>
                 <label className={SHEET_LABEL_CLASS}>{tn("telefon")}</label>
                 <div className="mt-[6px] flex h-10 items-stretch rounded-[8px] border border-[#E4E4E7] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
-                  <div className="flex shrink-0 items-center gap-[2px] border-r border-[#EEEEF0] bg-[#FAFAFA] pl-3 pr-2">
+                  <div className="flex shrink-0 items-center gap-[2px] rounded-l-[7px] bg-[#FAFAFA] pl-3 pr-2">
                     <span className="text-[14px] text-[#71717A]">+</span>
                     <input
                       aria-label={tn("phoneCountryCode")}
@@ -410,8 +410,14 @@ export function NewRideModal({
                       onChange={(e) => setForm({ ...form, clientPhoneCc: e.target.value.replace(/\D/g, "").slice(0, 3) })}
                     />
                   </div>
+                  {/* A divider inset from the top/bottom edges, rather than
+                      a full-height border on the segment above — a border
+                      spanning the whole 40px height touches the outer
+                      focus ring's own border/shadow right at the corners,
+                      visibly notching it. */}
+                  <span className="my-2 w-px shrink-0 bg-[#EEEEF0]" />
                   <input
-                    className="min-w-0 flex-1 rounded-r-[8px] px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
+                    className="min-w-0 flex-1 px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
                     value={form.clientPhoneNumber}
                     onChange={(e) => setForm({ ...form, clientPhoneNumber: e.target.value.replace(/[^\d\s]/g, "") })}
                     onBlur={() => setPhoneTouched(true)}

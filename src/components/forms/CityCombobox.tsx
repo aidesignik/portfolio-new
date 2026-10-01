@@ -12,11 +12,17 @@ const SHEET_INPUT_CLASS =
 // (§5.1's one-bordered-field route row) — bare, no border/shadow of its own.
 const GROUPED_INPUT_CLASS =
   "h-full min-w-0 flex-1 bg-transparent text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none";
+// top-full/left-0 are explicit rather than relying on the default "auto"
+// static position — inside a flex container (the "grouped" variant's own
+// wrapper is `display:flex`), an absolutely positioned element with no
+// inset set falls back to wherever it would've flowed as a flex item
+// instead of the container's bottom-left corner, which visibly shifted
+// the dropdown to the right.
 const SHEET_DROPDOWN_CLASS =
-  "absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-[10px] bg-white py-1 text-[14px] shadow-[0_1px_2px_rgba(24,24,27,.04),0_4px_14px_rgba(24,24,27,.06)] ring-1 ring-[#EEEEF0]";
+  "absolute left-0 top-full z-10 mt-1 max-h-48 w-full overflow-auto rounded-[10px] bg-white py-1 text-[14px] shadow-[0_1px_2px_rgba(24,24,27,.04),0_4px_14px_rgba(24,24,27,.06)] ring-1 ring-[#EEEEF0]";
 const SHEET_OPTION_CLASS = "block w-full px-3 py-[7px] text-left text-[#3F3F46] hover:bg-[#F4F4F5]";
 const DEFAULT_DROPDOWN_CLASS =
-  "absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg";
+  "absolute left-0 top-full z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg";
 const DEFAULT_OPTION_CLASS = "block w-full px-3 py-1.5 text-left text-zinc-700 hover:bg-zinc-100";
 
 export interface CityComboboxHandle {

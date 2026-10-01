@@ -16,10 +16,10 @@ const SEARCH_DEBOUNCE_MS = 300;
 const SHEET_INPUT_CLASS =
   "h-10 w-full rounded-[8px] px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] shadow-[inset_0_0_0_1px_#E4E4E7] transition-shadow duration-[.12s] ease-out focus:outline-none focus:shadow-[inset_0_0_0_1px_#2563EB,0_0_0_3px_#DBEAFE]";
 const SHEET_DROPDOWN_CLASS =
-  "absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-[10px] bg-white py-1 text-[14px] shadow-[0_1px_2px_rgba(24,24,27,.04),0_4px_14px_rgba(24,24,27,.06)] ring-1 ring-[#EEEEF0]";
+  "absolute left-0 top-full z-10 mt-1 max-h-56 w-full overflow-auto rounded-[10px] bg-white py-1 text-[14px] shadow-[0_1px_2px_rgba(24,24,27,.04),0_4px_14px_rgba(24,24,27,.06)] ring-1 ring-[#EEEEF0]";
 const SHEET_OPTION_CLASS = "block w-full px-3 py-[7px] text-left hover:bg-[#F4F4F5]";
 const DEFAULT_DROPDOWN_CLASS =
-  "absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg";
+  "absolute left-0 top-full z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg";
 const DEFAULT_OPTION_CLASS = "block w-full px-3 py-1.5 text-left hover:bg-zinc-100";
 
 // Client/company-name field for the "New ride" form — as a carrier types a
