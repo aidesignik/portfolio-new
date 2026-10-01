@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
 
-const SEARCH_DEBOUNCE_MS = 350;
+const SEARCH_DEBOUNCE_MS = 120;
 
 // City field for pickup/destination/stop rows — searches live via Nominatim
 // (/api/cities/search) instead of filtering a fixed list, so any town or
