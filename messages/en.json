@@ -366,7 +366,8 @@
       "datumPolaska": "Departure date",
       "datumPovratka": "Return date",
       "vreme": "Time",
-      "removeStop": "Remove stop"
+      "removeStop": "Remove stop",
+      "phoneCountryCode": "Country code"
     },
     "vehicleForm": {
       "type": "Type",

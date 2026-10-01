@@ -11,8 +11,9 @@ export interface RideStatusInput {
 // A confirmed ride whose trip window has already passed reads as completed
 // everywhere its status is shown, even though nothing ever writes
 // COMPLETED to the database — carriers shouldn't have to manually close
-// out every ride, and leaving the stored status alone means it's still one
-// click away from Cancel if it turns out the ride never actually happened.
+// out every ride. A ride read as completed here is also no longer
+// cancellable (see the cancel route and RideDetailDrawer) — a trip that
+// already happened isn't something to cancel.
 export function displayRideStatus(ride: RideStatusInput): RideStatus {
   if (ride.status !== "CONFIRMED") return ride.status;
   const departure = new Date(ride.departureAt);

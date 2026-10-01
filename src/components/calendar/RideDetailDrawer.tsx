@@ -185,14 +185,13 @@ export function RideDetailDrawer({
     editForm.returnTrip,
   ]);
 
-  // Trip details freeze once a ride is cancelled or has effectively
-  // completed (past its date) — but the footer's Cancel button and the
-  // header's overflow menu stay keyed to the raw stored status, since a
-  // "completed" ride here is only ever a display inference, not a real
-  // status change.
+  // Trip details freeze, and Cancel disappears, once a ride is cancelled
+  // or has effectively completed (past its date) — including the
+  // date-based inference, not just an explicit "Mark completed". A ride
+  // that already happened isn't something to cancel.
   const status = displayRideStatus(ride);
   const editable = status !== "CANCELLED" && status !== "COMPLETED";
-  const cancellable = ride.status !== "CANCELLED" && ride.status !== "COMPLETED";
+  const cancellable = editable;
 
   const vehicle = vehicles.find((v) => v.id === ride.vehicleId);
   const driver = drivers.find((d) => d.id === ride.driverId);

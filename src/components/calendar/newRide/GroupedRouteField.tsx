@@ -31,7 +31,10 @@ export function GroupedRouteField({
   removeLabel?: string;
 }) {
   return (
-    <div className="flex h-10 min-w-0 flex-1 items-stretch overflow-hidden rounded-[8px] border border-[#E4E4E7] transition-shadow duration-[.12s] ease-out focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
+    // No overflow-hidden here — the divider border doesn't need clipping,
+    // and this container also hosts the city combobox's suggestion
+    // dropdown, which must be able to render outside these bounds.
+    <div className="flex h-10 min-w-0 flex-1 items-stretch rounded-[8px] border border-[#E4E4E7] transition-shadow duration-[.12s] ease-out focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
       <CityCombobox
         ref={cityRef}
         variant="grouped"

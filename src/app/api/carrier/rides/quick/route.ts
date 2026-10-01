@@ -31,20 +31,48 @@ export async function POST(request: Request) {
   }
 
   const email = data.clientEmail.toLowerCase();
-  let client = await prisma.user.findUnique({ where: { email } });
-  if (client && client.role !== "CLIENT") {
-    return NextResponse.json({ error: "EMAIL_BELONGS_TO_OTHER_ROLE" }, { status: 409 });
+  let client = null;
+
+  // A client explicitly picked from the combobox — any edits made after
+  // autofilling (a corrected email, a different phone) are saved back to
+  // that same client record, so the next pick shows the updated info.
+  if (data.clientId) {
+    const selected = await prisma.user.findFirst({ where: { id: data.clientId, role: "CLIENT" } });
+    if (selected) {
+      if (selected.email !== email) {
+        const emailOwner = await prisma.user.findUnique({ where: { email } });
+        if (emailOwner && emailOwner.id !== selected.id) {
+          return NextResponse.json({ error: "EMAIL_BELONGS_TO_OTHER_ROLE" }, { status: 409 });
+        }
+      }
+      client = await prisma.user.update({
+        where: { id: selected.id },
+        data: {
+          email,
+          name: data.clientName,
+          companyName: data.clientCompanyName || undefined,
+          phone: data.clientPhone,
+        },
+      });
+    }
   }
+
   if (!client) {
-    client = await prisma.user.create({
-      data: {
-        email,
-        name: data.clientName,
-        companyName: data.clientCompanyName || undefined,
-        phone: data.clientPhone,
-        role: "CLIENT",
-      },
-    });
+    client = await prisma.user.findUnique({ where: { email } });
+    if (client && client.role !== "CLIENT") {
+      return NextResponse.json({ error: "EMAIL_BELONGS_TO_OTHER_ROLE" }, { status: 409 });
+    }
+    if (!client) {
+      client = await prisma.user.create({
+        data: {
+          email,
+          name: data.clientName,
+          companyName: data.clientCompanyName || undefined,
+          phone: data.clientPhone,
+          role: "CLIENT",
+        },
+      });
+    }
   }
 
   const [vehicle, driver] = await Promise.all([

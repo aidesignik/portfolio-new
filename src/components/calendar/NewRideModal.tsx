@@ -38,15 +38,23 @@ export interface NewRideInitialValues {
   specialRequests?: string;
 }
 
-const PHONE_PREFIX = "+381";
+const DEFAULT_PHONE_CC = "381";
 
-function phoneSuffix(phone: string): string {
-  return phone.startsWith(PHONE_PREFIX) ? phone.slice(PHONE_PREFIX.length) : phone;
+// Country code is just a starting guess, not a lock — a client's number
+// might not be Serbian, so it's an ordinary editable field. There's no
+// delimiter in a stored "+<cc><number>" string, so splitting one back out
+// (e.g. a selected client's existing phone) is a best-effort first-3-
+// digits guess, matching how every number here has been built so far;
+// wrong for an unusual length, but still freely correctable afterward.
+function splitPhone(phone: string): { cc: string; number: string } {
+  if (!phone) return { cc: DEFAULT_PHONE_CC, number: "" };
+  const match = phone.match(/^\+(\d{1,3})(.*)$/);
+  return match ? { cc: match[1], number: match[2] } : { cc: DEFAULT_PHONE_CC, number: phone };
 }
 
-function isValidPhoneSuffix(suffix: string): boolean {
-  const digits = suffix.replace(/\s/g, "");
-  return digits.length === 0 || /^\d{7,9}$/.test(digits);
+function isValidPhoneNumber(number: string): boolean {
+  const digits = number.replace(/\s/g, "");
+  return digits.length === 0 || /^\d{4,12}$/.test(digits);
 }
 
 export function NewRideModal({
@@ -69,11 +77,14 @@ export function NewRideModal({
   const t = useTranslations();
   const tn = useTranslations("carrier.newRide");
   const tType = useTranslations("vehicleType");
+  const { clientPhone: initialClientPhone, ...restInitialValues } = initialValues ?? {};
+  const initialPhone = splitPhone(initialClientPhone ?? "");
   const [form, setForm] = useState({
     clientCompanyName: "",
     clientName: "",
     clientEmail: "",
-    clientPhone: "",
+    clientPhoneCc: initialPhone.cc,
+    clientPhoneNumber: initialPhone.number,
     pickupCity: "",
     pickupLocation: "",
     destinationCity: "",
@@ -89,12 +100,18 @@ export function NewRideModal({
     specialRequests: "",
     vehicleId: "",
     driverId: "",
-    ...initialValues,
+    ...restInitialValues,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
+  // Set when a client was picked from the combobox — lets edits to the
+  // autofilled fields (a corrected email, a different phone) save back to
+  // that same client record instead of being discarded on submit. Cleared
+  // if the carrier changes the company name themselves, since that's the
+  // clearest sign they now mean a different client.
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
   const [availableVehicles, setAvailableVehicles] = useState<CalendarVehicle[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<CalendarDriver[]>([]);
@@ -271,7 +288,7 @@ export function NewRideModal({
     const invalid =
       !form.clientName ||
       !form.clientEmail ||
-      !isValidPhoneSuffix(phoneSuffix(form.clientPhone)) ||
+      !isValidPhoneNumber(form.clientPhoneNumber) ||
       !form.pickupCity ||
       !form.pickupLocation ||
       !form.destinationCity ||
@@ -287,13 +304,15 @@ export function NewRideModal({
     setLoading(true);
     setError(null);
 
+    const { clientPhoneCc, clientPhoneNumber, ...formRest } = form;
     const { response: res, declinedAvailability } = await fetchWithAvailabilityConfirm(
       "/api/carrier/rides/quick",
       "POST",
       {
-        ...form,
+        ...formRest,
+        clientId: selectedClientId ?? undefined,
         clientCompanyName: form.clientCompanyName || undefined,
-        clientPhone: form.clientPhone || undefined,
+        clientPhone: clientPhoneNumber ? `+${clientPhoneCc}${clientPhoneNumber}` : undefined,
         returnAt: form.isRoundTrip ? form.returnAt : undefined,
         ...returnTripPayload(form.isRoundTrip, form.returnTrip),
         vehicleId: form.vehicleId || undefined,
@@ -348,16 +367,22 @@ export function NewRideModal({
                     variant="sheet"
                     placeholder={tn("firmaPlaceholder")}
                     value={form.clientCompanyName}
-                    onChange={(v) => setForm({ ...form, clientCompanyName: v })}
-                    onSelectClient={(client: ClientMatch) =>
+                    onChange={(v) => {
+                      setForm({ ...form, clientCompanyName: v });
+                      setSelectedClientId(null);
+                    }}
+                    onSelectClient={(client: ClientMatch) => {
+                      const phone = client.phone ? splitPhone(client.phone) : null;
                       setForm({
                         ...form,
                         clientCompanyName: client.companyName ?? form.clientCompanyName,
                         clientName: client.name ?? form.clientName,
                         clientEmail: client.email,
-                        clientPhone: client.phone ?? form.clientPhone,
-                      })
-                    }
+                        clientPhoneCc: phone?.cc ?? form.clientPhoneCc,
+                        clientPhoneNumber: phone?.number ?? form.clientPhoneNumber,
+                      });
+                      setSelectedClientId(client.id);
+                    }}
                   />
                 </div>
               </div>
@@ -375,18 +400,24 @@ export function NewRideModal({
               </div>
               <div>
                 <label className={SHEET_LABEL_CLASS}>{tn("telefon")}</label>
-                <div className="mt-[6px] flex h-10 items-stretch overflow-hidden rounded-[8px] border border-[#E4E4E7] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
-                  <span className="flex shrink-0 items-center border-r border-[#EEEEF0] bg-[#FAFAFA] px-3 text-[14px] text-[#71717A]">
-                    {PHONE_PREFIX}
-                  </span>
+                <div className="mt-[6px] flex h-10 items-stretch rounded-[8px] border border-[#E4E4E7] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
+                  <div className="flex shrink-0 items-center gap-[2px] border-r border-[#EEEEF0] bg-[#FAFAFA] pl-3 pr-2">
+                    <span className="text-[14px] text-[#71717A]">+</span>
+                    <input
+                      aria-label={tn("phoneCountryCode")}
+                      className="w-[30px] bg-transparent text-[14px] text-[#71717A] focus:outline-none"
+                      value={form.clientPhoneCc}
+                      onChange={(e) => setForm({ ...form, clientPhoneCc: e.target.value.replace(/\D/g, "").slice(0, 3) })}
+                    />
+                  </div>
                   <input
-                    className="min-w-0 flex-1 px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
-                    value={phoneSuffix(form.clientPhone)}
-                    onChange={(e) => setForm({ ...form, clientPhone: PHONE_PREFIX + e.target.value })}
+                    className="min-w-0 flex-1 rounded-r-[8px] px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
+                    value={form.clientPhoneNumber}
+                    onChange={(e) => setForm({ ...form, clientPhoneNumber: e.target.value.replace(/[^\d\s]/g, "") })}
                     onBlur={() => setPhoneTouched(true)}
                   />
                 </div>
-                {phoneTouched && phoneSuffix(form.clientPhone) && !isValidPhoneSuffix(phoneSuffix(form.clientPhone)) ? (
+                {phoneTouched && form.clientPhoneNumber && !isValidPhoneNumber(form.clientPhoneNumber) ? (
                   <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("invalidPhone")}</p>
                 ) : null}
               </div>

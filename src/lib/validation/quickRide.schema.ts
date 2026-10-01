@@ -6,6 +6,11 @@ import { cityLocationSchema } from "./request.schema";
 // queue; assignment happens afterward from the calendar itself.
 export const quickRideSchema = z
   .object({
+    // Set when the carrier picked an existing client from the combobox
+    // (see /api/carrier/clients) — lets edits to the autofilled fields
+    // (a corrected email, a new phone number) update that client's own
+    // record instead of being discarded or creating a disconnected one.
+    clientId: z.string().min(1).optional(),
     clientCompanyName: z.string().optional(),
     clientName: z.string().min(1),
     clientEmail: z.string().email(),

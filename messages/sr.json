@@ -366,7 +366,8 @@
       "datumPolaska": "Datum polaska",
       "datumPovratka": "Datum povratka",
       "vreme": "Vreme",
-      "removeStop": "Ukloni stanicu"
+      "removeStop": "Ukloni stanicu",
+      "phoneCountryCode": "Pozivni broj"
     },
     "vehicleForm": {
       "type": "Tip",
