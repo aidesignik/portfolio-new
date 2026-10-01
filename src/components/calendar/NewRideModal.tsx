@@ -435,20 +435,24 @@ export function NewRideModal({
                   onAddStop={addStop}
                   onRemoveStop={removeStop}
                   onUpdateStop={updateStop}
+                  originPlaceholder={tn("odaklePolazi")}
+                  destinationPlaceholder={tn("kudaIde")}
+                  stopPlaceholder={tn("stanica")}
                   locationPlaceholder={tn("locationPlaceholder")}
                   addStopLabel={tn("addStop")}
+                  removeStopLabel={tn("removeStop")}
                 />
                 <DateTimeRow
                   dateValue={departureDate}
                   onDateChange={setDepartureDate}
                   timeValue={departureTime}
                   onTimeChange={(time) => setForm({ ...form, departureAt: combineDateTimeLocal(departureDate, time) })}
-                  datePlaceholder={tn("datePlaceholder")}
-                  timePlaceholder={tn("timePlaceholder")}
+                  datePlaceholder={tn("datumPolaska")}
+                  timePlaceholder={tn("vreme")}
                   dateError={submitAttempted && !form.departureAt}
                 />
                 {submitAttempted && !form.departureAt ? (
-                  <p className="pl-[30px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                  <p className="pl-[28px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
                 ) : null}
               </LegCard>
 
@@ -466,9 +470,12 @@ export function NewRideModal({
                   onReturnAtChange={(v) => setForm({ ...form, returnAt: v })}
                   dateRef={returnDateRef}
                   kmText={legKm(returnKm)}
+                  originPlaceholder={tn("odaklePolazi")}
+                  destinationPlaceholder={tn("kudaIde")}
+                  stopPlaceholder={tn("stanica")}
                   locationPlaceholder={tn("locationPlaceholder")}
-                  datePlaceholder={tn("datePlaceholder")}
-                  timePlaceholder={tn("timePlaceholder")}
+                  datePlaceholder={tn("datumPovratka")}
+                  timePlaceholder={tn("vreme")}
                   returnDateError={
                     returnAfterOutboundError ?? (submitAttempted && !form.returnAt ? tn("required") : undefined)
                   }

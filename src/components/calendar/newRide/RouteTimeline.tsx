@@ -1,17 +1,15 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
-import { CityCombobox } from "@/components/forms/CityCombobox";
-import { Input } from "@/components/ui/Input";
+import { useEffect, useRef } from "react";
+import type { CityComboboxHandle } from "@/components/forms/CityCombobox";
 import type { CityLocation } from "@/lib/location";
-import { FilledMarker, RingMarker, Connector } from "./timelineMarkers";
-import { SHEET_INPUT_CLASS } from "./sheetFieldClasses";
+import { RingMarker, PinMarker, DotConnector } from "./timelineMarkers";
+import { GroupedRouteField } from "./GroupedRouteField";
 
-// Fully editable origin → stops → destination timeline (§5.1) — used for
-// Odlazak and, identically, for Povratak's "custom" mode (§5.2 custom: "Same
-// layout as Odlazak"). Pure presentation over the same stop add/remove/
-// update handlers every ride form already uses — no logic here, just the
-// new layout.
+// §5.1 "like Google Maps directions" route list — no field labels, role
+// comes from the marker + placeholder + order. Used for Odlazak and,
+// identically, for Povratak's "custom" mode. Pure presentation over the
+// same stop add/remove/update handlers every ride form already uses.
 export function RouteTimeline({
   originCity,
   originLocation,
@@ -25,8 +23,12 @@ export function RouteTimeline({
   onAddStop,
   onRemoveStop,
   onUpdateStop,
+  originPlaceholder,
+  destinationPlaceholder,
+  stopPlaceholder,
   locationPlaceholder,
   addStopLabel,
+  removeStopLabel,
   maxStops = 5,
 }: {
   originCity: string;
@@ -41,94 +43,102 @@ export function RouteTimeline({
   onAddStop: () => void;
   onRemoveStop: (index: number) => void;
   onUpdateStop: (index: number, patch: Partial<CityLocation>) => void;
+  originPlaceholder: string;
+  destinationPlaceholder: string;
+  stopPlaceholder: string;
   locationPlaceholder: string;
   addStopLabel: string;
+  removeStopLabel: string;
   maxStops?: number;
 }) {
+  const stopRefs = useRef<Array<CityComboboxHandle | null>>([]);
+  const prevStopCount = useRef(stops.length);
+
+  // "Dodaj stanicu" focuses the new stop's city select (§5.1).
+  useEffect(() => {
+    if (stops.length > prevStopCount.current) {
+      stopRefs.current[stops.length - 1]?.focus();
+    }
+    prevStopCount.current = stops.length;
+  }, [stops.length]);
+
   return (
-    <div className="flex flex-col">
-      <div className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-        <div className="flex flex-col items-center">
-          <div className="pt-[15px]">
-            <FilledMarker />
-          </div>
-          <Connector />
-        </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-2 pb-[10px] pt-[1px]">
-          <CityCombobox variant="sheet" value={originCity} onChange={onOriginCityChange} />
-          <Input
-            unstyled
-            className={SHEET_INPUT_CLASS}
-            value={originLocation}
-            placeholder={locationPlaceholder}
-            onChange={(e) => onOriginLocationChange(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {stops.map((stop, index) => (
-        <div key={index} className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-          <div className="flex flex-col items-center">
-            <div className="pt-[15px]">
-              <RingMarker />
-            </div>
-            <Connector />
-          </div>
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_28px] gap-2 pb-[10px] pt-[1px]">
-            <CityCombobox
-              variant="sheet"
-              value={stop.city}
-              onChange={(v) => onUpdateStop(index, { city: v })}
-            />
-            <Input
-              unstyled
-              className={SHEET_INPUT_CLASS}
-              value={stop.location}
-              placeholder={locationPlaceholder}
-              onChange={(e) => onUpdateStop(index, { location: e.target.value })}
-            />
-            <button
-              type="button"
-              onClick={() => onRemoveStop(index)}
-              className="flex h-10 w-7 shrink-0 items-center justify-center self-center text-[#A1A1AA] transition-colors duration-[.12s] ease-out hover:text-[#71717A]"
-            >
-              <X size={15} strokeWidth={1.9} />
-            </button>
-          </div>
-        </div>
-      ))}
-
-      <div className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-        <div className="flex flex-col items-center">
-          <Connector />
-        </div>
-        <div className="py-[6px]">
-          {stops.length < maxStops ? (
-            <button type="button" onClick={onAddStop} className="-ml-2 flex h-7 items-center gap-[6px] rounded-[7px] px-2 text-[13px] font-medium text-[#2563EB] transition-colors duration-[.12s] ease-out hover:bg-[#EFF6FF]">
-              <Plus size={14} strokeWidth={2} />
-              {addStopLabel}
-            </button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-        <div className="flex flex-col items-center">
-          <div className="pt-[15px]">
+    <div>
+      <div className="flex flex-col gap-[2px]">
+        <div className="flex items-center gap-3">
+          <div className="flex w-4 shrink-0 items-center justify-center">
             <RingMarker />
           </div>
+          <GroupedRouteField
+            cityValue={originCity}
+            onCityChange={onOriginCityChange}
+            cityPlaceholder={originPlaceholder}
+            locationValue={originLocation}
+            onLocationChange={onOriginLocationChange}
+            locationPlaceholder={locationPlaceholder}
+          />
         </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-2 pt-[1px]">
-          <CityCombobox variant="sheet" value={destinationCity} onChange={onDestinationCityChange} />
-          <Input
-            unstyled
-            className={SHEET_INPUT_CLASS}
-            value={destinationLocation}
-            placeholder={locationPlaceholder}
-            onChange={(e) => onDestinationLocationChange(e.target.value)}
+
+        {stops.map((stop, index) => (
+          <div key={index} className="contents">
+            <div className="flex items-center gap-3">
+              <div className="flex w-4 shrink-0 items-center justify-center">
+                <DotConnector />
+              </div>
+              <div />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex w-4 shrink-0 items-center justify-center">
+                <RingMarker />
+              </div>
+              <GroupedRouteField
+                cityRef={(el) => {
+                  stopRefs.current[index] = el;
+                }}
+                cityValue={stop.city}
+                onCityChange={(v) => onUpdateStop(index, { city: v })}
+                cityPlaceholder={stopPlaceholder}
+                locationValue={stop.location}
+                onLocationChange={(v) => onUpdateStop(index, { location: v })}
+                locationPlaceholder={locationPlaceholder}
+                removable
+                onRemove={() => onRemoveStop(index)}
+                removeLabel={removeStopLabel}
+              />
+            </div>
+          </div>
+        ))}
+
+        <div className="flex items-center gap-3">
+          <div className="flex w-4 shrink-0 items-center justify-center">
+            <DotConnector />
+          </div>
+          <div />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex w-4 shrink-0 items-center justify-center">
+            <PinMarker />
+          </div>
+          <GroupedRouteField
+            cityValue={destinationCity}
+            onCityChange={onDestinationCityChange}
+            cityPlaceholder={destinationPlaceholder}
+            locationValue={destinationLocation}
+            onLocationChange={onDestinationLocationChange}
+            locationPlaceholder={locationPlaceholder}
           />
         </div>
       </div>
+
+      {stops.length < maxStops ? (
+        <button
+          type="button"
+          onClick={onAddStop}
+          className="ml-[28px] mt-[10px] flex h-7 items-center gap-[6px] rounded-[7px] px-2 text-[13px] font-medium text-[#2563EB] transition-colors duration-[.12s] ease-out hover:bg-[#EFF6FF]"
+        >
+          + {addStopLabel}
+        </button>
+      ) : null}
     </div>
   );
 }

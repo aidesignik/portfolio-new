@@ -37,7 +37,7 @@ export function LegCard({
 }
 
 // Date + time row under a leg's timeline (§5.1/§5.2), aligned to the
-// timeline's inputs via the 30px left padding.
+// timeline's inputs via the 28px left padding.
 export function DateTimeRow({
   dateValue,
   onDateChange,
@@ -62,7 +62,7 @@ export function DateTimeRow({
   timeError?: boolean;
 }) {
   return (
-    <div className="grid gap-2 pl-[30px]" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
+    <div className="grid gap-2 pl-[28px]" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
       <DatePicker
         ref={dateRef}
         value={dateValue}

@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, type Ref } from "react";
+import { useEffect, useRef, useState, type Ref } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Pencil, RotateCcw, X } from "lucide-react";
-import { CityCombobox } from "@/components/forms/CityCombobox";
-import { Input } from "@/components/ui/Input";
+import { Plus, Pencil, RotateCcw } from "lucide-react";
+import type { CityComboboxHandle } from "@/components/forms/CityCombobox";
 import type { DatePickerHandle } from "@/components/ui/DatePicker";
 import type { ReturnTripValues } from "@/components/forms/ReturnTripFields";
 import { resolveReturnLeg } from "@/lib/rideReturnLeg";
 import type { CityLocation } from "@/lib/location";
 import { LegCard, DateTimeRow } from "./RouteLegCard";
 import { RouteTimeline } from "./RouteTimeline";
-import { FilledMarker, RingMarker, Connector } from "./timelineMarkers";
-import { SHEET_INPUT_CLASS, SHEET_TEXT_BUTTON_CLASS } from "./sheetFieldClasses";
+import { GroupedRouteField } from "./GroupedRouteField";
+import { RingMarker, PinMarker, DotConnector } from "./timelineMarkers";
+import { SHEET_TEXT_BUTTON_CLASS } from "./sheetFieldClasses";
 
 type ReturnMode = "mirror" | "stops" | "custom";
 
@@ -35,7 +35,10 @@ export function ReturnLegCard({
   onReturnAtChange,
   dateRef,
   kmText,
+  stopPlaceholder,
   locationPlaceholder,
+  originPlaceholder,
+  destinationPlaceholder,
   datePlaceholder,
   timePlaceholder,
   returnDateError,
@@ -52,13 +55,25 @@ export function ReturnLegCard({
   onReturnAtChange: (value: string) => void;
   dateRef?: Ref<DatePickerHandle>;
   kmText: string;
+  stopPlaceholder: string;
   locationPlaceholder: string;
+  originPlaceholder: string;
+  destinationPlaceholder: string;
   datePlaceholder: string;
   timePlaceholder: string;
   returnDateError?: string;
 }) {
   const t = useTranslations("carrier.newRide");
   const [mode, setMode] = useState<ReturnMode>(() => deriveMode(value));
+  const stopRefs = useRef<Array<CityComboboxHandle | null>>([]);
+  const prevStopCount = useRef(value.returnStops.length);
+
+  useEffect(() => {
+    if (mode === "stops" && value.returnStops.length > prevStopCount.current) {
+      stopRefs.current[value.returnStops.length - 1]?.focus();
+    }
+    prevStopCount.current = value.returnStops.length;
+  }, [mode, value.returnStops.length]);
 
   const outbound = {
     pickupCity: outboundPickupCity,
@@ -138,17 +153,14 @@ export function ReturnLegCard({
           <span className="text-[#A1A1AA]"> · {t("mirrorSuffix")}</span>
         </div>
       ) : mode === "stops" ? (
-        <div className="flex flex-col">
-          <div className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-            <div className="flex flex-col items-center">
-              <div className="pt-[12px]">
-                <RingMarker />
-              </div>
-              <Connector />
+        <div className="flex flex-col gap-[2px]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-4 shrink-0 items-center justify-center">
+              <RingMarker />
             </div>
-            <div className="py-[12px]">
-              <p className="text-[14px] font-medium text-[#18181B]">{outboundDestinationCity || "—"}</p>
-              <p className="text-[13px] text-[#A1A1AA]">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[14px] font-medium text-[#18181B]">{outboundDestinationCity || "—"}</p>
+              <p className="truncate text-[13px] text-[#A1A1AA]">
                 {outboundDestinationLocation ? `${outboundDestinationLocation} · ` : ""}
                 {t("fromOutbound")}
               </p>
@@ -156,42 +168,48 @@ export function ReturnLegCard({
           </div>
 
           {value.returnStops.map((stop, index) => (
-            <div key={index} className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-              <div className="flex flex-col items-center">
-                <div className="pt-[15px]">
+            <div key={index} className="contents">
+              <div className="flex items-center gap-3">
+                <div className="flex w-4 shrink-0 items-center justify-center">
+                  <DotConnector />
+                </div>
+                <div />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex w-4 shrink-0 items-center justify-center">
                   <RingMarker />
                 </div>
-                <Connector />
-              </div>
-              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_28px] gap-2 pb-[10px] pt-[1px]">
-                <CityCombobox variant="sheet" value={stop.city} onChange={(v) => updateStop(index, { city: v })} />
-                <Input
-                  unstyled
-                  className={SHEET_INPUT_CLASS}
-                  value={stop.location}
-                  placeholder={locationPlaceholder}
-                  onChange={(e) => updateStop(index, { location: e.target.value })}
+                <GroupedRouteField
+                  cityRef={(el) => {
+                    stopRefs.current[index] = el;
+                  }}
+                  cityValue={stop.city}
+                  onCityChange={(v) => updateStop(index, { city: v })}
+                  cityPlaceholder={stopPlaceholder}
+                  locationValue={stop.location}
+                  onLocationChange={(v) => updateStop(index, { location: v })}
+                  locationPlaceholder={locationPlaceholder}
+                  removable
+                  onRemove={() => removeStop(index)}
+                  removeLabel={t("removeStop")}
                 />
-                <button
-                  type="button"
-                  onClick={() => removeStop(index)}
-                  className="flex h-10 w-7 shrink-0 items-center justify-center self-center text-[#A1A1AA] hover:text-[#71717A]"
-                >
-                  <X size={15} strokeWidth={1.9} />
-                </button>
               </div>
             </div>
           ))}
 
-          <div className="grid gap-x-[10px]" style={{ gridTemplateColumns: "20px minmax(0,1fr)" }}>
-            <div className="flex flex-col items-center">
-              <div className="pb-[12px]">
-                <FilledMarker />
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex w-4 shrink-0 items-center justify-center">
+              <DotConnector />
             </div>
-            <div className="py-[12px]">
-              <p className="text-[14px] font-medium text-[#18181B]">{outboundPickupCity || "—"}</p>
-              <p className="text-[13px] text-[#A1A1AA]">
+            <div />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-4 shrink-0 items-center justify-center">
+              <PinMarker />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[14px] font-medium text-[#18181B]">{outboundPickupCity || "—"}</p>
+              <p className="truncate text-[13px] text-[#A1A1AA]">
                 {outboundPickupLocation ? `${outboundPickupLocation} · ` : ""}
                 {t("fromOutbound")}
               </p>
@@ -199,11 +217,27 @@ export function ReturnLegCard({
           </div>
         </div>
       ) : (
-        <RouteTimelineForReturn
-          value={value}
-          onChange={onChange}
+        <RouteTimeline
+          originCity={value.returnPickupCity}
+          originLocation={value.returnPickupLocation}
+          onOriginCityChange={(v) => onChange({ ...value, returnPickupCity: v })}
+          onOriginLocationChange={(v) => onChange({ ...value, returnPickupLocation: v })}
+          destinationCity={value.returnDestinationCity}
+          destinationLocation={value.returnDestinationLocation}
+          onDestinationCityChange={(v) => onChange({ ...value, returnDestinationCity: v })}
+          onDestinationLocationChange={(v) => onChange({ ...value, returnDestinationLocation: v })}
+          stops={value.returnStops}
+          onAddStop={addCustomStop}
+          onRemoveStop={(i) => onChange({ ...value, returnStops: value.returnStops.filter((_, idx) => idx !== i) })}
+          onUpdateStop={(i, patch) =>
+            onChange({ ...value, returnStops: value.returnStops.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) })
+          }
+          originPlaceholder={originPlaceholder}
+          destinationPlaceholder={destinationPlaceholder}
+          stopPlaceholder={stopPlaceholder}
           locationPlaceholder={locationPlaceholder}
           addStopLabel={t("addStop")}
+          removeStopLabel={t("removeStop")}
         />
       )}
 
@@ -218,7 +252,7 @@ export function ReturnLegCard({
         timePlaceholder={timePlaceholder}
         dateError={Boolean(returnDateError)}
       />
-      {returnDateError ? <p className="pl-[30px] text-[12.5px] text-[#DC2626]">{returnDateError}</p> : null}
+      {returnDateError ? <p className="pl-[28px] text-[12.5px] text-[#DC2626]">{returnDateError}</p> : null}
 
       <div className="flex items-center gap-1">
         <button type="button" onClick={mode === "mirror" ? goToStopsMode : addCustomStop} className={SHEET_TEXT_BUTTON_CLASS}>
@@ -242,44 +276,5 @@ export function ReturnLegCard({
         )}
       </div>
     </LegCard>
-  );
-}
-
-// Custom-mode body — identical layout to Odlazak's timeline (§5.2 custom),
-// reusing the exact same editable-row rendering via RouteTimeline so the
-// two never drift apart visually.
-function RouteTimelineForReturn({
-  value,
-  onChange,
-  locationPlaceholder,
-  addStopLabel,
-}: {
-  value: ReturnTripValues;
-  onChange: (value: ReturnTripValues) => void;
-  locationPlaceholder: string;
-  addStopLabel: string;
-}) {
-  return (
-    <RouteTimeline
-      originCity={value.returnPickupCity}
-      originLocation={value.returnPickupLocation}
-      onOriginCityChange={(v: string) => onChange({ ...value, returnPickupCity: v })}
-      onOriginLocationChange={(v: string) => onChange({ ...value, returnPickupLocation: v })}
-      destinationCity={value.returnDestinationCity}
-      destinationLocation={value.returnDestinationLocation}
-      onDestinationCityChange={(v: string) => onChange({ ...value, returnDestinationCity: v })}
-      onDestinationLocationChange={(v: string) => onChange({ ...value, returnDestinationLocation: v })}
-      stops={value.returnStops}
-      onAddStop={() => {
-        if (value.returnStops.length >= 5) return;
-        onChange({ ...value, returnStops: [...value.returnStops, { city: "", location: "" }] });
-      }}
-      onRemoveStop={(i: number) => onChange({ ...value, returnStops: value.returnStops.filter((_, idx) => idx !== i) })}
-      onUpdateStop={(i: number, patch: Partial<CityLocation>) =>
-        onChange({ ...value, returnStops: value.returnStops.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) })
-      }
-      locationPlaceholder={locationPlaceholder}
-      addStopLabel={addStopLabel}
-    />
   );
 }
