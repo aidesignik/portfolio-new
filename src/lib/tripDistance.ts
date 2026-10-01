@@ -71,15 +71,25 @@ export interface TripDistanceInput {
   returnDestinationLocation?: string;
 }
 
+export interface TripDistanceResult {
+  totalKm: number;
+  outboundKm: number;
+  // null for a one-way trip — there's no return leg to report.
+  returnKm: number | null;
+}
+
 /**
  * Total trip distance for the live "how many km is this?" preview shared
  * by the carrier and client-facing distance endpoints — the outbound leg
  * alone for a one-way trip, outbound + return for a round trip. The return
  * leg is resolved the same way resolveReturnLeg() does for display/storage:
  * endpoints default to the outbound swapped, no stops assumed unless given.
+ * Returns both legs individually (not just the summed total) so a caller
+ * can show an outbound/return breakdown without computing anything itself —
+ * this was always calculated internally, just not previously returned.
  * Returns null if any waypoint can't be geocoded.
  */
-export async function estimateTripDistance(input: TripDistanceInput): Promise<number | null> {
+export async function estimateTripDistance(input: TripDistanceInput): Promise<TripDistanceResult | null> {
   const outboundWaypoints = [
     { city: input.pickupCity, location: input.pickupLocation },
     ...input.stops,
@@ -87,7 +97,9 @@ export async function estimateTripDistance(input: TripDistanceInput): Promise<nu
   ];
   const outboundEstimate = await estimateRouteDistance(outboundWaypoints).catch(() => null);
   if (!outboundEstimate) return null;
-  if (!input.isRoundTrip) return outboundEstimate.distanceKm;
+  if (!input.isRoundTrip) {
+    return { totalKm: outboundEstimate.distanceKm, outboundKm: outboundEstimate.distanceKm, returnKm: null };
+  }
 
   const returnLeg = resolveReturnLeg(
     {
@@ -113,5 +125,9 @@ export async function estimateTripDistance(input: TripDistanceInput): Promise<nu
   const returnEstimate = await estimateRouteDistance(returnWaypoints).catch(() => null);
   if (!returnEstimate) return null;
 
-  return outboundEstimate.distanceKm + returnEstimate.distanceKm;
+  return {
+    totalKm: outboundEstimate.distanceKm + returnEstimate.distanceKm,
+    outboundKm: outboundEstimate.distanceKm,
+    returnKm: returnEstimate.distanceKm,
+  };
 }

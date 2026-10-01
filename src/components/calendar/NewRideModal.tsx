@@ -1,17 +1,23 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Input } from "@/components/ui/Input";
-import { Field } from "@/components/ui/Field";
-import { Select } from "@/components/ui/Select";
+import { X } from "lucide-react";
 import { SidePanel } from "@/components/ui/SidePanel";
-import { PanelHeader } from "@/components/ui/PanelHeader";
-import { PanelFooter } from "@/components/ui/PanelFooter";
-import { CityLocationFields } from "@/components/forms/CityLocationFields";
+import { Select } from "@/components/ui/Select";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Stepper } from "@/components/ui/Stepper";
+import type { DatePickerHandle } from "@/components/ui/DatePicker";
 import { ClientCombobox, type ClientMatch } from "@/components/forms/ClientCombobox";
-import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
+import { EMPTY_RETURN_TRIP, returnTripPayload } from "@/components/forms/ReturnTripFields";
+import { LegCard, DateTimeRow } from "./newRide/RouteLegCard";
+import { RouteTimeline } from "./newRide/RouteTimeline";
+import { ReturnLegCard } from "./newRide/ReturnLegCard";
+import { DistanceCard } from "./newRide/DistanceCard";
+import { SHEET_INPUT_CLASS, SHEET_TEXTAREA_CLASS, SHEET_SELECT_CLASS, SHEET_LABEL_CLASS } from "./newRide/sheetFieldClasses";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { resolveReturnLeg } from "@/lib/rideReturnLeg";
+import { combineDateTimeLocal, splitDateTimeLocal } from "@/lib/pickerDateFormat";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarVehicle } from "./types";
 
@@ -32,6 +38,17 @@ export interface NewRideInitialValues {
   specialRequests?: string;
 }
 
+const PHONE_PREFIX = "+381";
+
+function phoneSuffix(phone: string): string {
+  return phone.startsWith(PHONE_PREFIX) ? phone.slice(PHONE_PREFIX.length) : phone;
+}
+
+function isValidPhoneSuffix(suffix: string): boolean {
+  const digits = suffix.replace(/\s/g, "");
+  return digits.length === 0 || /^\d{7,9}$/.test(digits);
+}
+
 export function NewRideModal({
   onClose,
   onCreated,
@@ -50,6 +67,7 @@ export function NewRideModal({
   initialValues?: NewRideInitialValues;
 }) {
   const t = useTranslations();
+  const tn = useTranslations("carrier.newRide");
   const tType = useTranslations("vehicleType");
   const [form, setForm] = useState({
     clientCompanyName: "",
@@ -62,7 +80,9 @@ export function NewRideModal({
     destinationLocation: "",
     stops: [] as CityLocation[],
     departureAt: "",
-    isRoundTrip: false,
+    // Povratna (round trip) is the default per the v2 sheet spec — a UI
+    // default only, same field/payload as before either way.
+    isRoundTrip: true,
     returnAt: "",
     returnTrip: EMPTY_RETURN_TRIP,
     passengerCount: "40",
@@ -73,14 +93,21 @@ export function NewRideModal({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
   const [availableVehicles, setAvailableVehicles] = useState<CalendarVehicle[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<CalendarDriver[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [outboundKm, setOutboundKm] = useState<number | null>(null);
+  const [returnKm, setReturnKm] = useState<number | null>(null);
   const [calculatingDistance, setCalculatingDistance] = useState(false);
   const [distanceError, setDistanceError] = useState(false);
+
+  const returnDateRef = useRef<DatePickerHandle>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   // Live distance preview — recalculates as the pickup/destination/stops
   // (and, for a round trip, the return leg) are filled in, same debounced
@@ -95,6 +122,8 @@ export function NewRideModal({
     if (!pickupCity || !destinationCity) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDistanceKm(null);
+      setOutboundKm(null);
+      setReturnKm(null);
       return;
     }
     if (stops.some((s) => !s.city)) return;
@@ -122,8 +151,13 @@ export function NewRideModal({
         return;
       }
       const body = await res.json().catch(() => null);
-      if (typeof body?.distanceKm === "number") setDistanceKm(body.distanceKm);
-      else setDistanceError(true);
+      if (typeof body?.distanceKm === "number") {
+        setDistanceKm(body.distanceKm);
+        setOutboundKm(typeof body.outboundKm === "number" ? body.outboundKm : null);
+        setReturnKm(typeof body.returnKm === "number" ? body.returnKm : null);
+      } else {
+        setDistanceError(true);
+      }
     }, DISTANCE_CALC_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -199,8 +233,57 @@ export function NewRideModal({
     setForm({ ...form, stops: form.stops.map((s, i) => (i === index ? { ...s, ...patch } : s)) });
   }
 
+  const { date: departureDate, time: departureTime } = splitDateTimeLocal(form.departureAt);
+
+  function setDepartureDate(date: string) {
+    const wasEmpty = !departureDate;
+    setForm({ ...form, departureAt: combineDateTimeLocal(date, departureTime) });
+    // "When the user sets the Odlazak date, focus moves to the return
+    // date" (§5.2) — only the first time it's set, not on every edit.
+    if (wasEmpty && form.isRoundTrip) returnDateRef.current?.open();
+  }
+
+  const returnAfterOutboundError =
+    form.isRoundTrip && form.departureAt && form.returnAt && new Date(form.returnAt) <= new Date(form.departureAt)
+      ? tn("returnBeforeDeparture")
+      : undefined;
+
+  const outboundResolved = {
+    pickupCity: form.pickupCity,
+    pickupLocation: form.pickupLocation,
+    destinationCity: form.destinationCity,
+    destinationLocation: form.destinationLocation,
+    stops: form.stops,
+  };
+  const resolvedReturn = form.isRoundTrip ? resolveReturnLeg(outboundResolved, form.returnTrip) : null;
+
+  const routeCities = [
+    form.pickupCity,
+    ...form.stops.map((s) => s.city),
+    form.destinationCity,
+    ...(resolvedReturn ? [...resolvedReturn.stops.map((s) => s.city), resolvedReturn.destinationCity] : []),
+  ].filter(Boolean);
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    setSubmitAttempted(true);
+
+    const invalid =
+      !form.clientName ||
+      !form.clientEmail ||
+      !isValidPhoneSuffix(phoneSuffix(form.clientPhone)) ||
+      !form.pickupCity ||
+      !form.pickupLocation ||
+      !form.destinationCity ||
+      !form.destinationLocation ||
+      !form.departureAt ||
+      (form.isRoundTrip && (!form.returnAt || Boolean(returnAfterOutboundError))) ||
+      !form.passengerCount;
+    if (invalid) {
+      bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -232,225 +315,311 @@ export function NewRideModal({
     onCreated();
   }
 
+  const distanceVisible = Boolean(form.pickupCity && form.destinationCity);
+  const breakdownText =
+    form.isRoundTrip && outboundKm !== null && returnKm !== null
+      ? tn("distanceBreakdown", { out: Math.round(outboundKm), ret: Math.round(returnKm) })
+      : tn("distanceTotal");
+  const legKm = (km: number | null) => (calculatingDistance || distanceError || km === null ? "—" : `${Math.round(km)} km`);
+
   return (
     <SidePanel onClose={onClose}>
-      <PanelHeader title={t("carrier.calendar.newRideTitle")} onClose={onClose} closeLabel={t("common.close")} />
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#F0F0F2] py-0 pl-6 pr-5">
+        <h2 className="text-[18px] font-semibold tracking-[-0.015em] text-[#18181B]">{tn("title")}</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("common.close")}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-[#71717A] transition-colors duration-[.12s] ease-out hover:bg-[#F4F4F5]"
+        >
+          <X size={17} strokeWidth={1.9} />
+        </button>
+      </div>
 
-      <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 space-y-[18px] overflow-y-auto px-5 py-[18px]">
-          <div className="grid gap-[10px] sm:grid-cols-2">
-            <Field label={t("carrier.rideForm.client")}>
-              <ClientCombobox
-                placeholder={t("carrier.rideForm.clientPlaceholder")}
-                value={form.clientCompanyName}
-                onChange={(v) => setForm({ ...form, clientCompanyName: v })}
-                onSelectClient={(client: ClientMatch) =>
-                  setForm({
-                    ...form,
-                    // A client with no company (an individual) matched on
-                    // their name instead — leave whatever's typed in this
-                    // field alone rather than blanking it out.
-                    clientCompanyName: client.companyName ?? form.clientCompanyName,
-                    clientName: client.name ?? form.clientName,
-                    clientEmail: client.email,
-                    clientPhone: client.phone ?? form.clientPhone,
-                  })
-                }
-              />
-            </Field>
-            <Field label={t("carrier.rideForm.contactPerson")}>
-              <Input
-                required
-                value={form.clientName}
-                onChange={(e) => setForm({ ...form, clientName: e.target.value })}
-              />
-            </Field>
-            <Field label={t("common.email")}>
-              <Input
-                type="email"
-                required
-                value={form.clientEmail}
-                onChange={(e) => setForm({ ...form, clientEmail: e.target.value })}
-              />
-            </Field>
-            <Field label={t("common.phone")}>
-              <Input
-                value={form.clientPhone}
-                onChange={(e) => setForm({ ...form, clientPhone: e.target.value })}
-              />
-            </Field>
-          </div>
-
-          <CityLocationFields
-            cityLabel={t("client.requestForm.pickupCity")}
-            locationLabel={t("client.requestForm.pickupLocation")}
-            city={form.pickupCity}
-            location={form.pickupLocation}
-            onCityChange={(v) => setForm({ ...form, pickupCity: v })}
-            onLocationChange={(v) => setForm({ ...form, pickupLocation: v })}
-          />
-
-          {form.stops.map((stop, index) => (
-            <div key={index} className="space-y-2 rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[12.5px] font-semibold text-[var(--ink-muted)]">
-                  {t("client.requestForm.stop")} {index + 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeStop(index)}
-                  className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
-                >
-                  {t("client.requestForm.removeStop")}
-                </button>
+      <form onSubmit={onSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <div ref={bodyRef} className="min-h-0 flex-1 overflow-y-auto">
+          <section className="px-6 py-5">
+            <h3 className="mb-4 text-[13.5px] font-semibold text-[#18181B]">{tn("klijent")}</h3>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-4">
+              <div>
+                <label className={SHEET_LABEL_CLASS}>{tn("firma")}</label>
+                <div className="mt-[6px]">
+                  <ClientCombobox
+                    variant="sheet"
+                    placeholder={tn("firmaPlaceholder")}
+                    value={form.clientCompanyName}
+                    onChange={(v) => setForm({ ...form, clientCompanyName: v })}
+                    onSelectClient={(client: ClientMatch) =>
+                      setForm({
+                        ...form,
+                        clientCompanyName: client.companyName ?? form.clientCompanyName,
+                        clientName: client.name ?? form.clientName,
+                        clientEmail: client.email,
+                        clientPhone: client.phone ?? form.clientPhone,
+                      })
+                    }
+                  />
+                </div>
               </div>
-              <CityLocationFields
-                cityLabel={t("client.requestForm.stopCity")}
-                locationLabel={t("client.requestForm.stopAddress")}
-                city={stop.city}
-                location={stop.location}
-                onCityChange={(v) => updateStop(index, { city: v })}
-                onLocationChange={(v) => updateStop(index, { location: v })}
+              <div>
+                <label className={SHEET_LABEL_CLASS}>{tn("kontaktOsoba")}</label>
+                <input
+                  className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+                  placeholder={tn("kontaktOsobaPlaceholder")}
+                  value={form.clientName}
+                  onChange={(e) => setForm({ ...form, clientName: e.target.value })}
+                />
+                {submitAttempted && !form.clientName ? (
+                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                ) : null}
+              </div>
+              <div>
+                <label className={SHEET_LABEL_CLASS}>{tn("telefon")}</label>
+                <div className="mt-[6px] flex h-10 items-stretch overflow-hidden rounded-[8px] border border-[#E4E4E7] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
+                  <span className="flex shrink-0 items-center border-r border-[#EEEEF0] bg-[#FAFAFA] px-3 text-[14px] text-[#71717A]">
+                    {PHONE_PREFIX}
+                  </span>
+                  <input
+                    className="min-w-0 flex-1 px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
+                    value={phoneSuffix(form.clientPhone)}
+                    onChange={(e) => setForm({ ...form, clientPhone: PHONE_PREFIX + e.target.value })}
+                    onBlur={() => setPhoneTouched(true)}
+                  />
+                </div>
+                {phoneTouched && phoneSuffix(form.clientPhone) && !isValidPhoneSuffix(phoneSuffix(form.clientPhone)) ? (
+                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("invalidPhone")}</p>
+                ) : null}
+              </div>
+              <div>
+                <label className={SHEET_LABEL_CLASS}>{t("common.email")}</label>
+                <input
+                  type="email"
+                  className={`mt-[6px] truncate ${SHEET_INPUT_CLASS}`}
+                  value={form.clientEmail}
+                  onChange={(e) => setForm({ ...form, clientEmail: e.target.value })}
+                />
+                {submitAttempted && !form.clientEmail ? (
+                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          <div className="mx-6 h-px bg-[#F0F0F2]" />
+
+          <section className="px-6 py-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="text-[13.5px] font-semibold text-[#18181B]">{tn("ruta")}</h3>
+              <SegmentedControl
+                options={[
+                  { value: "round" as const, label: tn("povratna") },
+                  { value: "oneway" as const, label: tn("jednosmerna") },
+                ]}
+                value={form.isRoundTrip ? "round" : "oneway"}
+                onChange={(v) => setForm({ ...form, isRoundTrip: v === "round" })}
               />
             </div>
-          ))}
-          {form.stops.length < 5 ? (
-            <button type="button" onClick={addStop} className="text-[14px] font-semibold text-[var(--action-bg)] hover:underline">
-              + {t("client.requestForm.addStop")}
-            </button>
-          ) : null}
 
-          <CityLocationFields
-            cityLabel={t("client.requestForm.destinationCity")}
-            locationLabel={t("client.requestForm.destinationLocation")}
-            city={form.destinationCity}
-            location={form.destinationLocation}
-            onCityChange={(v) => setForm({ ...form, destinationCity: v })}
-            onLocationChange={(v) => setForm({ ...form, destinationLocation: v })}
-          />
-
-          <Field label={t("client.requestForm.departureAt")}>
-            <Input
-              type="datetime-local"
-              required
-              value={form.departureAt}
-              onChange={(e) => setForm({ ...form, departureAt: e.target.value })}
-            />
-          </Field>
-
-          <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
-            <input
-              type="checkbox"
-              checked={form.isRoundTrip}
-              onChange={(e) => setForm({ ...form, isRoundTrip: e.target.checked })}
-            />
-            {t("client.requestForm.isRoundTrip")}
-          </label>
-
-          {form.isRoundTrip ? (
-            <>
-              <Field label={t("client.requestForm.returnAt")}>
-                <Input
-                  type="datetime-local"
-                  required
-                  min={form.departureAt || undefined}
-                  value={form.returnAt}
-                  onChange={(e) => setForm({ ...form, returnAt: e.target.value })}
+            <div className="flex flex-col gap-4">
+              <LegCard direction="outbound" title={tn("odlazak")} km={legKm(outboundKm ?? distanceKm)}>
+                <RouteTimeline
+                  originCity={form.pickupCity}
+                  originLocation={form.pickupLocation}
+                  onOriginCityChange={(v) => setForm({ ...form, pickupCity: v })}
+                  onOriginLocationChange={(v) => setForm({ ...form, pickupLocation: v })}
+                  destinationCity={form.destinationCity}
+                  destinationLocation={form.destinationLocation}
+                  onDestinationCityChange={(v) => setForm({ ...form, destinationCity: v })}
+                  onDestinationLocationChange={(v) => setForm({ ...form, destinationLocation: v })}
+                  stops={form.stops}
+                  onAddStop={addStop}
+                  onRemoveStop={removeStop}
+                  onUpdateStop={updateStop}
+                  locationPlaceholder={tn("locationPlaceholder")}
+                  addStopLabel={tn("addStop")}
                 />
-              </Field>
-              <ReturnTripFields
-                value={form.returnTrip}
-                onChange={(returnTrip) => setForm({ ...form, returnTrip })}
-                outboundPickupCity={form.pickupCity}
-                outboundPickupLocation={form.pickupLocation}
-                outboundDestinationCity={form.destinationCity}
-                outboundDestinationLocation={form.destinationLocation}
-                outboundStops={form.stops}
+                <DateTimeRow
+                  dateValue={departureDate}
+                  onDateChange={setDepartureDate}
+                  timeValue={departureTime}
+                  onTimeChange={(time) => setForm({ ...form, departureAt: combineDateTimeLocal(departureDate, time) })}
+                  datePlaceholder={tn("datePlaceholder")}
+                  timePlaceholder={tn("timePlaceholder")}
+                  dateError={submitAttempted && !form.departureAt}
+                />
+                {submitAttempted && !form.departureAt ? (
+                  <p className="pl-[30px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                ) : null}
+              </LegCard>
+
+              {form.isRoundTrip ? (
+                <ReturnLegCard
+                  value={form.returnTrip}
+                  onChange={(returnTrip) => setForm({ ...form, returnTrip })}
+                  outboundPickupCity={form.pickupCity}
+                  outboundPickupLocation={form.pickupLocation}
+                  outboundDestinationCity={form.destinationCity}
+                  outboundDestinationLocation={form.destinationLocation}
+                  outboundStops={form.stops}
+                  departureAt={form.departureAt}
+                  returnAt={form.returnAt}
+                  onReturnAtChange={(v) => setForm({ ...form, returnAt: v })}
+                  dateRef={returnDateRef}
+                  kmText={legKm(returnKm)}
+                  locationPlaceholder={tn("locationPlaceholder")}
+                  datePlaceholder={tn("datePlaceholder")}
+                  timePlaceholder={tn("timePlaceholder")}
+                  returnDateError={
+                    returnAfterOutboundError ?? (submitAttempted && !form.returnAt ? tn("required") : undefined)
+                  }
+                />
+              ) : null}
+
+              <DistanceCard
+                visible={distanceVisible}
+                calculating={calculatingDistance}
+                failed={distanceError}
+                totalKm={distanceKm}
+                breakdownText={breakdownText}
+                estimateLabel={tn("estimateLabel")}
+                failedLabel={tn("distanceUnavailable")}
+                calculatingLabel={tn("calculating")}
               />
-            </>
-          ) : null}
+            </div>
+          </section>
 
-          {calculatingDistance ? (
-            <p className="text-[13px] text-[var(--ink-muted)]">{t("carrier.rideForm.calculatingDistance")}</p>
-          ) : distanceKm !== null ? (
-            <p className="text-[13px] text-[var(--ink-muted)]">
-              {t("carrier.rideForm.estimatedDistance", { km: Math.round(distanceKm) })}
-            </p>
-          ) : distanceError ? (
-            <p className="text-[13px] text-[#DC2626]">{t("carrier.rideForm.distanceUnavailableShort")}</p>
-          ) : null}
+          <div className="mx-6 h-px bg-[#F0F0F2]" />
 
-          <Field label={t("client.requestForm.passengerCount")}>
-            <Input
-              type="number"
-              min={1}
-              required
-              value={form.passengerCount}
-              onChange={(e) => setForm({ ...form, passengerCount: e.target.value })}
-            />
-          </Field>
+          <section className="px-6 py-5">
+            <h3 className="mb-4 text-[13.5px] font-semibold text-[#18181B]">{tn("detalji")}</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className={SHEET_LABEL_CLASS}>{tn("brojPutnika")}</label>
+                <div className="mt-[6px]">
+                  <Stepper
+                    value={Number(form.passengerCount) || 1}
+                    onChange={(n) => setForm({ ...form, passengerCount: String(n) })}
+                    min={1}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="mb-[6px] flex items-baseline gap-2">
+                  <label className={SHEET_LABEL_CLASS}>{tn("posebniZahtevi")}</label>
+                  <span className="text-[12.5px] text-[#A1A1AA]">{tn("opciono")}</span>
+                </div>
+                <textarea
+                  className={SHEET_TEXTAREA_CLASS}
+                  placeholder={tn("posebniZahteviPlaceholder")}
+                  value={form.specialRequests}
+                  onChange={(e) => setForm({ ...form, specialRequests: e.target.value })}
+                />
+              </div>
+            </div>
+          </section>
 
-          <Field label={t("client.requestForm.specialRequests")}>
-            <Input
-              value={form.specialRequests}
-              onChange={(e) => setForm({ ...form, specialRequests: e.target.value })}
-            />
-          </Field>
+          <div className="mx-6 h-px bg-[#F0F0F2]" />
 
-          <div className="space-y-2 rounded-[10px] border border-[var(--border-hairline)] p-3">
-            <p className="text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.calendar.assignNowTitle")}</p>
-            <p className="text-[12.5px] text-[var(--ink-muted)]">
-              {form.departureAt ? t("carrier.calendar.assignNowHint") : t("carrier.calendar.assignNowHintNoDate")}
-            </p>
-            <div className="grid gap-[10px] sm:grid-cols-2">
-              <Field label={t("carrier.offerForm.vehicle")}>
+          <section className="px-6 py-5">
+            <div className="mb-4 flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-[13.5px] font-semibold text-[#18181B]">{tn("dodela")}</h3>
+                <span className="text-[12.5px] text-[#A1A1AA]">{tn("opciono")}</span>
+              </div>
+              <span
+                className={`shrink-0 text-right text-[12.5px] ${
+                  form.departureAt && (!form.isRoundTrip || form.returnAt) ? "text-[#16A34A]" : "text-[#A1A1AA]"
+                }`}
+              >
+                {form.departureAt && (!form.isRoundTrip || form.returnAt)
+                  ? tn("freeCount", { vehicles: availableVehicles.length, drivers: availableDrivers.length })
+                  : tn("pickDatesForFreeCount")}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
                 <Select
+                  unstyled
+                  className={SHEET_SELECT_CLASS}
                   value={form.vehicleId}
                   onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
                   disabled={loadingAvailability}
                 >
-                  <option value="">{t("carrier.calendar.assignLater")}</option>
+                  <option value="">{tn("assignLater")}</option>
                   {availableVehicles.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {tType(v.type)} {v.model}
-                      {v.licensePlate ? ` · ${v.licensePlate}` : ""}
+                    <option
+                      key={v.id}
+                      value={v.id}
+                      style={v.seats < (Number(form.passengerCount) || 0) ? { color: "#DC2626" } : undefined}
+                    >
+                      {tType(v.type)} {v.model} · {v.seats} {tn("mesta")}
                     </option>
                   ))}
                 </Select>
-              </Field>
-              <Field label={t("carrier.offerForm.driver")}>
+                <ChevronDownIcon />
+              </div>
+              <div className="relative">
                 <Select
+                  unstyled
+                  className={SHEET_SELECT_CLASS}
                   value={form.driverId}
                   onChange={(e) => setForm({ ...form, driverId: e.target.value })}
                   disabled={loadingAvailability}
                 >
-                  <option value="">{t("carrier.calendar.assignLater")}</option>
+                  <option value="">{tn("assignLater")}</option>
                   {availableDrivers.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
                     </option>
                   ))}
                 </Select>
-              </Field>
+                <ChevronDownIcon />
+              </div>
             </div>
-            {loadingAvailability ? (
-              <p className="text-[12.5px] text-[var(--ink-muted)]">{t("common.loading")}</p>
-            ) : form.departureAt && availableVehicles.length === 0 && availableDrivers.length === 0 ? (
-              <p className="text-[12.5px] text-[var(--ink-muted)]">{t("carrier.calendar.noneAvailableThatDay")}</p>
-            ) : null}
-          </div>
+          </section>
 
-          {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
+          {error ? <p className="px-6 pb-4 text-[13.5px] text-[#DC2626]">{error}</p> : null}
         </div>
 
-        <PanelFooter
-          onCancel={onClose}
-          cancelLabel={t("common.cancel")}
-          submitLabel={t("carrier.calendar.newRideSubmit")}
-          loading={loading}
-          loadingLabel={t("common.loading")}
-        />
+        <div className="flex h-[72px] shrink-0 items-center gap-3 bg-white py-0 pl-6 pr-5 shadow-[0_-1px_0_#F0F0F2,0_-8px_16px_-8px_rgba(24,24,27,.06)]">
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold tabular-nums text-[#18181B]">
+              {distanceKm !== null ? `${Math.round(distanceKm)} km` : "—"}
+            </p>
+            <p className="truncate text-[12.5px] text-[#71717A]">
+              {routeCities.length > 1 ? routeCities.join(" → ") : "—"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-9 shrink-0 items-center whitespace-nowrap rounded-[9px] px-3 text-[13.5px] font-medium text-[#18181B] shadow-[inset_0_0_0_1px_#E4E4E7,0_1px_2px_rgba(24,24,27,.04)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]"
+          >
+            {tn("otkazi")}
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex h-9 shrink-0 items-center whitespace-nowrap rounded-[9px] bg-[#2563EB] px-4 text-[13.5px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_1px_2px_rgba(37,99,235,.3)] transition-colors duration-[.12s] ease-out hover:bg-[#1D4ED8] disabled:opacity-50"
+          >
+            {loading ? t("common.loading") : tn("kreirajVoznju")}
+          </button>
+        </div>
       </form>
     </SidePanel>
+  );
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width={14}
+      height={14}
+      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA]"
+      fill="none"
+    >
+      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

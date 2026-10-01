@@ -15,10 +15,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const distanceKm = await estimateTripDistance(parsed.data);
-  if (distanceKm === null) {
+  const result = await estimateTripDistance(parsed.data);
+  if (result === null) {
     return NextResponse.json({ error: "DISTANCE_UNAVAILABLE" }, { status: 422 });
   }
 
-  return NextResponse.json({ distanceKm });
+  return NextResponse.json({ distanceKm: result.totalKm, outboundKm: result.outboundKm, returnKm: result.returnKm });
 }
