@@ -120,6 +120,13 @@ export function RideDetailDrawer({
 
   const [duplicating, setDuplicating] = useState(false);
 
+  // Quick standalone override for the Trip section's computed total — lets
+  // a carrier who disagrees with the maps estimate correct it on its own,
+  // without opening the full "Edit ride" trip-detail form.
+  const [editingDistanceOnly, setEditingDistanceOnly] = useState(false);
+  const [distanceOverrideInput, setDistanceOverrideInput] = useState("");
+  const [savingDistanceOverride, setSavingDistanceOverride] = useState(false);
+
   // Live distance preview while editing trip details — recalculates as
   // pickup/destination/stops (and, for a round trip, the return leg)
   // change, same pattern as NewRideModal/CarrierRideForm. Seeded from the
@@ -346,6 +353,25 @@ export function RideDetailDrawer({
     onChanged();
   }
 
+  async function saveDistanceOverride() {
+    const km = Number(distanceOverrideInput);
+    if (!km || km <= 0) return;
+    setSavingDistanceOverride(true);
+    setError(null);
+    const res = await fetch(`/api/carrier/rides/${ride.id}/distance`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ distanceKm: km }),
+    });
+    setSavingDistanceOverride(false);
+    if (!res.ok) {
+      setError(t("common.saveFailed"));
+      return;
+    }
+    setEditingDistanceOnly(false);
+    onChanged();
+  }
+
   async function cancelRide() {
     if (!confirm(t("carrier.calendar.cancelConfirm"))) return;
     setMenuOpen(false);
@@ -487,7 +513,57 @@ export function RideDetailDrawer({
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
-            <h3 className="mb-3 text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
+            <div className="mb-3 flex items-baseline justify-between gap-2">
+              <h3 className="text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
+              {!editable ? (
+                ride.estimatedDistanceKm ? (
+                  <span className="text-[13px] text-[var(--ink-muted)]">
+                    {tDetail("tripTotal", { km: Math.round(ride.estimatedDistanceKm) })}
+                  </span>
+                ) : null
+              ) : !editingDistanceOnly ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDistanceOverrideInput(ride.estimatedDistanceKm ? String(Math.round(ride.estimatedDistanceKm)) : "");
+                    setEditingDistanceOnly(true);
+                  }}
+                  className="text-[13px] text-[var(--ink-muted)] underline-offset-2 hover:text-[var(--ink-secondary)] hover:underline"
+                >
+                  {ride.estimatedDistanceKm
+                    ? tDetail("tripTotal", { km: Math.round(ride.estimatedDistanceKm) })
+                    : tDetail("addDistance")}
+                </button>
+              ) : (
+                <div className="flex items-center gap-[6px]">
+                  <input
+                    type="number"
+                    min={1}
+                    step="0.1"
+                    autoFocus
+                    value={distanceOverrideInput}
+                    onChange={(e) => setDistanceOverrideInput(e.target.value)}
+                    className="h-7 w-20 rounded-[6px] border border-[var(--border-control)] px-2 text-[13px] text-[var(--ink-primary)] focus:outline-none focus:border-[#2563EB]"
+                  />
+                  <span className="text-[13px] text-[var(--ink-muted)]">km</span>
+                  <button
+                    type="button"
+                    onClick={saveDistanceOverride}
+                    disabled={savingDistanceOverride}
+                    className="text-[13px] font-medium text-[var(--action-bg)] hover:underline disabled:opacity-50"
+                  >
+                    {savingDistanceOverride ? t("common.loading") : t("common.save")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingDistanceOnly(false)}
+                    className="text-[13px] text-[var(--ink-muted)] hover:underline"
+                  >
+                    {t("common.cancel")}
+                  </button>
+                </div>
+              )}
+            </div>
             {!editing ? (
               <div className="flex flex-col">
                 {timeline.map((entry, i) => (

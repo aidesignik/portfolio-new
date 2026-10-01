@@ -268,7 +268,10 @@
         "editRide": "Izmeni vožnju",
         "duplicate": "Dupliraj",
         "copyLink": "Kopiraj link",
-        "linkCopied": "Kopirano!"
+        "linkCopied": "Kopirano!",
+        "tripTotal": "{km} km ukupno",
+        "addDistance": "Dodaj udaljenost",
+        "editDistance": "Izmeni udaljenost"
       },
       "noVehicles": "Dodajte vozilo da biste ga videli ovde.",
       "noDrivers": "Dodajte vozača da biste ga videli ovde.",

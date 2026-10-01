@@ -268,7 +268,10 @@
         "editRide": "Edit ride",
         "duplicate": "Duplicate",
         "copyLink": "Copy link",
-        "linkCopied": "Copied!"
+        "linkCopied": "Copied!",
+        "tripTotal": "{km} km total",
+        "addDistance": "Add distance",
+        "editDistance": "Edit distance"
       },
       "noVehicles": "Add a vehicle to see it here.",
       "noDrivers": "Add a driver to see them here.",
