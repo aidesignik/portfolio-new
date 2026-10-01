@@ -107,7 +107,7 @@ export default async function CarrierGatedLayout({
   });
 
   return (
-    <div className="grid h-dvh grid-cols-[240px_1fr] overflow-hidden bg-white">
+    <div className="grid h-dvh grid-cols-[240px_1fr] overflow-hidden bg-[var(--bg-sidebar)]">
       <CarrierSidebar
         requestCount={requestCount}
         bookingCount={bookingCount}
@@ -115,9 +115,11 @@ export default async function CarrierGatedLayout({
         driverCount={drivers.length}
         expiringItems={sidebarExpiringItems}
       />
-      <div className="flex h-dvh min-w-0 flex-col">
-        <TopBar />
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <div className="flex h-dvh min-w-0 flex-col py-2 pr-2">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[14px] bg-white shadow-[0_1px_2px_rgba(24,24,27,.04)]">
+          <TopBar />
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        </div>
       </div>
     </div>
   );
