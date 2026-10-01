@@ -9,6 +9,7 @@ import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
 import { PanelFooter } from "@/components/ui/PanelFooter";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
+import { ClientCombobox, type ClientMatch } from "@/components/forms/ClientCombobox";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import type { CityLocation } from "@/lib/location";
@@ -235,10 +236,22 @@ export function NewRideModal({
         <div className="flex-1 space-y-[18px] overflow-y-auto px-5 py-[18px]">
           <div className="grid gap-[10px] sm:grid-cols-2">
             <Field label={t("carrier.rideForm.client")}>
-              <Input
+              <ClientCombobox
                 placeholder={t("carrier.rideForm.clientPlaceholder")}
                 value={form.clientCompanyName}
-                onChange={(e) => setForm({ ...form, clientCompanyName: e.target.value })}
+                onChange={(v) => setForm({ ...form, clientCompanyName: v })}
+                onSelectClient={(client: ClientMatch) =>
+                  setForm({
+                    ...form,
+                    // A client with no company (an individual) matched on
+                    // their name instead — leave whatever's typed in this
+                    // field alone rather than blanking it out.
+                    clientCompanyName: client.companyName ?? form.clientCompanyName,
+                    clientName: client.name ?? form.clientName,
+                    clientEmail: client.email,
+                    clientPhone: client.phone ?? form.clientPhone,
+                  })
+                }
               />
             </Field>
             <Field label={t("carrier.rideForm.contactPerson")}>
