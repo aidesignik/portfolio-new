@@ -1,6 +1,7 @@
 import { geocodeAddress } from "./geocoding";
 import { osrmRouteDistanceKm, haversineRouteDistanceKm, type Coordinates } from "./distance";
 import { formatLocation, type CityLocation } from "./location";
+import { resolveReturnLeg } from "./rideReturnLeg";
 
 export interface RouteEstimate {
   distanceKm: number;
@@ -47,4 +48,63 @@ export async function estimateRouteDistance(
     const result = haversineRouteDistanceKm(coordinates);
     return { distanceKm: result.distanceKm, provider: "stub-haversine", coordinates };
   }
+}
+
+export interface TripDistanceInput {
+  pickupCity: string;
+  pickupLocation: string;
+  destinationCity: string;
+  destinationLocation: string;
+  stops: CityLocation[];
+  isRoundTrip: boolean;
+  returnPickupCity?: string;
+  returnPickupLocation?: string;
+  returnStops: CityLocation[];
+  returnDestinationCity?: string;
+  returnDestinationLocation?: string;
+}
+
+/**
+ * Total trip distance for the live "how many km is this?" preview shared
+ * by the carrier and client-facing distance endpoints — the outbound leg
+ * alone for a one-way trip, outbound + return for a round trip. The return
+ * leg is resolved the same way resolveReturnLeg() does for display/storage:
+ * endpoints default to the outbound swapped, no stops assumed unless given.
+ * Returns null if any waypoint can't be geocoded.
+ */
+export async function estimateTripDistance(input: TripDistanceInput): Promise<number | null> {
+  const outboundWaypoints = [
+    { city: input.pickupCity, location: input.pickupLocation },
+    ...input.stops,
+    { city: input.destinationCity, location: input.destinationLocation },
+  ];
+  const outboundEstimate = await estimateRouteDistance(outboundWaypoints).catch(() => null);
+  if (!outboundEstimate) return null;
+  if (!input.isRoundTrip) return outboundEstimate.distanceKm;
+
+  const returnLeg = resolveReturnLeg(
+    {
+      pickupCity: input.pickupCity,
+      pickupLocation: input.pickupLocation,
+      destinationCity: input.destinationCity,
+      destinationLocation: input.destinationLocation,
+      stops: input.stops,
+    },
+    {
+      returnPickupCity: input.returnPickupCity,
+      returnPickupLocation: input.returnPickupLocation,
+      returnStops: input.returnStops,
+      returnDestinationCity: input.returnDestinationCity,
+      returnDestinationLocation: input.returnDestinationLocation,
+    },
+  );
+  const returnWaypoints = [
+    { city: returnLeg.pickupCity, location: returnLeg.pickupLocation },
+    ...returnLeg.stops,
+    { city: returnLeg.destinationCity, location: returnLeg.destinationLocation },
+  ];
+  const returnEstimate = await estimateRouteDistance(returnWaypoints).catch(() => null);
+  if (!returnEstimate) return null;
+
+  return outboundEstimate.distanceKm + returnEstimate.distanceKm;
 }

@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/auth/api";
 import { estimateTripDistance } from "@/lib/tripDistance";
 import { tripDistanceSchema } from "@/lib/validation/tripDistance.schema";
 
-// Lightweight, purpose-built for a live "how many km is this?" preview as a
-// carrier types pickup/stops/destination (and, for a round trip, the
-// return leg) — no vehicle/driver/price needed.
+// Public counterpart to /api/carrier/distance — lets a client (or a
+// not-yet-signed-up visitor on the public search) see roughly how far a
+// trip is before they submit a request, same debounced live-preview
+// pattern, same underlying estimate. No auth: the public landing-page
+// search already works without a session, and this carries no carrier
+// data, just a geocoding/routing lookup.
 export async function POST(request: Request) {
-  const { error } = await requireApiRole("CARRIER");
-  if (error) return error;
-
   const body = await request.json().catch(() => null);
   const parsed = tripDistanceSchema.safeParse(body);
   if (!parsed.success) {

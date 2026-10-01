@@ -82,6 +82,10 @@ interface TimelineEntry {
   location: string;
   label: string;
   date?: Date;
+  // The destination has no stored arrival timestamp (only departure/return
+  // are real fields) — its date is a rough estimate, flagged so the UI can
+  // mark it as such rather than presenting it as a hard fact.
+  estimated?: boolean;
 }
 
 export function RideDetailDrawer({
@@ -268,7 +272,14 @@ export function RideDetailDrawer({
       location: s.location,
       label: `${t("client.requestForm.stop")} ${i + 1}`,
     })),
-    { kind: "destination", city: ride.destinationCity, location: ride.destinationLocation, label: tDetail("destination") },
+    {
+      kind: "destination",
+      city: ride.destinationCity,
+      location: ride.destinationLocation,
+      label: tDetail("destination"),
+      date: new Date(departure.getTime() + AVERAGE_TRIP_DURATION_MS),
+      estimated: true,
+    },
   ];
   if (resolvedReturn) {
     resolvedReturn.stops.forEach((s, i) => {
@@ -592,6 +603,9 @@ export function RideDetailDrawer({
                           </p>
                           <p className="whitespace-nowrap text-[13px] tabular-nums text-[var(--ink-secondary)]">
                             {formatTime24(entry.date)}
+                            {entry.estimated ? (
+                              <span className="ml-[3px] text-[var(--ink-muted)]">{tDetail("estimated")}</span>
+                            ) : null}
                           </p>
                         </>
                       ) : null}

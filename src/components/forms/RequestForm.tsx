@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import type { CityLocation } from "@/lib/location";
+
+const DISTANCE_CALC_DEBOUNCE_MS = 900;
 
 export interface RequestFormInitial {
   pickupCity: string;
@@ -23,6 +25,7 @@ export interface RequestFormInitial {
 
 export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   const t = useTranslations("client.requestForm");
+  const tRideForm = useTranslations("carrier.rideForm");
   const router = useRouter();
   const [form, setForm] = useState({
     pickupCity: initial?.pickupCity ?? "",
@@ -38,6 +41,46 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
+
+  // Live distance preview — lets the client see roughly how far the trip
+  // is before they submit the request, recalculating as pickup/stops/
+  // destination (and, for a round trip, the return date) are filled in.
+  // Public endpoint: no login needed to see this.
+  useEffect(() => {
+    const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip } = form;
+    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDistanceKm(null);
+      return;
+    }
+    if (stops.some((s) => !s.city || !s.location)) return;
+
+    const timer = setTimeout(async () => {
+      setCalculatingDistance(true);
+      const res = await fetch("/api/distance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickupCity,
+          pickupLocation,
+          destinationCity,
+          destinationLocation,
+          stops,
+          isRoundTrip,
+        }),
+      }).catch(() => null);
+      setCalculatingDistance(false);
+      if (!res?.ok) return;
+      const body = await res.json().catch(() => null);
+      if (typeof body?.distanceKm === "number") setDistanceKm(body.distanceKm);
+    }, DISTANCE_CALC_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.pickupCity, form.pickupLocation, form.destinationCity, form.destinationLocation, form.stops, form.isRoundTrip]);
 
   function addStop() {
     if (form.stops.length >= 5) return;
@@ -160,6 +203,12 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
             onChange={(e) => setForm({ ...form, returnAt: e.target.value })}
           />
         </Field>
+      ) : null}
+
+      {calculatingDistance ? (
+        <p className="text-xs text-zinc-500">{tRideForm("calculatingDistance")}</p>
+      ) : distanceKm !== null ? (
+        <p className="text-xs text-zinc-500">{tRideForm("estimatedDistance", { km: Math.round(distanceKm) })}</p>
       ) : null}
 
       <Field label={t("passengerCount")}>
