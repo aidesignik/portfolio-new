@@ -140,9 +140,11 @@ export function RideDetailDrawer({
   useEffect(() => {
     if (!editing) return;
     const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip, returnTrip } = editForm;
-    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) return;
-    if (stops.some((s) => !s.city || !s.location)) return;
-    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city || !s.location)) return;
+    // Only the city is required to attempt a distance estimate — see the
+    // same comment in NewRideModal.
+    if (!pickupCity || !destinationCity) return;
+    if (stops.some((s) => !s.city)) return;
+    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city)) return;
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);

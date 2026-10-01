@@ -73,8 +73,10 @@ export function CarrierRideForm({
   useEffect(() => {
     if (distanceTouched) return;
     const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops } = form;
-    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) return;
-    if (stops.some((s) => !s.city || !s.location)) return;
+    // Only the city is required to attempt a distance estimate — see the
+    // same comment in NewRideModal.
+    if (!pickupCity || !destinationCity) return;
+    if (stops.some((s) => !s.city)) return;
 
     const requestId = ++distanceRequestId.current;
     const timer = setTimeout(async () => {

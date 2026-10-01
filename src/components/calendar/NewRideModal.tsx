@@ -88,13 +88,17 @@ export function NewRideModal({
   // assignment doesn't need to re-estimate it later.
   useEffect(() => {
     const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip, returnTrip } = form;
-    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) {
+    // Only the city is required to attempt a distance estimate — the exact
+    // address refines the geocoded point but isn't needed to get a rough
+    // city-to-city figure, and making a carrier type it first just delays
+    // the preview for no benefit.
+    if (!pickupCity || !destinationCity) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDistanceKm(null);
       return;
     }
-    if (stops.some((s) => !s.city || !s.location)) return;
-    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city || !s.location)) return;
+    if (stops.some((s) => !s.city)) return;
+    if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city)) return;
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);

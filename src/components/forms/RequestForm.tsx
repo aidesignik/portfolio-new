@@ -52,12 +52,14 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
   // Public endpoint: no login needed to see this.
   useEffect(() => {
     const { pickupCity, pickupLocation, destinationCity, destinationLocation, stops, isRoundTrip } = form;
-    if (!pickupCity || !pickupLocation || !destinationCity || !destinationLocation) {
+    // Only the city is required to attempt a distance estimate — see the
+    // same comment in NewRideModal.
+    if (!pickupCity || !destinationCity) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDistanceKm(null);
       return;
     }
-    if (stops.some((s) => !s.city || !s.location)) return;
+    if (stops.some((s) => !s.city)) return;
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
