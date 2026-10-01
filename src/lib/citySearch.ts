@@ -52,6 +52,22 @@ const MAJOR_RS_CITIES = [
 ];
 const majorRsRank = new Map(MAJOR_RS_CITIES.map((name, i) => [name, i]));
 
+// This carrier's trips are domestic or cross-border within Europe — not
+// overseas — so the suggestion dropdown is scoped to European countries
+// only, rather than surfacing an identically-named town in the US or Asia
+// ahead of (or instead of) the European one a user actually means.
+// Standard UN M49 "Europe" grouping, plus Kosovo (XK, not an ISO code but
+// used by this dataset) and Russia. Transcontinental Turkey is left out
+// since it's classified as Western Asia — add "TR" here if trips to
+// Istanbul etc. need to show up too.
+const EUROPEAN_COUNTRY_CODES = new Set([
+  "AD", "AL", "AT", "AX", "BA", "BE", "BG", "BY", "CH", "CY", "CZ", "DE",
+  "DK", "EE", "ES", "FI", "FO", "FR", "GB", "GG", "GI", "GR", "HR", "HU",
+  "IE", "IM", "IS", "IT", "JE", "LI", "LT", "LU", "LV", "MC", "MD", "ME",
+  "MK", "MT", "NL", "NO", "PL", "PT", "RO", "RS", "RU", "SE", "SI", "SJ",
+  "SK", "SM", "UA", "VA", "XK",
+]);
+
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 
 function stripDiacritics(value: string): string {
@@ -72,17 +88,20 @@ interface IndexedCity {
   key: string;
 }
 
-// Built once per server process from the bundled ~171k-city dataset, keyed
-// by a diacritic-stripped lowercase form so a query like "cacak" (easier to
+// Built once per server process from the bundled ~171k-city dataset
+// (filtered to Europe, see EUROPEAN_COUNTRY_CODES), keyed by a
+// diacritic-stripped lowercase form so a query like "cacak" (easier to
 // type without a Serbian keyboard layout) still finds "Čačak".
 let index: IndexedCity[] | null = null;
 
 function getIndex(): IndexedCity[] {
   if (!index) {
-    index = (cities as RawCity[]).map((c) => {
-      const name = NAME_OVERRIDES[`${c.country}:${c.name}`] ?? c.name;
-      return { name, country: c.country, key: searchKey(name) };
-    });
+    index = (cities as RawCity[])
+      .filter((c) => EUROPEAN_COUNTRY_CODES.has(c.country))
+      .map((c) => {
+        const name = NAME_OVERRIDES[`${c.country}:${c.name}`] ?? c.name;
+        return { name, country: c.country, key: searchKey(name) };
+      });
   }
   return index;
 }
@@ -95,10 +114,11 @@ const MAX_RESULTS = 8;
  * keystroke-driven dropdown (network round-trip plus Nominatim's ~1
  * req/sec rate limit), and prone to returning Cyrillic names for Serbian
  * places since that's Serbia's official script in OSM data — with an
- * in-memory scan over a bundled worldwide dataset that's confirmed to use
- * Latin spellings for Serbian settlements. Domestic (Serbian) results are
- * shown bare ("Beograd"); others get the country appended
- * ("Paris, France") for disambiguation.
+ * in-memory scan over a bundled dataset scoped to Europe (this carrier's
+ * actual trips never leave the continent) and confirmed to use Latin
+ * spellings for Serbian settlements. Domestic (Serbian) results are shown
+ * bare ("Beograd"); others get the country appended ("Paris, France") for
+ * disambiguation.
  */
 export function searchCities(query: string): CitySuggestion[] {
   const q = searchKey(query.trim());
