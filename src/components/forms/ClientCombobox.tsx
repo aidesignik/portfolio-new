@@ -79,6 +79,7 @@ export function ClientCombobox({
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
       />
       {open && matches.length > 0 ? (
         <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg">
