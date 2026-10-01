@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Pencil, X, Ellipsis, CircleAlert, Bus, Copy, Link2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { Pencil, X, Ellipsis, CircleAlert, Bus, Copy, Link2, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
@@ -14,10 +14,12 @@ import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/compon
 import { RideDocumentsSection } from "./RideDocumentsSection";
 import { NewRideModal, type NewRideInitialValues } from "./NewRideModal";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
+import { RingMarker, PinMarker, DotConnector } from "./newRide/timelineMarkers";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
-import { formatShortDate, formatTime24 } from "@/lib/rideDateFormat";
+import { formatTime24 } from "@/lib/rideDateFormat";
+import { formatPickerDate } from "@/lib/pickerDateFormat";
 import { resolveReturnLeg } from "@/lib/rideReturnLeg";
 import type { CityLocation } from "@/lib/location";
 import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
@@ -28,10 +30,6 @@ const SECONDARY_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 const PRIMARY_SM_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
-
-function isSameCalendarDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
 
 // Lightweight, universal grouping (not a real phone-number library) — keeps
 // a leading "+" attached and groups the rest in 3s, e.g.
@@ -76,16 +74,25 @@ function buildEditForm(ride: CalendarRide) {
   };
 }
 
-interface TimelineEntry {
-  kind: "origin" | "stop" | "destination" | "return";
+// A single stop row within a leg block (§2) — city/location only, no role
+// word. `time` is set only on the first row (scheduled departure) and the
+// last row (estimated arrival, muted); intermediate stops carry no time.
+interface RouteLegRow {
   city: string;
   location: string;
+  time: string | null;
+  muted?: boolean;
+}
+
+interface RouteLeg {
+  key: "outbound" | "return";
   label: string;
-  date?: Date;
-  // The destination has no stored arrival timestamp (only departure/return
-  // are real fields) — its date is a rough estimate, flagged so the UI can
-  // mark it as such rather than presenting it as a hard fact.
-  estimated?: boolean;
+  date: Date;
+  rows: RouteLegRow[];
+  // True when the return leg is the unmodified reverse of the outbound leg
+  // (no stored override, no return stops) — shown as a note instead of
+  // repeating the obviously-identical stop list.
+  sameRouteReversed?: boolean;
 }
 
 export function RideDetailDrawer({
@@ -104,6 +111,7 @@ export function RideDetailDrawer({
   const t = useTranslations();
   const tType = useTranslations("vehicleType");
   const tDetail = useTranslations("carrier.calendar.detail");
+  const locale = useLocale();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -229,21 +237,9 @@ export function RideDetailDrawer({
   const now = new Date();
   const departure = new Date(ride.departureAt);
   const returnAt = ride.returnAt ? new Date(ride.returnAt) : null;
-  const effectiveEnd = returnAt ?? new Date(departure.getTime() + AVERAGE_TRIP_DURATION_MS);
 
   const blocking = ride.status === "PENDING" && (!ride.vehicleId || !ride.driverId);
   const blockingText = !ride.vehicleId ? tDetail("vehicleMissing") : t("carrier.assignment.noDriverAssigned");
-  const inProgress = ride.status === "CONFIRMED" && now >= departure && now < effectiveEnd;
-  const progressText = inProgress
-    ? `${tDetail("inProgress")}${
-        returnAt
-          ? " · " +
-            (isSameCalendarDay(returnAt, now)
-              ? tDetail("returnsToday", { time: formatTime24(returnAt) })
-              : tDetail("returnsOn", { date: formatShortDate(returnAt), time: formatTime24(returnAt) }))
-          : ""
-      }`
-    : null;
 
   const canMarkCompleted = ride.status === "CONFIRMED" && now >= departure;
   const overCapacity = Boolean(vehicle) && ride.passengerCount > vehicle!.seats;
@@ -271,40 +267,65 @@ export function RideDetailDrawer({
     resolvedReturn ? ` → ${resolvedReturn.destinationCity}` : ""
   }`;
 
-  const timeline: TimelineEntry[] = [
-    { kind: "origin", city: ride.pickupCity, location: ride.pickupLocation, label: tDetail("pickup"), date: departure },
-    ...ride.stops.map((s, i) => ({
-      kind: "stop" as const,
-      city: s.city,
-      location: s.location,
-      label: `${t("client.requestForm.stop")} ${i + 1}`,
-    })),
-    {
-      kind: "destination",
-      city: ride.destinationCity,
-      location: ride.destinationLocation,
-      label: tDetail("destination"),
-      date: new Date(departure.getTime() + AVERAGE_TRIP_DURATION_MS),
-      estimated: true,
-    },
-  ];
+  // Per-leg route blocks for the view-mode Ruta section (§1-§2): each leg
+  // is its own date-separator-chip header + stop list, departure time on
+  // the first row and estimated arrival (reusing the same
+  // AVERAGE_TRIP_DURATION_MS convention as the outbound leg) on the last.
+  const estimatedArrival = new Date(departure.getTime() + AVERAGE_TRIP_DURATION_MS);
+  const outboundLeg: RouteLeg = {
+    key: "outbound",
+    label: tDetail("outboundLabel"),
+    date: departure,
+    rows: [
+      { city: ride.pickupCity, location: ride.pickupLocation, time: formatTime24(departure) },
+      ...ride.stops.map((s) => ({ city: s.city, location: s.location, time: null })),
+      {
+        city: ride.destinationCity,
+        location: ride.destinationLocation,
+        time: `~${formatTime24(estimatedArrival)}`,
+        muted: true,
+      },
+    ],
+  };
+
+  const legs: RouteLeg[] = [outboundLeg];
   if (resolvedReturn) {
-    resolvedReturn.stops.forEach((s, i) => {
-      timeline.push({
-        kind: "stop",
-        city: s.city,
-        location: s.location,
-        label: `${t("client.requestForm.stop")} ${i + 1}`,
-      });
-    });
-    timeline.push({
-      kind: "return",
-      city: resolvedReturn.destinationCity,
-      location: resolvedReturn.destinationLocation,
+    const returnEstimatedArrival = returnAt ? new Date(returnAt.getTime() + AVERAGE_TRIP_DURATION_MS) : null;
+    const sameRouteReversed = !ride.returnPickupCity && !ride.returnDestinationCity && resolvedReturn.stops.length === 0;
+    legs.push({
+      key: "return",
       label: tDetail("returnLabel"),
-      date: returnAt ?? undefined,
+      date: returnAt ?? departure,
+      sameRouteReversed,
+      rows: [
+        {
+          city: resolvedReturn.pickupCity,
+          location: resolvedReturn.pickupLocation,
+          time: returnAt ? formatTime24(returnAt) : null,
+        },
+        ...resolvedReturn.stops.map((s) => ({ city: s.city, location: s.location, time: null })),
+        {
+          city: resolvedReturn.destinationCity,
+          location: resolvedReturn.destinationLocation,
+          time: returnEstimatedArrival ? `~${formatTime24(returnEstimatedArrival)}` : null,
+          muted: true,
+        },
+      ],
     });
   }
+
+  const totalKm = ride.estimatedDistanceKm ?? null;
+  const tripTotalText =
+    totalKm !== null
+      ? ride.isRoundTrip
+        ? tDetail("tripTotal", { km: Math.round(totalKm) })
+        : tDetail("tripTotalOneWay", { km: Math.round(totalKm) })
+      : null;
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayCount = returnAt ? Math.round((startOfDay(returnAt).getTime() - startOfDay(departure).getTime()) / DAY_MS) + 1 : null;
+  const multiDay = dayCount !== null && dayCount > 1;
 
   function addStop() {
     if (editForm.stops.length >= 5) return;
@@ -513,18 +534,24 @@ export function RideDetailDrawer({
           <div className="mt-2 flex items-center gap-[6px] text-[13.5px]">
             <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: RIDE_STATUS_ACCENT[status] }} />
             <span className="text-[#27272B]">{t(`rideStatus.${status}`)}</span>
-            {blocking || progressText ? (
+            {blocking ? (
               <>
                 <span className="text-[#D4D4D8]">·</span>
-                {blocking ? (
-                  <span className="flex items-center gap-[4px] text-[#DC2626]">
-                    <CircleAlert size={14} strokeWidth={1.9} />
-                    {blockingText}
-                  </span>
-                ) : (
-                  <span className="text-[var(--ink-secondary)]">{progressText}</span>
-                )}
+                <span className="flex items-center gap-[4px] text-[#DC2626]">
+                  <CircleAlert size={14} strokeWidth={1.9} />
+                  {blockingText}
+                </span>
               </>
+            ) : null}
+            {totalKm !== null ? (
+              <span className="inline-flex items-center rounded-full bg-[#F4F4F5] px-2 py-[3px] text-[12px] font-medium tabular-nums text-[#3F3F46]">
+                {Math.round(totalKm)} km
+              </span>
+            ) : null}
+            {multiDay ? (
+              <span className="inline-flex items-center rounded-full bg-[#F4F4F5] px-2 py-[3px] text-[12px] font-medium tabular-nums text-[#3F3F46]">
+                {tDetail("daysChip", { days: dayCount })}
+              </span>
             ) : null}
           </div>
         </div>
@@ -532,12 +559,10 @@ export function RideDetailDrawer({
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
             <div className="mb-3 flex items-baseline justify-between gap-2">
-              <h3 className="text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
+              <h3 className="text-[13.5px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
               {!editable ? (
-                ride.estimatedDistanceKm ? (
-                  <span className="text-[13px] text-[var(--ink-muted)]">
-                    {tDetail("tripTotal", { km: Math.round(ride.estimatedDistanceKm) })}
-                  </span>
+                tripTotalText ? (
+                  <span className="text-[12.5px] tabular-nums text-[#71717A]">{tripTotalText}</span>
                 ) : null
               ) : !editingDistanceOnly ? (
                 <button
@@ -546,11 +571,9 @@ export function RideDetailDrawer({
                     setDistanceOverrideInput(ride.estimatedDistanceKm ? String(Math.round(ride.estimatedDistanceKm)) : "");
                     setEditingDistanceOnly(true);
                   }}
-                  className="text-[13px] text-[var(--ink-muted)] underline-offset-2 hover:text-[var(--ink-secondary)] hover:underline"
+                  className="text-[12.5px] tabular-nums text-[#71717A] underline-offset-2 hover:text-[var(--ink-secondary)] hover:underline"
                 >
-                  {ride.estimatedDistanceKm
-                    ? tDetail("tripTotal", { km: Math.round(ride.estimatedDistanceKm) })
-                    : tDetail("addDistance")}
+                  {tripTotalText ?? tDetail("addDistance")}
                 </button>
               ) : (
                 <div className="flex items-center gap-[6px]">
@@ -583,39 +606,56 @@ export function RideDetailDrawer({
               )}
             </div>
             {!editing ? (
-              <div className="flex flex-col">
-                {timeline.map((entry, i) => (
-                  <div key={i} className="grid items-start gap-x-3" style={{ gridTemplateColumns: "16px 1fr auto" }}>
-                    <div className="flex flex-col items-center">
-                      {entry.kind === "origin" || entry.kind === "return" ? (
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#18181B]" />
-                      ) : (
-                        <span className="h-2 w-2 shrink-0 rounded-full border-[1.5px] border-[var(--border-strong)] bg-white" />
-                      )}
-                      {i < timeline.length - 1 ? (
-                        <span className="mt-[3px] w-px flex-1 bg-[var(--border-control)]" />
-                      ) : null}
+              <div className="flex flex-col gap-5">
+                {legs.map((leg) => (
+                  <div key={leg.key}>
+                    <div className="flex items-center gap-[10px]">
+                      <span
+                        className="inline-flex h-[26px] shrink-0 items-center gap-[6px] whitespace-nowrap rounded-full bg-[#F4F4F5] text-[12.5px] font-medium tabular-nums text-[#27272B]"
+                        style={{ padding: "0 10px 0 8px" }}
+                      >
+                        {leg.key === "outbound" ? (
+                          <ArrowRight size={14} strokeWidth={2} color="#3F3F46" />
+                        ) : (
+                          <ArrowLeft size={14} strokeWidth={2} color="#3F3F46" />
+                        )}
+                        {leg.label} · {formatPickerDate(leg.date, locale)}
+                      </span>
+                      <span className="h-px flex-1 bg-[#F0F0F2]" />
                     </div>
-                    <div className="min-w-0 pb-5">
-                      <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">{entry.city}</p>
-                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                        {entry.kind === "return" ? entry.label : `${entry.label} · ${entry.location}`}
-                      </p>
-                    </div>
-                    <div className="pb-5 text-right">
-                      {entry.date ? (
-                        <>
-                          <p className="whitespace-nowrap text-[14px] font-medium tabular-nums text-[var(--ink-primary)]">
-                            {formatShortDate(entry.date)}
-                          </p>
-                          <p className="whitespace-nowrap text-[13px] tabular-nums text-[var(--ink-secondary)]">
-                            {formatTime24(entry.date)}
-                            {entry.estimated ? (
-                              <span className="ml-[3px] text-[var(--ink-muted)]">{tDetail("estimated")}</span>
+                    {leg.sameRouteReversed ? (
+                      <p className="mt-[6px] text-[12.5px] text-[#A1A1AA]">{tDetail("sameRouteReversed")}</p>
+                    ) : null}
+                    <div className="mt-[12px] flex flex-col">
+                      {leg.rows.map((row, i) => (
+                        <div key={i} className="contents">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-5 w-4 shrink-0 items-center justify-center">
+                              {i === leg.rows.length - 1 ? <PinMarker /> : <RingMarker />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[14px] font-medium leading-5 text-[#18181B]">{row.city}</p>
+                              {row.location ? (
+                                <p className="truncate text-[13px] text-[#71717A]">{row.location}</p>
+                              ) : null}
+                            </div>
+                            {row.time ? (
+                              <span
+                                className={`shrink-0 pt-[1px] text-[13px] tabular-nums ${
+                                  row.muted ? "text-[#A1A1AA]" : "text-[#3F3F46]"
+                                }`}
+                              >
+                                {row.time}
+                              </span>
                             ) : null}
-                          </p>
-                        </>
-                      ) : null}
+                          </div>
+                          {i < leg.rows.length - 1 ? (
+                            <div className="flex w-4 shrink-0 items-center justify-center">
+                              <DotConnector />
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
@@ -876,6 +916,11 @@ export function RideDetailDrawer({
               <span className="text-[var(--ink-secondary)]">{t("common.phone")}</span>
               <span className="font-medium text-[var(--ink-primary)]">
                 {ride.client.phone ? formatPhone(ride.client.phone) : "—"}
+              </span>
+
+              <span className="text-[var(--ink-secondary)]">{tDetail("distanceLabel")}</span>
+              <span className="font-medium tabular-nums text-[var(--ink-primary)]">
+                {totalKm !== null ? `${Math.round(totalKm)} km` : "—"}
               </span>
 
               <span className="text-[var(--ink-secondary)]">{tDetail("price")}</span>
