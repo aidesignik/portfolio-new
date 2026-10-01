@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
-import { COMMON_CITIES } from "@/lib/location";
 
+const SEARCH_DEBOUNCE_MS = 350;
+
+// City field for pickup/destination/stop rows — searches live via Nominatim
+// (/api/cities/search) instead of filtering a fixed list, so any town or
+// city anywhere in the world can be found, not just the handful of Serbian
+// cities the old static list covered. Purely a suggestion dropdown: the
+// input is a normal free-text field underneath, so typing a city that
+// doesn't show up in the list (or picking none at all) still works — the
+// backend has never required a match against any whitelist.
 export function CityCombobox({
   value,
   onChange,
@@ -15,13 +24,11 @@ export function CityCombobox({
   required?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
+  const [matches, setMatches] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const query = value.trim().toLowerCase();
-  const filtered = query
-    ? COMMON_CITIES.filter((city) => city.toLowerCase().includes(query))
-    : COMMON_CITIES;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -32,6 +39,34 @@ export function CityCombobox({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const query = value.trim();
+    if (query.length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMatches([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      fetch(`/api/cities/search?q=${encodeURIComponent(query)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (cancelled) return;
+          setMatches(Array.isArray(data?.cities) ? data.cities.map((c: { display: string }) => c.display) : []);
+          setLoading(false);
+        })
+        .catch(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [value]);
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -45,9 +80,9 @@ export function CityCombobox({
         }}
         onFocus={() => setOpen(true)}
       />
-      {open && filtered.length > 0 ? (
+      {open && (matches.length > 0 || loading) ? (
         <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-zinc-200 bg-white py-1 text-sm shadow-lg">
-          {filtered.map((city) => (
+          {matches.map((city) => (
             <li key={city}>
               <button
                 type="button"
@@ -62,6 +97,9 @@ export function CityCombobox({
               </button>
             </li>
           ))}
+          {loading && matches.length === 0 ? (
+            <li className="px-3 py-1.5 text-zinc-400">{t("loading")}</li>
+          ) : null}
         </ul>
       ) : null}
     </div>

@@ -25,26 +25,3 @@ export function formatRoute(route: RouteLike): string {
   ];
   return parts.join(" → ");
 }
-
-export const COMMON_CITIES = [
-  "Beograd",
-  "Novi Sad",
-  "Niš",
-  "Kragujevac",
-  "Subotica",
-  "Zrenjanin",
-  "Pančevo",
-  "Čačak",
-  "Kruševac",
-  "Kraljevo",
-  "Novi Pazar",
-  "Smederevo",
-  "Leskovac",
-  "Valjevo",
-  "Vranje",
-  "Šabac",
-  "Sombor",
-  "Užice",
-  "Požarevac",
-  "Pirot",
-] as const;

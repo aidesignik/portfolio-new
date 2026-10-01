@@ -65,3 +65,65 @@ export async function geocodeAddress(address: string): Promise<Coordinates | nul
   geocodeCache.set(key, coords);
   return coords;
 }
+
+export interface CitySuggestion {
+  /** What to show in the dropdown and store as the city value if picked. */
+  display: string;
+}
+
+/**
+ * Live city/town search via Nominatim, backing the city-field suggestion
+ * dropdown (replaces the old static Serbia-only list) — lets a carrier or
+ * client find any town or city worldwide, not just a fixed set. Goes
+ * through the same throttle/User-Agent as geocodeAddress() since it hits
+ * the same rate-limited endpoint. Domestic (Serbian) results are shown
+ * bare ("Beograd"); everything else gets the country appended
+ * ("Paris, France") since that's the case where disambiguation actually
+ * matters for this app's mostly-Serbian user base.
+ */
+export async function searchCities(query: string): Promise<CitySuggestion[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  await throttle();
+
+  const url = `${NOMINATIM_URL}?format=json&addressdetails=1&limit=8&featureType=settlement&q=${encodeURIComponent(q)}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    });
+  } catch (err) {
+    console.warn(`[geocoding] city search fetch failed for "${q}":`, err);
+    return [];
+  }
+  if (!res.ok) {
+    console.warn(`[geocoding] Nominatim city search returned ${res.status} for "${q}"`);
+    return [];
+  }
+
+  const results = (await res.json()) as Array<{
+    address?: {
+      city?: string;
+      town?: string;
+      village?: string;
+      municipality?: string;
+      country?: string;
+      country_code?: string;
+    };
+  }>;
+
+  const seen = new Set<string>();
+  const suggestions: CitySuggestion[] = [];
+  for (const result of results) {
+    const address = result.address;
+    const place = address?.city ?? address?.town ?? address?.village ?? address?.municipality;
+    if (!place) continue;
+    const display =
+      !address?.country || address.country_code === "rs" ? place : `${place}, ${address.country}`;
+    if (seen.has(display)) continue;
+    seen.add(display);
+    suggestions.push({ display });
+  }
+  return suggestions;
+}
