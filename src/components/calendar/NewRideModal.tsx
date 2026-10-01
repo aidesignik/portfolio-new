@@ -79,6 +79,7 @@ export function NewRideModal({
 
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [calculatingDistance, setCalculatingDistance] = useState(false);
+  const [distanceError, setDistanceError] = useState(false);
 
   // Live distance preview — recalculates as the pickup/destination/stops
   // (and, for a round trip, the return leg) are filled in, same debounced
@@ -96,6 +97,7 @@ export function NewRideModal({
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
+      setDistanceError(false);
       const res = await fetch("/api/carrier/distance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,9 +112,13 @@ export function NewRideModal({
         }),
       }).catch(() => null);
       setCalculatingDistance(false);
-      if (!res?.ok) return;
+      if (!res?.ok) {
+        setDistanceError(true);
+        return;
+      }
       const body = await res.json().catch(() => null);
       if (typeof body?.distanceKm === "number") setDistanceKm(body.distanceKm);
+      else setDistanceError(true);
     }, DISTANCE_CALC_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -353,6 +359,8 @@ export function NewRideModal({
             <p className="text-[13px] text-[var(--ink-muted)]">
               {t("carrier.rideForm.estimatedDistance", { km: Math.round(distanceKm) })}
             </p>
+          ) : distanceError ? (
+            <p className="text-[13px] text-[#DC2626]">{t("carrier.rideForm.distanceUnavailableShort")}</p>
           ) : null}
 
           <Field label={t("client.requestForm.passengerCount")}>

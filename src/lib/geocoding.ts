@@ -40,10 +40,21 @@ export async function geocodeAddress(address: string): Promise<Coordinates | nul
   await throttle();
 
   const url = `${NOMINATIM_URL}?format=json&limit=1&q=${encodeURIComponent(address)}`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    });
+  } catch (err) {
+    // A network-level failure (DNS, timeout, connection refused) throws
+    // rather than resolving with a non-ok response — caught here so a
+    // flaky/unreachable Nominatim degrades to "couldn't geocode" instead
+    // of an unhandled exception further up the call chain.
+    console.warn(`[geocoding] fetch failed for "${address}":`, err);
+    return null;
+  }
   if (!res.ok) {
+    console.warn(`[geocoding] Nominatim returned ${res.status} for "${address}"`);
     geocodeCache.set(key, null);
     return null;
   }

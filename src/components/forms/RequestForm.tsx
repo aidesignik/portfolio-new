@@ -44,6 +44,7 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
 
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [calculatingDistance, setCalculatingDistance] = useState(false);
+  const [distanceError, setDistanceError] = useState(false);
 
   // Live distance preview — lets the client see roughly how far the trip
   // is before they submit the request, recalculating as pickup/stops/
@@ -60,6 +61,7 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
+      setDistanceError(false);
       const res = await fetch("/api/distance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,9 +75,13 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
         }),
       }).catch(() => null);
       setCalculatingDistance(false);
-      if (!res?.ok) return;
+      if (!res?.ok) {
+        setDistanceError(true);
+        return;
+      }
       const body = await res.json().catch(() => null);
       if (typeof body?.distanceKm === "number") setDistanceKm(body.distanceKm);
+      else setDistanceError(true);
     }, DISTANCE_CALC_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -209,6 +215,8 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
         <p className="text-xs text-zinc-500">{tRideForm("calculatingDistance")}</p>
       ) : distanceKm !== null ? (
         <p className="text-xs text-zinc-500">{tRideForm("estimatedDistance", { km: Math.round(distanceKm) })}</p>
+      ) : distanceError ? (
+        <p className="text-xs text-red-600">{tRideForm("distanceUnavailableShort")}</p>
       ) : null}
 
       <Field label={t("passengerCount")}>

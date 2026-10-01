@@ -37,14 +37,21 @@ export async function estimateRouteDistance(
   const coordinates: Coordinates[] = [];
   for (const waypoint of waypoints) {
     const coords = await geocodeWaypoint(waypoint);
-    if (!coords) return null;
+    if (!coords) {
+      // The live distance preview fails silently in the UI by design (it's
+      // a non-critical nicety) — log server-side so a geocoding failure is
+      // at least visible to whoever's running the dev server.
+      console.warn(`[tripDistance] couldn't geocode "${formatLocation(waypoint)}" (or "${waypoint.city}")`);
+      return null;
+    }
     coordinates.push(coords);
   }
 
   try {
     const result = await osrmRouteDistanceKm(coordinates);
     return { distanceKm: result.distanceKm, provider: "osrm", coordinates };
-  } catch {
+  } catch (err) {
+    console.warn("[tripDistance] OSRM routing failed, falling back to haversine estimate:", err);
     const result = haversineRouteDistanceKm(coordinates);
     return { distanceKm: result.distanceKm, provider: "stub-haversine", coordinates };
   }

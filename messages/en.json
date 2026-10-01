@@ -317,6 +317,7 @@
       "calculatingDistance": "Calculating distance…",
       "estimatedDistance": "Estimated distance: {km} km",
       "distanceUnavailable": "Couldn't calculate the distance automatically for these addresses — enter it manually in the distance field.",
+      "distanceUnavailableShort": "Couldn't calculate the distance automatically for these addresses.",
       "submit": "Create booking"
     },
     "vehicleForm": {

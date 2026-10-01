@@ -121,6 +121,7 @@ export function RideDetailDrawer({
   const [editError, setEditError] = useState<string | null>(null);
   const [editDistanceKm, setEditDistanceKm] = useState<number | null>(ride.estimatedDistanceKm ?? null);
   const [calculatingDistance, setCalculatingDistance] = useState(false);
+  const [distanceError, setDistanceError] = useState(false);
 
   const [duplicating, setDuplicating] = useState(false);
 
@@ -145,6 +146,7 @@ export function RideDetailDrawer({
 
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
+      setDistanceError(false);
       const res = await fetch("/api/carrier/distance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -159,9 +161,13 @@ export function RideDetailDrawer({
         }),
       }).catch(() => null);
       setCalculatingDistance(false);
-      if (!res?.ok) return;
+      if (!res?.ok) {
+        setDistanceError(true);
+        return;
+      }
       const body = await res.json().catch(() => null);
       if (typeof body?.distanceKm === "number") setEditDistanceKm(body.distanceKm);
+      else setDistanceError(true);
     }, 900);
 
     return () => clearTimeout(timer);
@@ -710,6 +716,8 @@ export function RideDetailDrawer({
                   <p className="text-[13px] text-[var(--ink-muted)]">
                     {t("carrier.rideForm.estimatedDistance", { km: Math.round(editDistanceKm) })}
                   </p>
+                ) : distanceError ? (
+                  <p className="text-[13px] text-[#DC2626]">{t("carrier.rideForm.distanceUnavailableShort")}</p>
                 ) : null}
 
                 <Field label={t("client.requestForm.passengerCount")}>

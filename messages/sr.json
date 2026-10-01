@@ -317,6 +317,7 @@
       "calculatingDistance": "Izračunavanje udaljenosti…",
       "estimatedDistance": "Procenjena udaljenost: {km} km",
       "distanceUnavailable": "Nismo mogli automatski da izračunamo udaljenost za ove adrese — unesite je ručno u polje za udaljenost.",
+      "distanceUnavailableShort": "Nismo mogli automatski da izračunamo udaljenost za ove adrese.",
       "submit": "Kreiraj rezervaciju"
     },
     "vehicleForm": {
