@@ -650,8 +650,11 @@ export function RideDetailDrawer({
                             ) : null}
                           </div>
                           {i < leg.rows.length - 1 ? (
-                            <div className="flex w-4 shrink-0 items-center justify-center">
-                              <DotConnector />
+                            <div className="flex items-center gap-3">
+                              <div className="flex w-4 shrink-0 items-center justify-center">
+                                <DotConnector />
+                              </div>
+                              <div />
                             </div>
                           ) : null}
                         </div>
