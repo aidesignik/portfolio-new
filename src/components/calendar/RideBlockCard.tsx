@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Clock, Users } from "lucide-react";
+import { ArrowRight, ArrowLeft, Clock, Users } from "lucide-react";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
@@ -27,7 +27,6 @@ export function RideBlockCard({
     hour12: false,
   });
   const clientLabel = clientDisplayName(ride.client);
-  const routeArrow = ride.isRoundTrip ? "⇄" : "→";
   const status = displayRideStatus(ride);
   const accent = RIDE_STATUS_ACCENT[status];
   // A completed trip has nothing left pending — the bar reads as fully
@@ -40,7 +39,7 @@ export function RideBlockCard({
       onClick={onClick}
       style={style}
       className="flex w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)]"
-      title={`${clientLabel} · ${ride.pickupCity} ${routeArrow} ${ride.destinationCity}`}
+      title={`${clientLabel} · ${ride.pickupCity} ${ride.isRoundTrip ? "⇄" : "→"} ${ride.destinationCity}`}
     >
       <div className="flex flex-col gap-[8px] px-[14px] py-[12px]">
         <div className="flex h-[3px] shrink-0 items-center gap-[3px]">
@@ -54,8 +53,13 @@ export function RideBlockCard({
           )}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
-            {ride.pickupCity} {routeArrow} {ride.destinationCity}
+          <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium text-[var(--ink-primary)]">
+            <span className="min-w-0 truncate">{ride.pickupCity}</span>
+            <span className="flex shrink-0 items-center gap-[5px]">
+              <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
+              {ride.isRoundTrip ? <ArrowLeft size={11} strokeWidth={2.2} className="shrink-0" /> : null}
+            </span>
+            <span className="min-w-0 truncate">{ride.destinationCity}</span>
           </p>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
