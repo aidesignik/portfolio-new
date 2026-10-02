@@ -11,14 +11,6 @@ import { NewRideTriggerButton } from "@/components/calendar/NewRideTriggerButton
 import { PageHeader } from "@/components/carrier/PageHeader";
 import { PageContent } from "@/components/carrier/PageContent";
 
-function isoWeekNumber(date: Date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-}
-
 export default async function CarrierDashboardPage({
   params,
 }: {
@@ -48,11 +40,7 @@ export default async function CarrierDashboardPage({
   return (
     <NewRideProvider>
       <PageContent>
-        <PageHeader
-          title={t("calendarTitle")}
-          context={readyForCalendar ? `Week ${isoWeekNumber(new Date())}` : undefined}
-          actions={readyForCalendar ? <NewRideTriggerButton /> : undefined}
-        />
+        <PageHeader title={t("calendarTitle")} actions={readyForCalendar ? <NewRideTriggerButton /> : undefined} />
         {readyForCalendar ? (
           <RidesCalendar />
         ) : (
