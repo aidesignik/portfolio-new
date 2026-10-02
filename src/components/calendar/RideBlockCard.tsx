@@ -55,10 +55,14 @@ export function RideBlockCard({
         <div className="min-w-0">
           <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium text-[var(--ink-primary)]">
             <span className="min-w-0 truncate">{ride.pickupCity}</span>
-            <span className="flex shrink-0 items-center gap-[5px]">
+            {ride.isRoundTrip ? (
+              <span className="flex shrink-0 flex-col items-center gap-[3px]">
+                <ArrowRight size={10} strokeWidth={2.2} className="shrink-0" />
+                <ArrowLeft size={10} strokeWidth={2.2} className="shrink-0" />
+              </span>
+            ) : (
               <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
-              {ride.isRoundTrip ? <ArrowLeft size={11} strokeWidth={2.2} className="shrink-0" /> : null}
-            </span>
+            )}
             <span className="min-w-0 truncate">{ride.destinationCity}</span>
           </p>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
