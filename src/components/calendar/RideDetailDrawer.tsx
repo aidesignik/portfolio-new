@@ -626,33 +626,38 @@ export function RideDetailDrawer({
                     {leg.sameRouteReversed ? (
                       <p className="mt-[6px] text-[12.5px] text-[#A1A1AA]">{tDetail("sameRouteReversed")}</p>
                     ) : null}
-                    <div className="mt-[12px] grid items-start gap-x-3" style={{ gridTemplateColumns: "16px 1fr auto" }}>
+                    <div className="mt-[12px] flex flex-col gap-[2px]">
                       {leg.rows.map((row, i) => (
                         <Fragment key={i}>
-                          <div className="flex h-5 items-center justify-center">
-                            {i === leg.rows.length - 1 ? <PinMarker /> : <RingMarker />}
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-5 w-4 shrink-0 items-center justify-center">
+                              {i === leg.rows.length - 1 ? <PinMarker /> : <RingMarker />}
+                            </div>
+                            <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-[14px] font-medium leading-5 text-[#18181B]">{row.city}</p>
+                                {row.location ? (
+                                  <p className="truncate text-[13px] text-[#71717A]">{row.location}</p>
+                                ) : null}
+                              </div>
+                              {row.time ? (
+                                <span
+                                  className={`shrink-0 pt-[1px] text-[13px] tabular-nums ${
+                                    row.muted ? "text-[#A1A1AA]" : "text-[#3F3F46]"
+                                  }`}
+                                >
+                                  {row.time}
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-[14px] font-medium leading-5 text-[#18181B]">{row.city}</p>
-                            {row.location ? (
-                              <p className="truncate text-[13px] text-[#71717A]">{row.location}</p>
-                            ) : null}
-                          </div>
-                          <span
-                            className={`shrink-0 pt-[1px] text-[13px] tabular-nums ${
-                              row.muted ? "text-[#A1A1AA]" : "text-[#3F3F46]"
-                            }`}
-                          >
-                            {row.time}
-                          </span>
                           {i < leg.rows.length - 1 ? (
-                            <>
-                              <div className="flex items-center justify-center">
+                            <div className="flex items-center gap-3">
+                              <div className="flex w-4 shrink-0 items-center justify-center">
                                 <DotConnector />
                               </div>
                               <div />
-                              <div />
-                            </>
+                            </div>
                           ) : null}
                         </Fragment>
                       ))}
