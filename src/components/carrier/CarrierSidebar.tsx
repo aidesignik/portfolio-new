@@ -114,10 +114,10 @@ export function CarrierSidebar({
                 <Link
                   key={item.id}
                   href={item.href}
-                  className="flex gap-2 rounded-[8px] px-[10px] transition-colors duration-[.12s] ease-out hover:bg-[#EBEBEB]"
+                  className="flex gap-2 rounded-[8px] px-[10px] py-[6px] transition-colors duration-[.12s] ease-out hover:bg-[#EBEBEB]"
                 >
                   <span
-                    className="mt-[6px] h-[7px] w-[7px] shrink-0 rounded-full"
+                    className="mt-[1px] h-[7px] w-[7px] shrink-0 rounded-full"
                     style={{ background: item.status === "expired" ? "#E5484D" : "#F59E0B" }}
                   />
                   <span className="min-w-0 flex-1">
