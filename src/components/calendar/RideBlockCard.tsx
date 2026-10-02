@@ -27,6 +27,7 @@ export function RideBlockCard({
     hour12: false,
   });
   const clientLabel = clientDisplayName(ride.client);
+  const routeArrow = ride.isRoundTrip ? "⇄" : "→";
   const status = displayRideStatus(ride);
   const accent = RIDE_STATUS_ACCENT[status];
   // A completed trip has nothing left pending — the bar reads as fully
@@ -39,7 +40,7 @@ export function RideBlockCard({
       onClick={onClick}
       style={style}
       className="flex w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)]"
-      title={`${clientLabel} · ${ride.pickupCity} → ${ride.destinationCity}`}
+      title={`${clientLabel} · ${ride.pickupCity} ${routeArrow} ${ride.destinationCity}`}
     >
       <div className="flex flex-col gap-[8px] px-[14px] py-[12px]">
         <div className="flex h-[3px] shrink-0 items-center gap-[3px]">
@@ -54,7 +55,7 @@ export function RideBlockCard({
         </div>
         <div className="min-w-0">
           <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
-            {ride.pickupCity} → {ride.destinationCity}
+            {ride.pickupCity} {routeArrow} {ride.destinationCity}
           </p>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
