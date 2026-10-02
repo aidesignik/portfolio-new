@@ -43,8 +43,14 @@ export function RideBlockCard({
     >
       <div className="flex flex-col gap-[8px] px-[14px] py-[12px]">
         <div className="flex h-[3px] shrink-0 items-center gap-[3px]">
-          <span className="h-full rounded-full" style={{ width: 26, background: accent }} />
-          <span className="h-full rounded-full" style={{ width: 10, background: isCompleted ? accent : "#E4E4E7" }} />
+          {isCompleted ? (
+            <span className="h-full rounded-full" style={{ width: 39, background: accent }} />
+          ) : (
+            <>
+              <span className="h-full rounded-full" style={{ width: 26, background: accent }} />
+              <span className="h-full rounded-full" style={{ width: 10, background: "#E4E4E7" }} />
+            </>
+          )}
         </div>
         <div className="min-w-0">
           <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
