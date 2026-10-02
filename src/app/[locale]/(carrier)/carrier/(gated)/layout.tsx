@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { CarrierSidebar } from "@/components/carrier/CarrierSidebar";
 import { TopBar } from "@/components/carrier/TopBar";
-import { vehicleExpiringItems, driverExpiringItems, sortExpiringItems } from "@/lib/expiryStatus";
+import { vehicleExpiringItems, driverExpiringItems, sortExpiringItems, expiredDocMessageKey } from "@/lib/expiryStatus";
 
 const DOC_LABEL_KEY = {
   registration: "carrier.docChip.registration",
@@ -101,13 +101,13 @@ export default async function CarrierGatedLayout({
       status: item.status,
       issue:
         item.status === "expired"
-          ? tDoc("carrier.docChip.expired", { label })
+          ? tDoc(expiredDocMessageKey(item.docKind), { label })
           : tDoc("carrier.docChip.expiringSoon", { label, days: daysLeft }),
     };
   });
 
   return (
-    <div className="grid h-dvh grid-cols-[240px_1fr] overflow-hidden bg-[var(--bg-sidebar)]">
+    <div className="grid h-dvh grid-cols-[252px_1fr] overflow-hidden bg-[var(--bg-sidebar)]">
       <CarrierSidebar
         requestCount={requestCount}
         bookingCount={bookingCount}
@@ -116,7 +116,7 @@ export default async function CarrierGatedLayout({
         expiringItems={sidebarExpiringItems}
       />
       <div className="flex h-dvh min-w-0 flex-col py-2 pr-2">
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[14px] bg-white shadow-[0_1px_2px_rgba(24,24,27,.04)]">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[12px] border border-[#E5E5E5] bg-white">
           <TopBar />
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         </div>

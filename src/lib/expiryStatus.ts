@@ -42,6 +42,26 @@ export function worseStatus(a: ExpiryStatus | null, b: ExpiryStatus | null): Exp
 
 export type ExpiryDocKind = "registration" | "inspection" | "idCard" | "license" | "cpc" | "medicalCert";
 
+// Grammatical gender of each document's Serbian noun (Registracija=f,
+// Pregled=m, Lična karta=f, Vozačka=f, CPC=n as a generic acronym,
+// Lekarsko=n as short for "lekarsko uverenje") — picks the matching
+// "istekao/istekla/isteklo" i18n key so the adjective agrees with the noun
+// instead of a single invariant form.
+const DOC_GENDER: Record<ExpiryDocKind, "m" | "f" | "n"> = {
+  registration: "f",
+  inspection: "m",
+  idCard: "f",
+  license: "f",
+  cpc: "n",
+  medicalCert: "n",
+};
+
+export function expiredDocMessageKey(docKind: ExpiryDocKind): string {
+  const gender = DOC_GENDER[docKind];
+  const suffix = gender === "m" ? "M" : gender === "f" ? "F" : "N";
+  return `carrier.docChip.expired${suffix}`;
+}
+
 export interface ExpiringItem {
   entityType: "vehicle" | "driver";
   entityId: string;

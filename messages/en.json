@@ -185,7 +185,9 @@
       "medicalCert": "Medical cert",
       "allValid": "All documents valid",
       "expiringSoon": "{label} · {days}d",
-      "expired": "{label} expired"
+      "expiredM": "{label} expired",
+      "expiredF": "{label} expired",
+      "expiredN": "{label} expired"
     },
     "table": {
       "documents": "Documents",

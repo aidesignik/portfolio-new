@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { worstDocumentChip, type ChipStatus, type DocumentChipData } from "@/lib/documentChips";
+import { expiredDocMessageKey } from "@/lib/expiryStatus";
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
@@ -32,7 +33,7 @@ export function DocumentChipsRow({ chips, t }: { chips: DocumentChipData[]; t: T
   const text =
     worst.status === "expiringSoon"
       ? t("carrier.docChip.expiringSoon", { label, days: worst.daysLeft })
-      : t("carrier.docChip.expired", { label });
+      : t(expiredDocMessageKey(worst.docKind), { label });
 
   return <Badge tone={TONE[worst.status]}>{text}</Badge>;
 }

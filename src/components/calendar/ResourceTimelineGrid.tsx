@@ -211,7 +211,7 @@ export function ResourceTimelineGrid({
                       return (
                         <div
                           key={i}
-                          className={`border-r border-b border-[var(--border-soft)] last:border-r-0 ${
+                          className={`border-r border-b border-[#F3F3F3] last:border-r-0 ${
                             isDragTarget
                               ? dragOverTarget?.conflict
                                 ? "bg-[var(--chip-critical)]/30"

@@ -185,7 +185,9 @@
       "medicalCert": "Lekarsko",
       "allValid": "Sva dokumenta važe",
       "expiringSoon": "{label} · {days}d",
-      "expired": "{label} isteklo"
+      "expiredM": "{label} istekao",
+      "expiredF": "{label} istekla",
+      "expiredN": "{label} isteklo"
     },
     "table": {
       "documents": "Dokumenta",

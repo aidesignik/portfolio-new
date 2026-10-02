@@ -10,15 +10,18 @@
   --bg-canvas: #ffffff;
   --bg-panel: #ffffff;
   --bg-subtle: #fafafa;
-  --bg-sidebar: #f9f9f9;
-  --bg-nav-active: #eaeaec;
+  /* Shell colors pass (6a): the app shell (behind the sidebar, around the
+     content panel) is now a flat grey; the sidebar itself is transparent
+     and shows this color through it rather than carrying its own fill. */
+  --bg-sidebar: #f3f3f3;
+  --bg-nav-active: #e6e6e6;
   --bg-day-cell: #fcfbfc;
   --bg-today: #fafbff;
-  --border-hairline: #eeeef0;
+  --border-hairline: #ededed;
   --border-soft: #f4f4f5;
   --border-strong: #d8d8dc;
   --border-control: #e4e4e7;
-  --border-container: #e9e9eb;
+  --border-container: #ededed;
 
   --ink-primary: #18181b;
   --ink-strong: #27272b;

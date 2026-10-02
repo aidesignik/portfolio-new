@@ -22,7 +22,7 @@ export interface SidebarExpiringItem {
 }
 
 const NAV_ITEM_CLASS =
-  "flex h-[38px] items-center gap-3 rounded-[8px] px-3 text-[14px] font-medium transition-colors duration-[.12s] ease-out";
+  "flex h-[34px] items-center gap-3 rounded-[8px] px-[10px] text-[13.5px] transition-colors duration-[.12s] ease-out";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -37,12 +37,10 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       className={`${NAV_ITEM_CLASS} ${
-        active
-          ? "bg-[var(--bg-nav-active)] text-[var(--ink-primary)]"
-          : "text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
+        active ? "bg-[var(--bg-nav-active)] font-semibold text-[#0D0D0D]" : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
       }`}
     >
-      <Icon size={16} strokeWidth={1.9} color={active ? "#18181B" : "#6B6B72"} className="shrink-0" />
+      <Icon size={17} strokeWidth={1.9} color={active ? "#0D0D0D" : "#6E6E76"} className="shrink-0" />
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
       {showCount ? (
         item.badge ? (
@@ -50,7 +48,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
             {item.count}
           </span>
         ) : (
-          <span className="shrink-0 text-[13px] text-[var(--ink-muted)]">{item.count}</span>
+          <span className="shrink-0 font-mono text-[11.5px] text-[#8E8E93]">{item.count}</span>
         )
       ) : null}
     </Link>
@@ -82,52 +80,63 @@ export function CarrierSidebar({
     { href: "/carrier/drivers", labelKey: "drivers", icon: UserRound, count: driverCount },
   ];
 
-  return (
-    <aside className="sticky top-0 h-dvh w-[240px] shrink-0 py-2 pr-2">
-      <div className="flex h-full flex-col gap-[28px] rounded-[14px] bg-[var(--bg-sidebar)] px-4 pb-5 pt-7">
-        <div className="shrink-0 px-2 text-[19px] font-bold tracking-[-0.015em] text-[var(--ink-primary)]">Atlas</div>
+  const hasCritical = expiringItems.some((item) => item.status === "expired");
 
-        <div className="flex min-h-0 flex-1 flex-col gap-[28px] overflow-y-auto">
-          <nav className="flex flex-col gap-1">
+  return (
+    <aside className="sticky top-0 h-dvh w-[252px] shrink-0">
+      <div className="flex h-full flex-col gap-[10px] pt-[14px] pb-[18px] px-[10px]">
+        <div className="flex h-[28px] shrink-0 items-center px-[10px] text-[17px] font-extrabold text-[#0D0D0D]">
+          Atlas
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto">
+          <nav className="flex flex-col gap-[2px]">
             {mainItems.map((item) => (
               <NavLink key={item.href} item={item} active={isActive(pathname, item.href)} />
             ))}
           </nav>
 
           {expiringItems.length > 0 ? (
-            <div className="flex flex-col gap-[10px] border-t border-[var(--border-hairline)] pt-[22px]">
-              <div className="flex items-center justify-between px-3">
-                <span className="text-[14px] font-semibold text-[var(--ink-primary)]">{t("expiry.bannerTitle")}</span>
-                <span className="text-[13px] font-semibold text-[var(--ink-destructive)]">{expiringItems.length}</span>
+            <div className="flex flex-col gap-[8px] pt-[6px]">
+              <div className="flex items-center justify-between px-[10px]">
+                <span className="text-[12px] font-normal text-[#8E8E93]">{t("expiry.bannerTitle")}</span>
+                <span
+                  className="rounded-[6px] px-[6px] py-[2px] font-mono text-[11px] font-medium"
+                  style={{
+                    background: hasCritical ? "#FBDADB" : "#FBEBC2",
+                    color: hasCritical ? "#7F1D1D" : "#5C3B06",
+                  }}
+                >
+                  {expiringItems.length}
+                </span>
               </div>
-              <div className="flex flex-col">
-                {expiringItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className="flex items-start gap-2 rounded-[8px] px-3 py-2 transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
-                  >
-                    <span className="mt-[3px] h-3 w-3 shrink-0 rounded-[3px]" style={{ background: "#FBBEC0" }} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13.5px] font-medium text-[var(--ink-primary)]">
-                        {item.subject}
-                      </span>
-                      <span className="block truncate text-[12.5px] text-[var(--ink-destructive)]">{item.issue}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
+              {expiringItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="flex gap-2 rounded-[8px] px-[10px] transition-colors duration-[.12s] ease-out hover:bg-[#EBEBEB]"
+                >
+                  <span
+                    className="mt-[6px] h-[7px] w-[7px] shrink-0 rounded-full"
+                    style={{ background: item.status === "expired" ? "#E5484D" : "#F59E0B" }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-semibold text-[#18181B]">{item.subject}</span>
+                    <span className="block truncate text-[12px] text-[#6B6B72]">{item.issue}</span>
+                  </span>
+                </Link>
+              ))}
             </div>
           ) : null}
         </div>
 
-        <div className="mt-auto flex shrink-0 flex-col gap-1">
+        <div className="mt-auto flex shrink-0 flex-col gap-[2px] border-t border-[#E6E6E6] pt-[10px]">
           <NavLink
             item={{ href: "/carrier/onboarding", labelKey: "settings", icon: Settings }}
             active={isActive(pathname, "/carrier/onboarding")}
           />
-          <a href="mailto:support@atlas.example" className={`${NAV_ITEM_CLASS} text-[var(--ink-body)] hover:bg-[var(--border-soft)]`}>
-            <CircleHelp size={16} strokeWidth={1.9} color="#6B6B72" className="shrink-0" />
+          <a href="mailto:support@atlas.example" className={`${NAV_ITEM_CLASS} font-medium text-[#3F3F46] hover:bg-[#EBEBEB]`}>
+            <CircleHelp size={17} strokeWidth={1.9} color="#6E6E76" className="shrink-0" />
             <span className="min-w-0 flex-1 truncate">{tNav("help")}</span>
           </a>
         </div>
