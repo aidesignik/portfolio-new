@@ -30,7 +30,7 @@ export function SidePanel({ onClose, children }: { onClose: () => void; children
 
   return (
     <div
-      className={`fixed top-2 bottom-2 right-0 z-40 flex w-full max-w-[480px] flex-col overflow-hidden rounded-l-[12px] border border-r-0 border-[var(--border-container)] bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] transition-transform duration-[.22s] ease-[cubic-bezier(.32,.72,0,1)] ${
+      className={`fixed top-2 bottom-2 right-2 z-40 flex w-full max-w-[480px] flex-col overflow-hidden rounded-[12px] border border-[var(--border-container)] bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] transition-transform duration-[.22s] ease-[cubic-bezier(.32,.72,0,1)] ${
         entered ? "translate-x-0" : "translate-x-full"
       }`}
     >
