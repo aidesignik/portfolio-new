@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { ArrowRight, ArrowLeft, Clock, Users } from "lucide-react";
+import { ArrowRight, ArrowLeftRight, Clock, Users } from "lucide-react";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
@@ -56,10 +56,7 @@ export function RideBlockCard({
           <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium text-[var(--ink-primary)]">
             <span className="min-w-0 truncate">{ride.pickupCity}</span>
             {ride.isRoundTrip ? (
-              <span className="flex shrink-0 flex-col items-center gap-0">
-                <ArrowRight size={12} strokeWidth={2.2} className="shrink-0" />
-                <ArrowLeft size={12} strokeWidth={2.2} className="shrink-0" />
-              </span>
+              <ArrowLeftRight size={14} strokeWidth={1.75} className="shrink-0" />
             ) : (
               <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
             )}
