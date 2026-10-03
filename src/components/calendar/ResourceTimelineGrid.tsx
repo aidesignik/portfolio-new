@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Wrench, Plus } from "lucide-react";
 import { RideBlockCard } from "./RideBlockCard";
 import { AddVehiclePanel } from "@/components/forms/AddVehiclePanel";
@@ -90,6 +90,11 @@ export function ResourceTimelineGrid({
   const t = useTranslations("carrier.calendar");
   const tCarrier = useTranslations("carrier");
   const tType = useTranslations("vehicleType");
+  const locale = useLocale();
+  // sr's default Intl formatting is Cyrillic; the rest of this app's
+  // Serbian copy is Latin, so map to the Latin variant like the DatePicker
+  // already does (see src/lib/pickerDateFormat.ts).
+  const intlLocale = locale === "sr" ? "sr-Latn" : "en";
   const [addingResource, setAddingResource] = useState(false);
   const today = startOfDay(new Date());
   const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * DAY_MS));
@@ -124,14 +129,14 @@ export function ResourceTimelineGrid({
             </div>
             {days.map((day, i) => {
               const isToday = day.getTime() === today.getTime();
-              const weekday = day.toLocaleDateString(undefined, { weekday: "short" });
+              const weekday = day.toLocaleDateString(intlLocale, { weekday: "short" });
               const dateNum = day.getDate();
               return (
                 <div
                   key={i}
                   className="flex h-12 items-center gap-[8px] border-b border-r border-[var(--border-hairline)] bg-white px-[14px] last:border-r-0"
                 >
-                  <span className="text-[13.5px]" style={{ color: isToday ? "#2563EB" : "#6B6B72" }}>
+                  <span className="text-[13px]" style={{ color: isToday ? "#2563EB" : "#6B6B72" }}>
                     {weekday}
                   </span>
                   {isToday ? (
@@ -183,7 +188,7 @@ export function ResourceTimelineGrid({
                     <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                     {resource.plate || resource.seats ? (
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                        {resource.plate ? <span className="font-mono text-[12.5px]">{resource.plate}</span> : null}
+                        {resource.plate ? <span className="text-[12.5px]">{resource.plate}</span> : null}
                         {resource.plate && resource.seats ? " · " : ""}
                         {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
                       </p>
@@ -232,7 +237,7 @@ export function ResourceTimelineGrid({
                         style={{
                           gridRow: (laneOf.get(block.id) ?? 0) + 1,
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                          margin: "12px 10px",
+                          margin: "12px 8px",
                           background: "#EDE9FE",
                           color: "#3B1F87",
                           alignSelf: "start",
@@ -251,7 +256,7 @@ export function ResourceTimelineGrid({
                         style={{
                           gridRow: (laneOf.get(ride.id) ?? 0) + 1,
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                          margin: "12px 10px",
+                          margin: "12px 8px",
                         }}
                       >
                         <RideBlockCard
@@ -273,7 +278,7 @@ export function ResourceTimelineGrid({
                           gridColumn: "1 / 8",
                           margin: "6px",
                           justifySelf: "start",
-                          background: "#F87171",
+                          background: "var(--ink-destructive)",
                         }}
                       >
                         {dragOverTarget.message}

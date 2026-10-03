@@ -38,11 +38,11 @@ export function RideBlockCard({
       type="button"
       onClick={onClick}
       style={style}
-      className="flex w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)]"
+      className="flex w-full min-w-0 flex-col overflow-hidden rounded-[8px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_8px_rgba(24,24,27,.10)]"
       title={`${clientLabel} · ${ride.pickupCity} ${ride.isRoundTrip ? "⇄" : "→"} ${ride.destinationCity}`}
     >
-      <div className="flex flex-col gap-[8px] px-[14px] py-[12px]">
-        <div className="flex h-[3px] shrink-0 items-center gap-[3px]">
+      <div className="flex flex-col gap-[6px] px-[10px] py-[10px]">
+        <div className="flex h-[4px] shrink-0 items-center gap-[3px]">
           {isCompleted ? (
             <span className="h-full rounded-full" style={{ width: 39, background: accent }} />
           ) : (
@@ -65,20 +65,22 @@ export function RideBlockCard({
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
         <div className="flex items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
-          <div className="flex min-w-0 flex-1 items-center gap-[10px] overflow-hidden">
-            <span className="flex shrink-0 items-center gap-[4px]">
+          <div className="flex min-w-0 flex-1 items-center gap-[8px] overflow-hidden">
+            <span className="flex min-w-0 shrink items-center gap-[3px]">
               <Clock size={13} strokeWidth={1.9} className="shrink-0" />
-              {time}
+              <span className="min-w-0 truncate font-medium">{time}</span>
             </span>
-            <span className="flex shrink-0 items-center gap-[4px]">
+            <span className="flex min-w-0 shrink items-center gap-[3px]">
               <Users size={13} strokeWidth={1.9} className="shrink-0" />
-              {ride.passengerCount}
-              {seats ? `/${seats}` : ""}
+              <span className="min-w-0 truncate font-medium">
+                {ride.passengerCount}
+                {seats ? `/${seats}` : ""}
+              </span>
             </span>
           </div>
           {driverName ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" />
+              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" muted />
             </span>
           ) : null}
         </div>

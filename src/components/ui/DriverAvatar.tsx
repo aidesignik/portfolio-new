@@ -25,12 +25,17 @@ export function DriverAvatar({
   size = "md",
   id: _id,
   empty = false,
+  muted = false,
 }: {
   name?: string;
   photoUrl?: string | null;
   size?: "xs" | "sm" | "md";
   id?: string;
   empty?: boolean;
+  // Softer ink for contexts where the avatar sits among a lot of other
+  // quiet metadata (e.g. the calendar's ride cards) and shouldn't be the
+  // loudest thing in the row. Default stays the regular identity treatment.
+  muted?: boolean;
 }) {
   const dims = SIZE_CLASSES[size];
 
@@ -53,7 +58,9 @@ export function DriverAvatar({
   return (
     <div
       title={name}
-      className={`flex ${dims} shrink-0 items-center justify-center rounded-full bg-[#ECECEC] font-semibold text-[#3F3F46]`}
+      className={`flex ${dims} shrink-0 items-center justify-center rounded-full bg-[#ECECEC] ${
+        muted ? "font-medium text-[#52525B]" : "font-semibold text-[#3F3F46]"
+      }`}
     >
       {initials(name)}
     </div>

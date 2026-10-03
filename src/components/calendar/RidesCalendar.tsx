@@ -47,6 +47,9 @@ const ICON_NAV_BUTTON_CLASS =
 // or overflowing it.
 const TODAY_BUTTON_CLASS =
   "flex h-8 items-center rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+// "Today" and the grouping toggle sit at the same rank in the toolbar, so
+// both read at 13.5px — only the week label (the one emphasized readout)
+// stays a step larger at 14px.
 
 export function RidesCalendar() {
   const t = useTranslations("carrier.calendar");
@@ -186,7 +189,7 @@ export function RidesCalendar() {
           <button
             type="button"
             onClick={() => setGrouping("vehicle")}
-            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "vehicle"
                 ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
                 : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
@@ -198,7 +201,7 @@ export function RidesCalendar() {
           <button
             type="button"
             onClick={() => setGrouping("driver")}
-            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "driver"
                 ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
                 : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
