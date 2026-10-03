@@ -13,11 +13,11 @@ export const CALENDAR_RESOURCE_COLUMN_WIDTH = 220;
 export const CALENDAR_DAY_COLUMN_MIN_WIDTH = 120;
 export const CALENDAR_GRID_TEMPLATE = `${CALENDAR_RESOURCE_COLUMN_WIDTH}px repeat(7, minmax(${CALENDAR_DAY_COLUMN_MIN_WIDTH}px, 1fr))`;
 
-// vehicle, details, status, documents, assignedDriver, actions
-export const FLEET_GRID_TEMPLATE = "minmax(0,1fr) 140px 110px 220px 100px 44px";
+// vehicle, year+seats, documents, driver, kebab
+export const FLEET_GRID_TEMPLATE = "minmax(0,2fr) 190px minmax(0,1.5fr) minmax(0,1.3fr) 36px";
 
-// driver, licenseNumber, assignedVehicle, documents, actions
-export const DRIVERS_GRID_TEMPLATE = "minmax(0,1fr) 140px 220px 220px 44px";
+// driver, licenseNumber, vehicle, documents, kebab
+export const DRIVERS_GRID_TEMPLATE = "minmax(0,1.6fr) 170px minmax(0,1.5fr) minmax(0,1.4fr) 36px";
 
 // route, date & time, passengers, status
 export const BOOKINGS_GRID_TEMPLATE = "minmax(0,1fr) 180px 100px 140px";

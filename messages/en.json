@@ -183,15 +183,17 @@
       "license": "License",
       "cpc": "CPC",
       "medicalCert": "Medical cert",
-      "allValid": "All documents valid",
+      "allValid": "Valid",
       "expiringSoon": "{label} · {days}d",
       "expiredM": "{label} expired",
       "expiredF": "{label} expired",
-      "expiredN": "{label} expired"
+      "expiredN": "{label} expired",
+      "daysAgo": "{days}d ago",
+      "expiringSoonFull": "{label} · expires in {days}d"
     },
     "table": {
       "documents": "Documents",
-      "noDocuments": "No documents on file"
+      "noDocuments": "No documents"
     },
     "onboardingTitle": "Company profile",
     "onboardingSubtitle": "Tell clients who you are.",
@@ -209,14 +211,18 @@
     "noDrivers": "No drivers yet.",
     "fleetTable": {
       "vehicle": "Vehicle",
-      "details": "Details",
-      "assignedDriver": "Assigned driver",
-      "seats": "seats"
+      "details": "Year · seats",
+      "assignedDriver": "Driver",
+      "seats": "seats",
+      "noDriver": "Not assigned",
+      "seatsShort": "seats"
     },
     "driversTable": {
       "driver": "Driver",
       "licenseNumber": "License #",
-      "assignedVehicle": "Assigned vehicle"
+      "assignedVehicle": "Vehicle",
+      "noVehicle": "Not assigned",
+      "phoneLabel": "Tel."
     },
     "bookingsTable": {
       "route": "Route",

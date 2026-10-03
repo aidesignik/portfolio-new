@@ -35,10 +35,10 @@ export function RowActionsMenu({ onEdit, deleteUrl }: { onEdit: () => void; dele
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="justify-self-end rounded-[9px] p-2 text-[var(--ink-disabled)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+        className="rounded-[9px] p-2 text-[#A9A9B2] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
         aria-label={t("actions")}
       >
-        <MoreVertical size={17} strokeWidth={1.9} />
+        <MoreVertical size={16} strokeWidth={1.9} />
       </button>
       {open ? (
         <div className="absolute right-0 z-[60] mt-1 w-36 rounded-[12px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] py-1 shadow-[var(--shadow-card)]">

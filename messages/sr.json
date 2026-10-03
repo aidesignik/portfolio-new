@@ -183,15 +183,17 @@
       "license": "Vozačka",
       "cpc": "CPC",
       "medicalCert": "Lekarsko",
-      "allValid": "Sva dokumenta važe",
+      "allValid": "Važe",
       "expiringSoon": "{label} · {days}d",
       "expiredM": "{label} istekao",
       "expiredF": "{label} istekla",
-      "expiredN": "{label} isteklo"
+      "expiredN": "{label} isteklo",
+      "daysAgo": "pre {days} dana",
+      "expiringSoonFull": "{label} · ističe za {days} d"
     },
     "table": {
       "documents": "Dokumenta",
-      "noDocuments": "Nema evidentiranih dokumenata"
+      "noDocuments": "Nema dokumenata"
     },
     "onboardingTitle": "Profil firme",
     "onboardingSubtitle": "Predstavite se klijentima.",
@@ -209,14 +211,18 @@
     "noDrivers": "Još nema vozača.",
     "fleetTable": {
       "vehicle": "Vozilo",
-      "details": "Detalji",
-      "assignedDriver": "Dodeljeni vozač",
-      "seats": "sedišta"
+      "details": "Godište · mesta",
+      "assignedDriver": "Vozač",
+      "seats": "sedišta",
+      "noDriver": "Nije dodeljen",
+      "seatsShort": "mesta"
     },
     "driversTable": {
       "driver": "Vozač",
       "licenseNumber": "Broj dozvole",
-      "assignedVehicle": "Dodeljeno vozilo"
+      "assignedVehicle": "Vozilo",
+      "noVehicle": "Nije dodeljeno",
+      "phoneLabel": "Tel."
     },
     "bookingsTable": {
       "route": "Relacija",

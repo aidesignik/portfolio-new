@@ -26,15 +26,16 @@ export default async function FleetPage({
     <PageContent>
       <PageHeader
         title={t("carrier.fleetTitle")}
-        context={`${vehicles.length}`}
+        bold
         actions={<AddVehicleButton autoOpen={params.new === "1"} />}
       />
       {vehicles.length === 0 ? (
         <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("carrier.noVehicles")}</p>
       ) : (
         <>
-          <div className="flex shrink-0 items-center">
+          <div className="flex shrink-0 items-center gap-2">
             <FilterButton label={t("common.status")} />
+            <FilterButton label={t("carrier.table.documents")} />
           </div>
           <FleetTable
             vehicles={vehicles.map((vehicle) => ({

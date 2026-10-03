@@ -7,15 +7,26 @@ export function PageHeader({
   title,
   context,
   actions,
+  bold = false,
 }: {
   title: string;
   context?: string;
   actions?: ReactNode;
+  // Opt-in heavier title weight (800) for pages asking for it, without
+  // changing the default (600) every other page sharing this component
+  // already uses.
+  bold?: boolean;
 }) {
   return (
     <div className="flex min-h-[36px] shrink-0 items-center justify-between gap-4">
       <div className="flex min-w-0 items-baseline gap-3">
-        <h1 className="truncate text-[24px] font-semibold tracking-[-0.02em] text-[var(--ink-primary)]">{title}</h1>
+        <h1
+          className={`truncate text-[24px] tracking-[-0.02em] text-[var(--ink-primary)] ${
+            bold ? "font-extrabold" : "font-semibold"
+          }`}
+        >
+          {title}
+        </h1>
         {context ? <span className="shrink-0 text-[14px] text-[var(--ink-secondary)]">{context}</span> : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}

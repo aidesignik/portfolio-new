@@ -31,15 +31,16 @@ export default async function DriversPage({
     <PageContent>
       <PageHeader
         title={t("carrier.driversTitle")}
-        context={`${drivers.length}`}
+        bold
         actions={<AddDriverButton vehicles={vehicles} autoOpen={params.new === "1"} />}
       />
       {drivers.length === 0 ? (
         <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("carrier.noDrivers")}</p>
       ) : (
         <>
-          <div className="flex shrink-0 items-center">
+          <div className="flex shrink-0 items-center gap-2">
             <FilterButton label={t("carrier.driversTable.assignedVehicle")} />
+            <FilterButton label={t("carrier.table.documents")} />
           </div>
           <DriversTable
             drivers={drivers.map((driver) => ({

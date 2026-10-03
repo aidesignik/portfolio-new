@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Plus } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { Button } from "@/components/ui/Button";
 import { AddDriverPanel } from "@/components/forms/AddDriverPanel";
 
 // autoOpen lets a link elsewhere (e.g. the calendar's "no drivers yet"
@@ -30,7 +30,14 @@ export function AddDriverButton({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>{t("addDriver")}</Button>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-[38px] shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[9px] bg-[#2563EB] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]"
+      >
+        <Plus size={16} strokeWidth={1.9} />
+        {t("addDriver")}
+      </button>
       {open ? (
         <AddDriverPanel
           vehicles={vehicles}

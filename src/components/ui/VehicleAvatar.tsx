@@ -9,8 +9,9 @@ const GLYPH_BY_TYPE: Record<string, typeof Bus> = {
 };
 
 const SIZE = {
-  md: { box: "h-9 w-9", icon: 21 },
-  sm: { box: "h-8 w-8", icon: 19 },
+  md: { box: "h-[34px] w-[34px]", icon: 19, radius: "rounded-[9px]" },
+  sm: { box: "h-8 w-8", icon: 19, radius: "rounded-[10px]" },
+  xs: { box: "h-7 w-7", icon: 16, radius: "rounded-[8px]" },
 } as const;
 
 // Rounded-square identity treatment for vehicles — the opposite shape from
@@ -26,7 +27,7 @@ export function VehicleAvatar({
   type?: string;
   typeLabel?: string;
   photoUrl?: string | null;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
   empty?: boolean;
 }) {
   const dims = SIZE[size];
@@ -35,7 +36,7 @@ export function VehicleAvatar({
     return (
       <div
         title="No vehicle assigned"
-        className={`flex ${dims.box} shrink-0 items-center justify-center rounded-[10px] border-[1.5px] border-dashed border-[var(--border-strong)] text-[var(--ink-disabled)]`}
+        className={`flex ${dims.box} shrink-0 items-center justify-center ${dims.radius} border-[1.5px] border-dashed border-[var(--border-strong)] text-[var(--ink-disabled)]`}
       >
         –
       </div>
@@ -49,7 +50,7 @@ export function VehicleAvatar({
         src={photoUrl}
         alt=""
         title={typeLabel}
-        className={`${dims.box} shrink-0 rounded-[10px] object-cover`}
+        className={`${dims.box} shrink-0 ${dims.radius} object-cover`}
       />
     );
   }
@@ -58,7 +59,7 @@ export function VehicleAvatar({
   return (
     <div
       title={typeLabel}
-      className={`flex ${dims.box} shrink-0 items-center justify-center rounded-[10px] border border-[var(--border-hairline)]`}
+      className={`flex ${dims.box} shrink-0 items-center justify-center ${dims.radius} border border-[var(--border-hairline)]`}
     >
       <Glyph size={dims.icon} strokeWidth={1.9} color="#3F3F46" />
     </div>

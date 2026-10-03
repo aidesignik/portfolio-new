@@ -17,6 +17,7 @@ import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { RingMarker, PinMarker, DotConnector } from "./newRide/timelineMarkers";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
+import { formatPhone } from "@/lib/phoneDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
 import { formatTime24 } from "@/lib/rideDateFormat";
 import { formatPickerDate } from "@/lib/pickerDateFormat";
@@ -30,16 +31,6 @@ const SECONDARY_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 const PRIMARY_SM_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
-
-// Lightweight, universal grouping (not a real phone-number library) — keeps
-// a leading "+" attached and groups the rest in 3s, e.g.
-// "+381641234567" -> "+381 641 234 567".
-function formatPhone(phone: string): string {
-  const hasPlus = phone.trim().startsWith("+");
-  const digits = phone.replace(/\D/g, "");
-  const groups = digits.match(/.{1,3}/g) ?? [digits];
-  return (hasPlus ? "+" : "") + groups.join(" ");
-}
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);

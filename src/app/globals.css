@@ -101,3 +101,22 @@ button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]) {
   cursor: pointer;
 }
+
+/* Some browsers (notably Safari) show the default focus outline on a plain
+   mouse click, not just keyboard navigation — e.g. a nav item staying
+   outlined blue after you click it. Reset the outline everywhere and bring
+   it back only for :focus-visible (keyboard/assistive-tech focus), so
+   clicking never leaves a stray ring but tabbing still shows one. */
+a:focus,
+button:focus,
+[role="button"]:focus,
+[role="row"]:focus {
+  outline: none;
+}
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="row"]:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

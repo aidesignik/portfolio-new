@@ -12,6 +12,7 @@ export interface DocumentChipData {
   status: ChipStatus;
   expiryDate: Date;
   daysLeft: number;
+  daysAgo: number;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -20,7 +21,8 @@ function buildChip(docKind: ExpiryDocKind, expiryDate: Date | null, now: Date): 
   if (!expiryDate) return null;
   const urgency = expiryStatus(expiryDate, now);
   const daysLeft = Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / DAY_MS));
-  return { docKind, status: urgency ?? "valid", expiryDate, daysLeft };
+  const daysAgo = Math.max(0, Math.floor((now.getTime() - expiryDate.getTime()) / DAY_MS));
+  return { docKind, status: urgency ?? "valid", expiryDate, daysLeft, daysAgo };
 }
 
 export function vehicleDocumentChips(
