@@ -39,7 +39,7 @@ export default async function CarrierDashboardPage({
 
   return (
     <NewRideProvider>
-      <PageContent>
+      <PageContent compactTop compactBottom>
         <PageHeader title={t("calendarTitle")} actions={readyForCalendar ? <NewRideTriggerButton /> : undefined} />
         {readyForCalendar ? (
           <RidesCalendar />
