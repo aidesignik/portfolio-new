@@ -14,7 +14,7 @@ export async function TopBar() {
   const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
 
   return (
-    <div className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-[var(--border-hairline)] bg-white px-6">
+    <div className="flex h-16 shrink-0 items-center justify-between gap-4 px-6">
       <div className="relative w-full max-w-[420px]">
         <Search
           size={16}
@@ -25,7 +25,7 @@ export async function TopBar() {
         <input
           type="search"
           placeholder={t("search")}
-          className="h-9 w-full rounded-[9px] border-0 bg-[#F7F7F8] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
+          className="h-9 w-full rounded-[9px] border-0 bg-[var(--bg-panel)] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
         />
         <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-[6px] bg-white px-[6px] py-[2px] text-[11px] font-medium text-[var(--ink-muted)] shadow-[var(--shadow-pill)]">
           ⌘K
