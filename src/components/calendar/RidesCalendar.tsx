@@ -154,7 +154,7 @@ export function RidesCalendar() {
     : `${weekStart.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-[var(--border-container)] bg-white">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[var(--bg-panel)]">
       <div className="flex h-[60px] shrink-0 items-center gap-2 border-b border-[var(--border-hairline)] px-4">
         <button
           type="button"
