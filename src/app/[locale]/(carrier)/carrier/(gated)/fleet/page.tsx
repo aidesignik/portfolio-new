@@ -2,10 +2,9 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { AddVehicleButton } from "@/components/forms/AddVehicleButton";
-import { FleetTable } from "@/components/carrier/FleetTable";
+import { FleetListSection } from "@/components/carrier/FleetListSection";
 import { PageHeader } from "@/components/carrier/PageHeader";
 import { PageContent } from "@/components/carrier/PageContent";
-import { FilterButton } from "@/components/carrier/FilterButton";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -32,19 +31,13 @@ export default async function FleetPage({
       {vehicles.length === 0 ? (
         <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("carrier.noVehicles")}</p>
       ) : (
-        <>
-          <div className="flex shrink-0 items-center gap-2">
-            <FilterButton label={t("common.status")} />
-            <FilterButton label={t("carrier.table.documents")} />
-          </div>
-          <FleetTable
-            vehicles={vehicles.map((vehicle) => ({
-              ...vehicle,
-              drivers: vehicle.drivers.map((dv) => dv.driver),
-            }))}
-            initialEditingId={typeof params.edit === "string" ? params.edit : null}
-          />
-        </>
+        <FleetListSection
+          vehicles={vehicles.map((vehicle) => ({
+            ...vehicle,
+            drivers: vehicle.drivers.map((dv) => dv.driver),
+          }))}
+          initialEditingId={typeof params.edit === "string" ? params.edit : null}
+        />
       )}
     </PageContent>
   );

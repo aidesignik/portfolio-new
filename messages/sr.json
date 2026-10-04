@@ -31,7 +31,8 @@
     "search": "Pretraga",
     "notifications": "Obaveštenja",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
-    "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo."
+    "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo.",
+    "all": "Sve"
   },
   "nav": {
     "home": "Početna",
@@ -193,7 +194,11 @@
     },
     "table": {
       "documents": "Dokumenta",
-      "noDocuments": "Nema dokumenata"
+      "noDocuments": "Nema dokumenata",
+      "docFilterValid": "Sva važe",
+      "docFilterExpiringSoon": "Ističe uskoro",
+      "docFilterExpired": "Isteklo",
+      "noFilterResults": "Nema stavki za izabrani filter."
     },
     "onboardingTitle": "Profil firme",
     "onboardingSubtitle": "Predstavite se klijentima.",

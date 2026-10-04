@@ -2,10 +2,9 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { AddDriverButton } from "@/components/forms/AddDriverButton";
-import { DriversTable } from "@/components/carrier/DriversTable";
+import { DriversListSection } from "@/components/carrier/DriversListSection";
 import { PageHeader } from "@/components/carrier/PageHeader";
 import { PageContent } from "@/components/carrier/PageContent";
-import { FilterButton } from "@/components/carrier/FilterButton";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -37,20 +36,14 @@ export default async function DriversPage({
       {drivers.length === 0 ? (
         <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("carrier.noDrivers")}</p>
       ) : (
-        <>
-          <div className="flex shrink-0 items-center gap-2">
-            <FilterButton label={t("carrier.driversTable.assignedVehicle")} />
-            <FilterButton label={t("carrier.table.documents")} />
-          </div>
-          <DriversTable
-            drivers={drivers.map((driver) => ({
-              ...driver,
-              vehicles: driver.vehicles.map((dv) => dv.vehicle),
-            }))}
-            vehicles={vehicles}
-            initialEditingId={typeof params.edit === "string" ? params.edit : null}
-          />
-        </>
+        <DriversListSection
+          drivers={drivers.map((driver) => ({
+            ...driver,
+            vehicles: driver.vehicles.map((dv) => dv.vehicle),
+          }))}
+          vehicles={vehicles}
+          initialEditingId={typeof params.edit === "string" ? params.edit : null}
+        />
       )}
     </PageContent>
   );

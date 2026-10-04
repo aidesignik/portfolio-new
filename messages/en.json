@@ -31,7 +31,8 @@
     "search": "Search",
     "notifications": "Notifications",
     "saveFailed": "Couldn't save — please check the fields and try again.",
-    "loadFailed": "Couldn't load — try refreshing."
+    "loadFailed": "Couldn't load — try refreshing.",
+    "all": "All"
   },
   "nav": {
     "home": "Home",
@@ -193,7 +194,11 @@
     },
     "table": {
       "documents": "Documents",
-      "noDocuments": "No documents"
+      "noDocuments": "No documents",
+      "docFilterValid": "All valid",
+      "docFilterExpiringSoon": "Expiring soon",
+      "docFilterExpired": "Expired",
+      "noFilterResults": "No items match the selected filter."
     },
     "onboardingTitle": "Company profile",
     "onboardingSubtitle": "Tell clients who you are.",

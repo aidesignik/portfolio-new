@@ -55,6 +55,17 @@ export function worstDocumentChip(chips: DocumentChipData[]): DocumentChipData |
   })[0];
 }
 
+export type DocumentFilterStatus = "valid" | "expiringSoon" | "expired" | "none";
+
+// Collapses a row's chips down to the one state the Dokumenta filter
+// dropdown offers — same "worst problem wins" rule as the table chip,
+// plus a "none" bucket for rows with no documents on file at all.
+export function documentFilterStatus(chips: DocumentChipData[]): DocumentFilterStatus {
+  if (chips.length === 0) return "none";
+  const worst = worstDocumentChip(chips);
+  return worst ? worst.status : "valid";
+}
+
 export function driverDocumentChips(
   driver: {
     idCardExpiry: Date | null;
