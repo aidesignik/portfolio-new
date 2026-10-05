@@ -629,7 +629,7 @@ export function RideDetailDrawer({
                     <div className="mt-[12px] flex flex-col gap-[2px]">
                       {leg.rows.map((row, i) => (
                         <Fragment key={i}>
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-center gap-3">
                             <div className="flex h-5 w-4 shrink-0 items-center justify-center">
                               {i === leg.rows.length - 1 ? <PinMarker /> : <RingMarker />}
                             </div>
