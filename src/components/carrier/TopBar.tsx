@@ -14,11 +14,14 @@ export async function TopBar() {
   const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
 
   return (
-    <div className="flex h-16 shrink-0 items-center">
+    <div className="flex shrink-0">
       {/* Same px-8 gutter as PageContent below (no max-width cap on
           either), so the search bar and avatar line up with the
-          calendar/table edges at any screen width. */}
-      <div className="flex w-full items-center justify-between gap-4 px-8">
+          calendar/table edges at any screen width. py-8 matches that
+          same 32px so the gap above the search bar is an actual,
+          deliberate padding value instead of an incidental few px left
+          over from centering it in a fixed-height row. */}
+      <div className="flex w-full items-center justify-between gap-4 px-8 py-8">
         <div className="relative w-full max-w-[420px]">
           <Search
             size={16}
