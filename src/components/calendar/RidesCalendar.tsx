@@ -46,7 +46,7 @@ const ICON_NAV_BUTTON_CLASS =
 // fixed width, so the border actually wraps the label instead of clipping
 // or overflowing it.
 const TODAY_BUTTON_CLASS =
-  "flex h-8 items-center rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+  "flex h-8 items-center rounded-[8px] bg-[#F3F3F1] px-3 text-[13.5px] font-medium text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
 // "Today" and the grouping toggle sit at the same rank in the toolbar, so
 // both read at 13.5px — only the week label (the one emphasized readout)
 // stays a step larger at 14px.
@@ -155,7 +155,7 @@ export function RidesCalendar() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[var(--bg-panel)]">
-      <div className="flex h-[60px] shrink-0 items-center gap-2 border-b border-[var(--border-hairline)] px-4">
+      <div className="flex h-[60px] shrink-0 items-center gap-2 px-4">
         <button
           type="button"
           onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
