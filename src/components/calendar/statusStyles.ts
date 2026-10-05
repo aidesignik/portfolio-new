@@ -16,12 +16,3 @@ export const RIDE_STATUS_BG: Record<RideStatus, string> = {
   COMPLETED: "var(--status-completed-bg)",
   CANCELLED: "var(--status-cancelled-bg)",
 };
-
-// Darker ink of the same hue as RIDE_STATUS_BG, for the details popover's
-// status pill (bg = fill, text = this).
-export const RIDE_STATUS_INK: Record<RideStatus, string> = {
-  PENDING: "var(--status-pending-ink)",
-  CONFIRMED: "var(--status-confirmed-ink)",
-  COMPLETED: "var(--status-completed-ink)",
-  CANCELLED: "var(--status-cancelled-ink)",
-};

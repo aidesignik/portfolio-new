@@ -259,7 +259,6 @@
         "assignmentSection": "Assignment",
         "detailsSection": "Details",
         "pickup": "Pickup",
-        "operator": "Operator",
         "destination": "Destination",
         "returnLabel": "Return",
         "outboundLabel": "Outbound",
@@ -318,7 +317,7 @@
         "VACATION": "Vacation",
         "OTHER": "Other"
       },
-      "cardAriaLabel": "{route}, {client}, {time}, {booked}/{capacity} passengers, driver {driver}"
+      "cardAriaLabel": "{route}, {client}, {time}, driver {driver}"
     },
     "requestsTitle": "Incoming requests",
     "noIncomingRequests": "No incoming requests right now.",
