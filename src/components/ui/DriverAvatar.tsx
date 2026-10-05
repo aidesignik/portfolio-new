@@ -49,6 +49,7 @@ export function DriverAvatar({
   id,
   empty = false,
   colorful = true,
+  ringColor = "#FFFFFF",
 }: {
   name?: string;
   photoUrl?: string | null;
@@ -56,6 +57,11 @@ export function DriverAvatar({
   id?: string;
   empty?: boolean;
   colorful?: boolean;
+  // The colorful variant's 2px ring — defaults to white, but a caller
+  // placing the avatar on a tinted surface (e.g. a status-tinted booking
+  // card) can match that tint instead so the ring doesn't look like a
+  // mismatched white halo.
+  ringColor?: string;
 }) {
   const dims = SIZE_CLASSES[size];
 
@@ -80,7 +86,7 @@ export function DriverAvatar({
       <div
         title={name}
         className={`flex ${dims} shrink-0 items-center justify-center rounded-full font-normal text-white`}
-        style={{ background: driverColor(id ?? name), letterSpacing: "0.02em", boxShadow: "0 0 0 2px #FFFFFF" }}
+        style={{ background: driverColor(id ?? name), letterSpacing: "0.02em", boxShadow: `0 0 0 2px ${ringColor}` }}
       >
         {initials(name)}
       </div>

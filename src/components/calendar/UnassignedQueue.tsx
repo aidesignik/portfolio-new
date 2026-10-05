@@ -18,14 +18,22 @@ export function UnassignedQueue({
   const t = useTranslations("carrier.calendar");
 
   return (
-    <div className="flex flex-wrap gap-[14px] border-t border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-5 py-4">
+    <div
+      className="flex flex-wrap gap-[14px] px-5 py-4"
+      style={{ borderTop: "1px solid var(--shell-hairline-row)", background: "var(--bg-canvas)" }}
+    >
       <div className="flex-none basis-[168px]">
-        <h2 className="text-[14px] font-bold text-[var(--ink-primary)]">{t("unassignedTitle")}</h2>
-        <p className="text-[12.5px] text-[var(--ink-muted)]">{t("unassignedHint")}</p>
+        <h2 className="text-[14px] font-bold" style={{ color: "var(--shell-ink-1)" }}>
+          {t("unassignedTitle")}
+        </h2>
+        <p className="text-[12.5px]" style={{ color: "var(--shell-ink-faint)" }}>
+          {t("unassignedHint")}
+        </p>
       </div>
       {rides.map((ride) => (
-        <div
+        <button
           key={ride.id}
+          type="button"
           draggable
           onDragStart={(e) => {
             e.dataTransfer.effectAllowed = "move";
@@ -33,17 +41,20 @@ export function UnassignedQueue({
           }}
           onDragEnd={onDragEnd}
           onClick={() => onRideClick(ride.id)}
-          className="flex min-w-[190px] flex-1 basis-[210px] cursor-grab flex-col gap-[3px] rounded-[11px] border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-[11px] pb-[10px] pt-[9px] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(24,24,27,.16)] active:cursor-grabbing"
+          className="flex min-w-[190px] flex-1 basis-[210px] cursor-grab flex-col gap-[3px] rounded-[11px] bg-white px-[11px] pb-[10px] pt-[9px] text-left transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_10px_rgba(20,20,19,.16)] active:cursor-grabbing"
+          style={{ boxShadow: "var(--ring-1)" }}
         >
           <span className="h-1 w-7 shrink-0 rounded-full bg-[#FDBA74]" />
-          <p className="truncate text-[13px] font-semibold text-[var(--ink-primary)]">
+          <p className="truncate text-[13px] font-semibold" style={{ color: "var(--shell-ink-1)" }}>
             {ride.pickupCity} → {ride.destinationCity}
           </p>
-          <p className="truncate text-[11.5px] font-semibold text-[var(--ink-2)]">{clientDisplayName(ride.client)}</p>
-          <p className="truncate font-mono text-[11.5px] text-[var(--ink-muted)]">
+          <p className="truncate text-[11.5px] font-semibold" style={{ color: "var(--shell-ink-secondary)" }}>
+            {clientDisplayName(ride.client)}
+          </p>
+          <p className="truncate font-mono text-[11.5px]" style={{ color: "var(--shell-ink-faint)" }}>
             {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} {t("pax")}
           </p>
-        </div>
+        </button>
       ))}
     </div>
   );

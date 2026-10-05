@@ -28,7 +28,7 @@
     "currency": "RSD",
     "close": "Close",
     "chooseFiles": "Choose files",
-    "search": "Search",
+    "search": "Search vehicles, drivers, bookings…",
     "notifications": "Notifications",
     "saveFailed": "Couldn't save — please check the fields and try again.",
     "loadFailed": "Couldn't load — try refreshing.",
@@ -240,6 +240,8 @@
     "calendarTitle": "Availability calendar",
     "calendar": {
       "today": "Today",
+      "previousWeek": "Previous week",
+      "nextWeek": "Next week",
       "byVehicle": "Vehicles",
       "byDriver": "Drivers",
       "newRide": "New ride",

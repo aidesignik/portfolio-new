@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Bus, CircleHelp } from "lucide-react";
+import { Bus, Clock, CircleHelp } from "lucide-react";
 import {
   CalendarIcon as CalendarOutline,
   InboxIcon as InboxOutline,
@@ -18,8 +18,9 @@ import {
 import { Link, usePathname } from "@/i18n/navigation";
 
 const ICON_SIZE_CLASS = "h-[17px] w-[17px] shrink-0";
-const INACTIVE_COLOR = "#6E6E76";
-const ACTIVE_COLOR = "#0D0D0D";
+const INACTIVE_COLOR = "#4A4A46";
+const ACTIVE_TEXT_COLOR = "#141413";
+const ACTIVE_ICON_COLOR = "#2B55E6";
 
 // Each item renders its own icon so inactive/active can come from two
 // genuinely different glyphs (Heroicons ships matched outline/solid pairs)
@@ -44,7 +45,7 @@ export interface SidebarExpiringItem {
 }
 
 const NAV_ITEM_CLASS =
-  "flex h-[34px] items-center gap-3 rounded-[8px] px-[10px] text-[13.5px] transition-colors duration-[.12s] ease-out";
+  "flex h-[42px] items-center gap-3 rounded-[10px] px-[10px] text-[14.5px] transition-colors duration-[.12s] ease-out";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -59,9 +60,10 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       className={`${NAV_ITEM_CLASS} ${
         active
-          ? "bg-[var(--surface-card-bg)] font-semibold text-[#0D0D0D] shadow-[var(--shadow-surface-card)]"
-          : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
+          ? "bg-[var(--surface-card-bg)] font-semibold shadow-[var(--shadow-nav-active)]"
+          : "font-medium hover:bg-[rgba(20,20,19,.045)]"
       }`}
+      style={{ color: active ? ACTIVE_TEXT_COLOR : INACTIVE_COLOR }}
     >
       {item.renderIcon(active)}
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
@@ -71,7 +73,12 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
             {item.count}
           </span>
         ) : (
-          <span className="shrink-0 font-mono text-[11.5px] text-[#8E8E93]">{item.count}</span>
+          <span
+            className="flex h-5 min-w-[22px] shrink-0 items-center justify-center rounded-full px-[6px] font-mono text-[12px] font-semibold"
+            style={{ background: "rgba(20,20,19,.06)", color: "#57574F" }}
+          >
+            {item.count}
+          </span>
         )
       ) : null}
     </Link>
@@ -101,7 +108,7 @@ export function CarrierSidebar({
       labelKey: "calendar",
       renderIcon: (active) =>
         active ? (
-          <CalendarSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+          <CalendarSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_ICON_COLOR }} />
         ) : (
           <CalendarOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
         ),
@@ -113,7 +120,7 @@ export function CarrierSidebar({
       badge: true,
       renderIcon: (active) =>
         active ? (
-          <InboxSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+          <InboxSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_ICON_COLOR }} />
         ) : (
           <InboxOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
         ),
@@ -124,7 +131,7 @@ export function CarrierSidebar({
       count: bookingCount,
       renderIcon: (active) =>
         active ? (
-          <BookmarkSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+          <BookmarkSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_ICON_COLOR }} />
         ) : (
           <BookmarkOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
         ),
@@ -139,8 +146,8 @@ export function CarrierSidebar({
         <Bus
           size={17}
           strokeWidth={1.9}
-          color={active ? ACTIVE_COLOR : INACTIVE_COLOR}
-          fill={active ? ACTIVE_COLOR : "none"}
+          color={active ? ACTIVE_ICON_COLOR : INACTIVE_COLOR}
+          fill={active ? ACTIVE_ICON_COLOR : "none"}
           fillOpacity={active ? 0.16 : undefined}
           className="shrink-0"
         />
@@ -152,20 +159,26 @@ export function CarrierSidebar({
       count: driverCount,
       renderIcon: (active) =>
         active ? (
-          <UserSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+          <UserSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_ICON_COLOR }} />
         ) : (
           <UserOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
         ),
     },
   ];
 
-  const hasCritical = expiringItems.some((item) => item.status === "expired");
-
   return (
     <aside className="sticky top-0 h-dvh w-[252px] shrink-0">
       <div className="flex h-full flex-col gap-[10px] pt-[14px] pb-[18px] px-[10px]">
-        <div className="flex h-[28px] shrink-0 items-center px-[10px] text-[17px] font-extrabold text-[#0D0D0D]">
-          Atlas
+        <div className="flex h-[30px] shrink-0 items-center gap-[10px] px-[10px]">
+          <div
+            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px]"
+            style={{ background: "#141413" }}
+          >
+            <span className="text-[15px] font-bold text-white">A</span>
+          </div>
+          <span className="text-[19px] font-bold tracking-[-0.025em]" style={{ color: "#141413" }}>
+            Atlas
+          </span>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto">
@@ -176,46 +189,64 @@ export function CarrierSidebar({
           </nav>
 
           {expiringItems.length > 0 ? (
-            <div className="flex flex-col gap-[8px] pt-[6px]">
-              <div className="flex items-center justify-between px-[10px]">
-                <span className="text-[12px] font-normal text-[#8E8E93]">{t("expiry.bannerTitle")}</span>
-                <span
-                  className="rounded-[6px] px-[6px] py-[2px] font-mono text-[11px] font-medium"
-                  style={{
-                    background: hasCritical ? "#FBDADB" : "#FBEBC2",
-                    color: hasCritical ? "#7F1D1D" : "#5C3B06",
-                  }}
-                >
-                  {expiringItems.length}
-                </span>
-              </div>
-              {expiringItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="flex flex-col rounded-[8px] px-[10px] py-[6px] transition-colors duration-[.12s] ease-out hover:bg-[#EBEBEB]"
-                >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <span className="flex w-[17px] shrink-0 items-center justify-center">
-                      <span
-                        className="h-[7px] w-[7px] rounded-full"
-                        style={{ background: item.status === "expired" ? "#E5484D" : "#F59E0B" }}
-                      />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#18181B]">
-                      {item.subject}
-                    </span>
+            <>
+              <div className="h-px shrink-0" style={{ background: "rgba(20,20,19,.07)" }} />
+              <div className="flex flex-col gap-[8px] pt-[6px]">
+                <div className="flex items-center justify-between px-[10px]">
+                  <span
+                    className="text-[11.5px] font-semibold uppercase tracking-[.06em]"
+                    style={{ color: "#6E6E68" }}
+                  >
+                    {t("expiry.bannerTitle")}
                   </span>
-                  <span className="truncate pl-[29px] text-[12px] text-[#6B6B72]">{item.issue}</span>
-                </Link>
-              ))}
-            </div>
+                  <span
+                    className="rounded-[6px] px-[6px] py-[2px] font-mono text-[11px] font-semibold"
+                    style={{ background: "#FBE4E6", color: "#B4232F" }}
+                  >
+                    {expiringItems.length}
+                  </span>
+                </div>
+                {expiringItems.map((item) => {
+                  const isExpired = item.status === "expired";
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="flex items-center gap-3 rounded-[12px] bg-white p-[10px] transition-colors duration-[.12s] ease-out hover:bg-[rgba(20,20,19,.03)]"
+                      style={{ boxShadow: "var(--ring-2)" }}
+                    >
+                      <span
+                        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px]"
+                        style={{ background: isExpired ? "#FDECEE" : "#FEF3E2" }}
+                      >
+                        <Clock size={15} strokeWidth={2} style={{ color: isExpired ? "#C42B38" : "#B45309" }} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13.5px] font-semibold" style={{ color: "#141413" }}>
+                          {item.subject}
+                        </span>
+                        <span
+                          className="block truncate text-[12.5px]"
+                          style={{ color: isExpired ? "#B4232F" : "#9A5B12" }}
+                        >
+                          {item.issue}
+                        </span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
           ) : null}
         </div>
 
-        <div className="mt-auto flex shrink-0 flex-col gap-[2px] border-t border-[#E6E6E6] pt-[10px]">
-          <a href="mailto:support@atlas.example" className={`${NAV_ITEM_CLASS} font-medium text-[#3F3F46] hover:bg-[#EBEBEB]`}>
-            <CircleHelp size={17} strokeWidth={1.9} color="#6E6E76" className="shrink-0" />
+        <div className="mt-auto flex shrink-0 flex-col gap-[2px] pt-[10px]" style={{ borderTop: "1px solid rgba(20,20,19,.07)" }}>
+          <a
+            href="mailto:support@atlas.example"
+            className={`${NAV_ITEM_CLASS} font-medium hover:bg-[rgba(20,20,19,.045)]`}
+            style={{ color: INACTIVE_COLOR }}
+          >
+            <CircleHelp size={17} strokeWidth={1.9} color={INACTIVE_COLOR} className="shrink-0" />
             <span className="min-w-0 flex-1 truncate">{tNav("help")}</span>
           </a>
         </div>

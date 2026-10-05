@@ -7,21 +7,21 @@ const STATUSES: RideStatus[] = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"
 export function CalendarLegend() {
   const t = useTranslations("carrier.calendar");
   return (
-    <div className="flex flex-wrap items-center gap-x-[18px] gap-y-2">
+    <ul className="flex flex-wrap items-center gap-x-4 gap-y-2">
       {STATUSES.map((status) => (
-        <div key={status} className="flex items-center gap-[6px]">
+        <li key={status} className="flex items-center gap-[6px]">
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: RIDE_STATUS_DOT[status] }} />
-          <span className="text-[13px]" style={{ color: "#55555C" }}>
+          <span className="text-[13px] font-medium" style={{ color: "var(--shell-ink-secondary)" }}>
             {t(`legend.${status}`)}
           </span>
-        </div>
+        </li>
       ))}
-      <div className="flex items-center gap-[6px]">
+      <li className="flex items-center gap-[6px]">
         <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--status-blocked-dot)" }} />
-        <span className="text-[13px]" style={{ color: "#55555C" }}>
+        <span className="text-[13px] font-medium" style={{ color: "var(--shell-ink-secondary)" }}>
           {t("legend.BLOCKED")}
         </span>
-      </div>
-    </div>
+      </li>
+    </ul>
   );
 }

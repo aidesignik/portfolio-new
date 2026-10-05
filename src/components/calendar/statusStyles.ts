@@ -26,3 +26,34 @@ export const RIDE_STATUS_DOT: Record<RideStatus, string> = {
   COMPLETED: "var(--status-completed-dot)",
   CANCELLED: "var(--status-cancelled-dot)",
 };
+
+// Same values as RIDE_STATUS_DOT, but as plain hex rather than a var()
+// reference — for call sites that need to alpha-blend the color in JS
+// (e.g. a booking card's inset ring/capacity-bar track at a fixed opacity)
+// rather than just set it as a solid background/text color.
+export const RIDE_STATUS_HEX: Record<RideStatus, string> = {
+  PENDING: "#D64553",
+  CONFIRMED: "#3B63E0",
+  COMPLETED: "#2F8A57",
+  CANCELLED: "#A3A39C",
+};
+
+// Lighter of the two status-tinted text shades (see --status-*-text-1 in
+// globals.css) — for a caption-level line on a status-tinted surface, e.g.
+// a booking card's client name under the route.
+export const RIDE_STATUS_TEXT_1: Record<RideStatus, string> = {
+  PENDING: "var(--status-pending-text-1)",
+  CONFIRMED: "var(--status-confirmed-text-1)",
+  COMPLETED: "var(--status-completed-text-1)",
+  CANCELLED: "var(--status-cancelled-text-1)",
+};
+
+// Darker of the two status-tinted text shades (see --status-*-text-2 in
+// globals.css) — for smaller/denser text on a status-tinted surface, e.g. a
+// booking card's bottom-row time/capacity line, or a status pill's label.
+export const RIDE_STATUS_TEXT_2: Record<RideStatus, string> = {
+  PENDING: "var(--status-pending-text-2)",
+  CONFIRMED: "var(--status-confirmed-text-2)",
+  COMPLETED: "var(--status-completed-text-2)",
+  CANCELLED: "var(--status-cancelled-text-2)",
+};

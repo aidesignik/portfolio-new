@@ -28,7 +28,7 @@
     "currency": "RSD",
     "close": "Zatvori",
     "chooseFiles": "Izaberi fajlove",
-    "search": "Pretraga",
+    "search": "Pretraga vozila, vozača, rezervacija…",
     "notifications": "Obaveštenja",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
     "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo.",
@@ -240,6 +240,8 @@
     "calendarTitle": "Kalendar zauzetosti",
     "calendar": {
       "today": "Danas",
+      "previousWeek": "Prethodna nedelja",
+      "nextWeek": "Sledeća nedelja",
       "byVehicle": "Vozila",
       "byDriver": "Vozači",
       "newRide": "Nova vožnja",

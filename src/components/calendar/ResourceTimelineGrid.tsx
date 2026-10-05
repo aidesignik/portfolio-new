@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Wrench, Plus } from "lucide-react";
+import { Wrench, Plus, Bus, Van, UserRound } from "lucide-react";
 import { RideBlockCard } from "./RideBlockCard";
 import { AddVehiclePanel } from "@/components/forms/AddVehiclePanel";
 import { AddDriverPanel } from "@/components/forms/AddDriverPanel";
@@ -23,6 +23,9 @@ interface Resource {
   name: string;
   plate: string | null;
   seats: number | null;
+  // Raw vehicle-type enum (e.g. "VAN", "COACH") — only set for grouping
+  // === "vehicle", used to pick the resource column's icon tile glyph.
+  vehicleType?: string;
 }
 
 function startOfDay(date: Date) {
@@ -101,7 +104,13 @@ export function ResourceTimelineGrid({
 
   const resources: Resource[] =
     grouping === "vehicle"
-      ? vehicles.map((v) => ({ id: v.id, name: `${tType(v.type)} ${v.model}`, plate: v.licensePlate, seats: v.seats }))
+      ? vehicles.map((v) => ({
+          id: v.id,
+          name: `${tType(v.type)} ${v.model}`,
+          plate: v.licensePlate,
+          seats: v.seats,
+          vehicleType: v.type,
+        }))
       : drivers.map((d) => ({ id: d.id, name: d.name, plate: null, seats: null }));
 
   const resourceCountLabel =
@@ -124,30 +133,53 @@ export function ResourceTimelineGrid({
           resolve against the same scrolling ancestor. */}
       <div className="min-w-full">
         <div className="sticky top-0 z-20 grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-            <div className="sticky left-0 z-30 flex h-12 items-center border-r border-b border-r-[#F5F5F3] border-b-[#F0F0EE] bg-white px-[14px] text-[13px] text-[var(--ink-secondary)]">
+            <div
+              className="sticky left-0 z-30 flex min-h-[56px] items-center bg-[#FCFCFB] px-[14px] text-[12px] font-semibold uppercase tracking-[.06em]"
+              style={{
+                color: "#6E6E68",
+                borderRight: "1px solid var(--shell-hairline-col)",
+                borderBottom: "1px solid var(--shell-hairline-row)",
+              }}
+            >
               {resources.length > 0 ? resourceCountLabel : ""}
             </div>
             {days.map((day, i) => {
               const isToday = day.getTime() === today.getTime();
               const weekday = day.toLocaleDateString(intlLocale, { weekday: "short" });
               const dateNum = day.getDate();
+              const isMonthStart = dateNum === 1;
+              const monthShort = isMonthStart
+                ? day.toLocaleDateString(intlLocale, { month: "short" })
+                : null;
               return (
                 <div
                   key={i}
-                  className="flex h-12 items-center gap-[8px] border-r border-b border-r-[#F5F5F3] border-b-[#F0F0EE] bg-white px-[14px] last:border-r-0"
+                  className="flex min-h-[56px] flex-col justify-center gap-[2px] bg-[#FCFCFB] px-[14px] last:border-r-0"
+                  style={{
+                    borderRight: `1px solid var(--shell-hairline-col)`,
+                    borderLeft: isMonthStart ? "1px solid var(--shell-hairline-month)" : undefined,
+                    borderBottom: "1px solid var(--shell-hairline-row)",
+                  }}
                 >
-                  <span className="text-[13px]" style={{ color: isToday ? "#2563EB" : "#6B6B72" }}>
+                  <span
+                    className="text-[11.5px] font-semibold uppercase tracking-[.06em]"
+                    style={{ color: isToday ? "var(--accent)" : "#8A8A83" }}
+                  >
                     {weekday}
                   </span>
-                  {isToday ? (
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] text-[12.5px] font-semibold text-white">
+                  <span className="flex items-baseline gap-[5px]">
+                    <span
+                      className="text-[20px] font-semibold tracking-[-0.02em]"
+                      style={{ color: isToday ? "var(--accent)" : "var(--shell-ink-1)" }}
+                    >
                       {dateNum}
                     </span>
-                  ) : (
-                    <span className="text-[13.5px] font-medium" style={{ color: "#27272B" }}>
-                      {dateNum}
-                    </span>
-                  )}
+                    {monthShort ? (
+                      <span className="text-[12px]" style={{ color: "#8A8A83" }}>
+                        {monthShort}
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
               );
             })}
@@ -183,27 +215,55 @@ export function ResourceTimelineGrid({
                 ...resourceBlocks.map(({ block, startIdx, endIdx }) => ({ id: block.id, startIdx, endIdx })),
               ]);
 
+              const ResourceIcon = grouping === "vehicle" ? (resource.vehicleType === "VAN" ? Van : Bus) : UserRound;
+
               return (
                 <div
                   key={resource.id}
-                  className={`grid ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"}`}
-                  style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}
+                  className="grid"
+                  style={{
+                    gridTemplateColumns: GRID_TEMPLATE_COLUMNS,
+                    borderBottom: isLastResource ? undefined : "1px solid var(--shell-hairline-row)",
+                  }}
                 >
-                  <div className="sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px]">
-                    <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
-                    {resource.plate || resource.seats ? (
-                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                        {resource.plate ? <span className="text-[12.5px]">{resource.plate}</span> : null}
-                        {resource.plate && resource.seats ? " · " : ""}
-                        {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
+                  <div
+                    className="sticky left-0 z-10 flex min-h-[128px] items-center gap-3 bg-white px-5 py-[18px]"
+                    style={{ borderRight: "1px solid var(--shell-hairline-col)" }}
+                  >
+                    <span
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px]"
+                      style={{ background: "#F4F4F1" }}
+                    >
+                      <ResourceIcon size={18} strokeWidth={1.8} style={{ color: "#57574F" }} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14.5px] font-semibold" style={{ color: "var(--shell-ink-1)" }}>
+                        {resource.name}
                       </p>
-                    ) : null}
+                      {resource.plate || resource.seats ? (
+                        <p className="mt-[3px] flex min-w-0 items-center gap-[6px]">
+                          {resource.plate ? (
+                            <span
+                              className="shrink-0 rounded-[5px] px-[6px] py-[1px] font-mono text-[11.5px] uppercase"
+                              style={{ background: "#F4F4F1", color: "var(--shell-ink-secondary)" }}
+                            >
+                              {resource.plate}
+                            </span>
+                          ) : null}
+                          {resource.seats ? (
+                            <span className="truncate text-[12.5px]" style={{ color: "#6E6E68" }}>
+                              {resource.seats} {tCarrier("fleetTable.seats")}
+                            </span>
+                          ) : null}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                   <div
                     className="relative col-span-7 grid"
                     style={{
                       gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                      gridTemplateRows: `repeat(${laneCount}, minmax(118px, auto))`,
+                      gridTemplateRows: `repeat(${laneCount}, minmax(128px, auto))`,
                     }}
                     onDragOver={(e) => {
                       if (!draggingRideId) return;
@@ -218,10 +278,11 @@ export function ResourceTimelineGrid({
                   >
                     {days.map((day, i) => {
                       const isToday = day.getTime() === today.getTime();
+                      const isMonthStart = day.getDate() === 1;
                       return (
                         <div
                           key={i}
-                          className={`border-r border-r-[#F5F5F3] last:border-r-0 ${
+                          className={`last:border-r-0 ${
                             isDragTarget
                               ? dragOverTarget?.conflict
                                 ? "bg-[var(--chip-critical)]/30"
@@ -230,7 +291,12 @@ export function ResourceTimelineGrid({
                                 ? "bg-[var(--bg-today)]"
                                 : "bg-white"
                           }`}
-                          style={{ gridRow: "1 / -1", gridColumn: i + 1 }}
+                          style={{
+                            gridRow: "1 / -1",
+                            gridColumn: i + 1,
+                            borderRight: "1px solid var(--shell-hairline-col)",
+                            borderLeft: isMonthStart ? "1px solid var(--shell-hairline-month)" : undefined,
+                          }}
                         />
                       );
                     })}
@@ -244,7 +310,7 @@ export function ResourceTimelineGrid({
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
                           margin: "12px 8px",
                           background: "var(--status-blocked-bg)",
-                          color: "#3B1F87",
+                          color: "var(--status-blocked-text-2)",
                           alignSelf: "start",
                         }}
                         title={block.note ?? undefined}
@@ -261,7 +327,7 @@ export function ResourceTimelineGrid({
                         style={{
                           gridRow: (laneOf.get(ride.id) ?? 0) + 1,
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                          margin: "12px 8px",
+                          margin: "10px 6px",
                         }}
                       >
                         <RideBlockCard
@@ -271,6 +337,7 @@ export function ResourceTimelineGrid({
                           seats={seatsFor(ride)}
                           driverName={driverFor(ride)?.name}
                           driverId={driverFor(ride)?.id}
+                          daySpan={endIdx - startIdx + 1}
                         />
                       </div>
                     ))}
@@ -298,7 +365,8 @@ export function ResourceTimelineGrid({
           <button
             type="button"
             onClick={() => setAddingResource(true)}
-            className="flex h-12 w-full items-center gap-[6px] border-t border-t-[#F0F0EE] px-5 text-[13.5px] font-medium text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+            className="flex h-12 w-full items-center gap-[6px] px-5 text-[13.5px] font-medium text-[var(--shell-ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[rgba(20,20,19,.03)]"
+            style={{ borderTop: "1px solid var(--shell-hairline-row)" }}
           >
             <Plus size={14} strokeWidth={1.9} />
             {grouping === "vehicle" ? tCarrier("addVehicle") : tCarrier("addDriver")}

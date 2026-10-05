@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
-import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
 import { routing } from "@/i18n/routing";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 import "../globals.css";
@@ -11,12 +12,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-ui",
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700", "800"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-data",
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -39,7 +34,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${plusJakartaSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${GeistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-50">
         <NextIntlClientProvider>
