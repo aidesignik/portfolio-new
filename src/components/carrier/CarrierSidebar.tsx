@@ -1,21 +1,36 @@
 "use client";
 
-import type { ComponentType } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Calendar, Inbox, Bookmark, Bus, UserRound, CircleHelp } from "lucide-react";
+import { Bus, CircleHelp } from "lucide-react";
+import {
+  CalendarIcon as CalendarOutline,
+  InboxIcon as InboxOutline,
+  BookmarkIcon as BookmarkOutline,
+  UserIcon as UserOutline,
+} from "@heroicons/react/24/outline";
+import {
+  CalendarIcon as CalendarSolid,
+  InboxIcon as InboxSolid,
+  BookmarkIcon as BookmarkSolid,
+  UserIcon as UserSolid,
+} from "@heroicons/react/24/solid";
 import { Link, usePathname } from "@/i18n/navigation";
 
+const ICON_SIZE_CLASS = "h-[17px] w-[17px] shrink-0";
+const INACTIVE_COLOR = "#6E6E76";
+const ACTIVE_COLOR = "#0D0D0D";
+
+// Each item renders its own icon so inactive/active can come from two
+// genuinely different glyphs (Heroicons ships matched outline/solid pairs)
+// rather than faking "filled" by tinting the same outline shape. Heroicons
+// has no bus icon though (only a generic truck), which would misrepresent
+// a bus/coach fleet — so Fleet alone keeps lucide's Bus icon for both
+// states, with the active state approximated via a tinted fill.
 interface NavItem {
   href: string;
   labelKey: string;
-  icon: ComponentType<{
-    size?: number;
-    strokeWidth?: number;
-    color?: string;
-    fill?: string;
-    fillOpacity?: number;
-    className?: string;
-  }>;
+  renderIcon: (active: boolean) => ReactNode;
   count?: number;
   badge?: boolean;
 }
@@ -37,7 +52,6 @@ function isActive(pathname: string, href: string) {
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const t = useTranslations("nav");
-  const Icon = item.icon;
   const showCount = item.count !== undefined && item.count > 0;
 
   return (
@@ -49,14 +63,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
           : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
       }`}
     >
-      <Icon
-        size={17}
-        strokeWidth={1.9}
-        color={active ? "#0D0D0D" : "#6E6E76"}
-        fill={active ? "#0D0D0D" : "none"}
-        fillOpacity={active ? 0.16 : undefined}
-        className="shrink-0"
-      />
+      {item.renderIcon(active)}
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
       {showCount ? (
         item.badge ? (
@@ -89,11 +96,67 @@ export function CarrierSidebar({
   const tNav = useTranslations("nav");
 
   const mainItems: NavItem[] = [
-    { href: "/carrier/dashboard", labelKey: "calendar", icon: Calendar },
-    { href: "/carrier/requests", labelKey: "requests", icon: Inbox, count: requestCount, badge: true },
-    { href: "/carrier/bookings", labelKey: "bookings", icon: Bookmark, count: bookingCount },
-    { href: "/carrier/fleet", labelKey: "fleet", icon: Bus, count: fleetCount },
-    { href: "/carrier/drivers", labelKey: "drivers", icon: UserRound, count: driverCount },
+    {
+      href: "/carrier/dashboard",
+      labelKey: "calendar",
+      renderIcon: (active) =>
+        active ? (
+          <CalendarSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+        ) : (
+          <CalendarOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
+        ),
+    },
+    {
+      href: "/carrier/requests",
+      labelKey: "requests",
+      count: requestCount,
+      badge: true,
+      renderIcon: (active) =>
+        active ? (
+          <InboxSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+        ) : (
+          <InboxOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
+        ),
+    },
+    {
+      href: "/carrier/bookings",
+      labelKey: "bookings",
+      count: bookingCount,
+      renderIcon: (active) =>
+        active ? (
+          <BookmarkSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+        ) : (
+          <BookmarkOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
+        ),
+    },
+    {
+      href: "/carrier/fleet",
+      labelKey: "fleet",
+      count: fleetCount,
+      // No bus icon in Heroicons — same lucide glyph both states, active
+      // tinted rather than swapped (see the comment above NavItem).
+      renderIcon: (active) => (
+        <Bus
+          size={17}
+          strokeWidth={1.9}
+          color={active ? ACTIVE_COLOR : INACTIVE_COLOR}
+          fill={active ? ACTIVE_COLOR : "none"}
+          fillOpacity={active ? 0.16 : undefined}
+          className="shrink-0"
+        />
+      ),
+    },
+    {
+      href: "/carrier/drivers",
+      labelKey: "drivers",
+      count: driverCount,
+      renderIcon: (active) =>
+        active ? (
+          <UserSolid className={ICON_SIZE_CLASS} style={{ color: ACTIVE_COLOR }} />
+        ) : (
+          <UserOutline className={ICON_SIZE_CLASS} strokeWidth={1.9} style={{ color: INACTIVE_COLOR }} />
+        ),
+    },
   ];
 
   const hasCritical = expiringItems.some((item) => item.status === "expired");
