@@ -1,6 +1,7 @@
-const SIZE_CLASSES: Record<"xs" | "sm" | "md", string> = {
+const SIZE_CLASSES: Record<"2xs" | "xs" | "sm" | "md", string> = {
+  "2xs": "h-5 w-5 text-[9.5px]",
   xs: "h-6 w-6 text-[10.5px]",
-  sm: "h-7 w-7 text-[11px]",
+  sm: "h-[26px] w-[26px] text-[11px]",
   md: "h-[34px] w-[34px] text-[12px]",
 };
 
@@ -36,25 +37,24 @@ function driverColor(key: string): string {
 // at a glance wherever they appear side by side. The filled name goes in
 // `title` only (per the design system, an assigned-driver avatar carries no
 // visible label) — callers that have room for a name render it separately.
-// Neutral grey fill by default: per the "color only for problems" design
-// principle, an avatar's own color carries no meaning, so it doesn't vary
-// by driver — except the calendar's `colorful` ride-card avatars, which
-// intentionally use color as a stable per-driver identity cue.
+// Colored by default (a stable per-driver hash into DRIVER_COLORS), so the
+// same driver reads as the same color everywhere they're shown — fleet/
+// driver tables, the ride detail drawer, and calendar ride cards alike.
+// `colorful={false}` is kept as an opt-out for a context that wants the
+// flat neutral-grey fill instead (none currently does).
 export function DriverAvatar({
   name,
   photoUrl,
   size = "md",
   id,
   empty = false,
-  colorful = false,
+  colorful = true,
 }: {
   name?: string;
   photoUrl?: string | null;
-  size?: "xs" | "sm" | "md";
+  size?: "2xs" | "xs" | "sm" | "md";
   id?: string;
   empty?: boolean;
-  // Per-driver hashed color (calendar ride cards) instead of the default
-  // neutral grey fill. Default stays the regular identity treatment.
   colorful?: boolean;
 }) {
   const dims = SIZE_CLASSES[size];

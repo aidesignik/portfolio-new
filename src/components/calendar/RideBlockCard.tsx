@@ -89,7 +89,7 @@ export function RideBlockCard({
           </div>
           {driverName ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" colorful />
+              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" />
             </span>
           ) : null}
         </div>
@@ -108,7 +108,7 @@ export function RideBlockCard({
           <span className="min-w-0 truncate font-medium">{time}</span>
           {driverName ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="xs" colorful />
+              <DriverAvatar id={driverId ?? undefined} name={driverName} size="2xs" />
             </span>
           ) : null}
         </div>
