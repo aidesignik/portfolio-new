@@ -146,6 +146,15 @@ export function NewRideModal({
     if (stops.some((s) => !s.city)) return;
     if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city)) return;
 
+    // Geocoding is rate-limited (~1 req/sec) and sequential per waypoint, so
+    // a route's round-trip can easily exceed this debounce — an older
+    // request can still be in flight when a newer edit fires another one.
+    // Without this guard, whichever response happens to land LAST wins,
+    // which isn't necessarily the latest input (e.g. a slower request for
+    // an earlier, partially-typed city overwriting a faster one for the
+    // final, correct city), showing a stale/wrong number that doesn't match
+    // what's currently on screen.
+    let cancelled = false;
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
       setDistanceError(false);
@@ -162,12 +171,14 @@ export function NewRideModal({
           ...returnTripPayload(isRoundTrip, returnTrip),
         }),
       }).catch(() => null);
+      if (cancelled) return;
       setCalculatingDistance(false);
       if (!res?.ok) {
         setDistanceError(true);
         return;
       }
       const body = await res.json().catch(() => null);
+      if (cancelled) return;
       if (typeof body?.distanceKm === "number") {
         setDistanceKm(body.distanceKm);
         setOutboundKm(typeof body.outboundKm === "number" ? body.outboundKm : null);
@@ -177,7 +188,10 @@ export function NewRideModal({
       }
     }, DISTANCE_CALC_DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     form.pickupCity,

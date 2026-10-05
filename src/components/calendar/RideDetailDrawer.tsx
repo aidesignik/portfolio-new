@@ -145,6 +145,10 @@ export function RideDetailDrawer({
     if (stops.some((s) => !s.city)) return;
     if (isRoundTrip && returnTrip.returnStops.some((s) => !s.city)) return;
 
+    // See the same guard (and the reasoning) in NewRideModal — an older,
+    // slower-to-resolve request can still land after a newer one and
+    // overwrite its correct result with a stale/wrong number.
+    let cancelled = false;
     const timer = setTimeout(async () => {
       setCalculatingDistance(true);
       setDistanceError(false);
@@ -161,17 +165,22 @@ export function RideDetailDrawer({
           ...returnTripPayload(isRoundTrip, returnTrip),
         }),
       }).catch(() => null);
+      if (cancelled) return;
       setCalculatingDistance(false);
       if (!res?.ok) {
         setDistanceError(true);
         return;
       }
       const body = await res.json().catch(() => null);
+      if (cancelled) return;
       if (typeof body?.distanceKm === "number") setEditDistanceKm(body.distanceKm);
       else setDistanceError(true);
     }, 900);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     editing,
