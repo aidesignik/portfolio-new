@@ -67,6 +67,15 @@
   --status-cancelled-bg: #eeeeec;
   --status-blocked-bg: #ece4fb;
 
+  /* Saturated pairing of the fills above — for small elements (legend
+     dots, status pill text, tooltips) where the soft fill reads too
+     faint. */
+  --status-pending-dot: #e0566b;
+  --status-confirmed-dot: #4f7bea;
+  --status-completed-dot: #3ba55c;
+  --status-cancelled-dot: #a3a3a0;
+  --status-blocked-dot: #9b7be6;
+
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
   --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 14px rgba(24, 24, 27, 0.06);
   --shadow-pill: 0 1px 2px rgba(24, 24, 27, 0.08);

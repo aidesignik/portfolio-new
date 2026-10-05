@@ -16,3 +16,13 @@ export const RIDE_STATUS_BG: Record<RideStatus, string> = {
   COMPLETED: "var(--status-completed-bg)",
   CANCELLED: "var(--status-cancelled-bg)",
 };
+
+// Saturated pairing of RIDE_STATUS_BG (see --status-*-dot tokens in
+// globals.css) — for small elements where the soft fill reads too faint,
+// e.g. the toolbar legend dots.
+export const RIDE_STATUS_DOT: Record<RideStatus, string> = {
+  PENDING: "var(--status-pending-dot)",
+  CONFIRMED: "var(--status-confirmed-dot)",
+  COMPLETED: "var(--status-completed-dot)",
+  CANCELLED: "var(--status-cancelled-dot)",
+};
