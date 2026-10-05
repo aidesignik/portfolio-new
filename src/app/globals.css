@@ -66,6 +66,13 @@
   --status-completed-bg: #ddf5e6;
   --status-cancelled-bg: #eeeeec;
   --status-blocked-bg: #ece4fb;
+  /* Darker ink of the same hue as each fill above, for the details
+     popover's status pill (bg = fill, text = this). */
+  --status-pending-ink: #9f3148;
+  --status-confirmed-ink: #1e40af;
+  --status-completed-ink: #15803d;
+  --status-cancelled-ink: #52525b;
+  --status-blocked-ink: #3b1f87;
 
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
   --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 14px rgba(24, 24, 27, 0.06);

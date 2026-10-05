@@ -259,6 +259,7 @@
         "assignmentSection": "Dodela",
         "detailsSection": "Detalji",
         "pickup": "Polazak",
+        "operator": "Prevoznik",
         "destination": "Odredište",
         "returnLabel": "Povratak",
         "outboundLabel": "Odlazak",
@@ -316,7 +317,8 @@
         "DAY_OFF": "Slobodan dan",
         "VACATION": "Godišnji odmor",
         "OTHER": "Ostalo"
-      }
+      },
+      "cardAriaLabel": "{route}, {client}, {time}, {booked}/{capacity} putnika, vozač {driver}"
     },
     "requestsTitle": "Novi zahtevi",
     "noIncomingRequests": "Trenutno nema novih zahteva.",
