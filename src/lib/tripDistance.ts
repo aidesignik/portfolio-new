@@ -1,7 +1,15 @@
 import { geocodeAddress } from "./geocoding";
-import { osrmRouteDistanceKm, haversineRouteDistanceKm, type Coordinates } from "./distance";
+import { osrmRouteDistanceKm, haversineRouteDistanceKm, haversineKm, type Coordinates } from "./distance";
 import { formatLocation, type CityLocation } from "./location";
 import { resolveReturnLeg } from "./rideReturnLeg";
+
+// A generic/ambiguous location name (e.g. "Hotel") can geocode to an
+// unrelated place of the same name elsewhere in the (Nominatim-scoped)
+// region rather than the hotel actually in this city — if the "specific"
+// result lands implausibly far from the city itself, that's a stronger
+// signal of a bad match than a routing estimate, so fall back to the
+// city-level coordinate instead of trusting a wildly wrong "precise" one.
+const MAX_LOCATION_DRIFT_KM = 60;
 
 export interface RouteEstimate {
   distanceKm: number;
@@ -15,12 +23,22 @@ export interface RouteEstimate {
  * specific hotel or stop name often won't resolve on its own. Try the full
  * "location, city" string first, then fall back to the city alone so a
  * price estimate still shows even when the exact spot can't be found.
+ *
+ * When a specific result IS found, it's cross-checked against the city's
+ * own coordinate: a generic location name (e.g. "Hotel") can match an
+ * unrelated place with the same name instead of failing outright, so a
+ * "successful" geocode isn't on its own proof the match is correct.
  */
 async function geocodeWaypoint(waypoint: CityLocation): Promise<Coordinates | null> {
+  if (!waypoint.location) return geocodeAddress(waypoint.city);
+
   const specific = await geocodeAddress(formatLocation(waypoint));
-  if (specific) return specific;
-  if (!waypoint.location) return null;
-  return geocodeAddress(waypoint.city);
+  const cityOnly = await geocodeAddress(waypoint.city);
+  if (!specific) return cityOnly;
+  if (!cityOnly) return specific;
+
+  const driftKm = haversineKm(specific, cityOnly);
+  return driftKm > MAX_LOCATION_DRIFT_KM ? cityOnly : specific;
 }
 
 /**

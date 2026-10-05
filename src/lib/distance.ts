@@ -21,7 +21,7 @@ function toRadians(deg: number) {
   return (deg * Math.PI) / 180;
 }
 
-function haversineKm(origin: Coordinates, destination: Coordinates) {
+export function haversineKm(origin: Coordinates, destination: Coordinates) {
   const dLat = toRadians(destination.lat - origin.lat);
   const dLng = toRadians(destination.lng - origin.lng);
   const a =

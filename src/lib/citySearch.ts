@@ -1,4 +1,5 @@
 import cities from "cities.json";
+import { EUROPEAN_COUNTRY_CODES as EUROPEAN_COUNTRY_CODE_LIST } from "./europeanCountryCodes";
 
 export interface CitySuggestion {
   /** What to show in the dropdown and store as the city value if picked. */
@@ -55,18 +56,9 @@ const majorRsRank = new Map(MAJOR_RS_CITIES.map((name, i) => [name, i]));
 // This carrier's trips are domestic or cross-border within Europe — not
 // overseas — so the suggestion dropdown is scoped to European countries
 // only, rather than surfacing an identically-named town in the US or Asia
-// ahead of (or instead of) the European one a user actually means.
-// Standard UN M49 "Europe" grouping, plus Kosovo (XK, not an ISO code but
-// used by this dataset) and Russia. Transcontinental Turkey is left out
-// since it's classified as Western Asia — add "TR" here if trips to
-// Istanbul etc. need to show up too.
-const EUROPEAN_COUNTRY_CODES = new Set([
-  "AD", "AL", "AT", "AX", "BA", "BE", "BG", "BY", "CH", "CY", "CZ", "DE",
-  "DK", "EE", "ES", "FI", "FO", "FR", "GB", "GG", "GI", "GR", "HR", "HU",
-  "IE", "IM", "IS", "IT", "JE", "LI", "LT", "LU", "LV", "MC", "MD", "ME",
-  "MK", "MT", "NL", "NO", "PL", "PT", "RO", "RS", "RU", "SE", "SI", "SJ",
-  "SK", "SM", "UA", "VA", "XK",
-]);
+// ahead of (or instead of) the European one a user actually means. Shared
+// with geocoding.ts, which scopes live Nominatim lookups to the same set.
+const EUROPEAN_COUNTRY_CODES = new Set<string>(EUROPEAN_COUNTRY_CODE_LIST);
 
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 

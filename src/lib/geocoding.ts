@@ -1,6 +1,14 @@
 import type { Coordinates } from "./distance";
+import { EUROPEAN_COUNTRY_CODES } from "./europeanCountryCodes";
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+// Same European scope as citySearch.ts's suggestion dropdown — without
+// this, a generic free-text query (e.g. a location named just "Hotel")
+// can match an identically-named place on another continent and silently
+// return a technically-valid but wildly wrong coordinate, producing a
+// route distance in the thousands of km for what's really a short local
+// trip.
+const COUNTRY_CODES_PARAM = EUROPEAN_COUNTRY_CODES.map((code) => code.toLowerCase()).join(",");
 // Nominatim's usage policy requires a descriptive User-Agent and caps public
 // usage at ~1 request/second — this app is low-traffic, so a simple module-
 // level throttle is enough (no queue/backoff infra needed for this volume).
@@ -39,7 +47,7 @@ export async function geocodeAddress(address: string): Promise<Coordinates | nul
 
   await throttle();
 
-  const url = `${NOMINATIM_URL}?format=json&limit=1&q=${encodeURIComponent(address)}`;
+  const url = `${NOMINATIM_URL}?format=json&limit=1&countrycodes=${COUNTRY_CODES_PARAM}&q=${encodeURIComponent(address)}`;
   let res: Response;
   try {
     res = await fetch(url, {
