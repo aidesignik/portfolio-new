@@ -25,7 +25,7 @@ export async function TopBar() {
         <input
           type="search"
           placeholder={t("search")}
-          className="h-9 w-full rounded-[9px] border-0 bg-[var(--surface-card-bg)] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] shadow-[var(--shadow-surface-card)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
+          className="h-9 w-full rounded-[9px] border-0 bg-[var(--surface-card-bg)] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] shadow-[var(--shadow-search)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
         />
         <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-[6px] bg-white px-[6px] py-[2px] text-[11px] font-medium text-[var(--ink-muted)] shadow-[var(--shadow-pill)]">
           ⌘K

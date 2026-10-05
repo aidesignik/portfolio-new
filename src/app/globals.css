@@ -102,9 +102,12 @@
   --shadow-shell: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 8px rgba(16, 24, 40, 0.05);
 
   --surface-card-bg: #ffffff;
-  /* Shared by the calendar card and the two header/nav surfaces that sit
-     at the same elevation (search input, active nav item). */
+  /* Shared by the calendar card and the active nav item. */
   --shadow-surface-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 2px 6px rgba(16, 24, 40, 0.05);
+  /* Lighter elevation for the header search bar specifically — it sits in
+     a much smaller, denser row than the card/nav surfaces above, where
+     the fuller shadow read as too heavy. */
+  --shadow-search: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 @theme inline {
