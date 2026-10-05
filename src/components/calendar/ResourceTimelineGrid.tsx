@@ -124,7 +124,7 @@ export function ResourceTimelineGrid({
           resolve against the same scrolling ancestor. */}
       <div className="min-w-full">
         <div className="sticky top-0 z-20 grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-            <div className="sticky left-0 z-30 flex h-12 items-center border-r border-b border-r-[#F3F3F1] border-b-[#EEEEEC] bg-white px-[14px] text-[13px] text-[var(--ink-secondary)]">
+            <div className="sticky left-0 z-30 flex h-12 items-center border-r border-b border-r-[#F5F5F3] border-b-[#F0F0EE] bg-white px-[14px] text-[13px] text-[var(--ink-secondary)]">
               {resources.length > 0 ? resourceCountLabel : ""}
             </div>
             {days.map((day, i) => {
@@ -134,7 +134,7 @@ export function ResourceTimelineGrid({
               return (
                 <div
                   key={i}
-                  className="flex h-12 items-center gap-[8px] border-r border-b border-r-[#F3F3F1] border-b-[#EEEEEC] bg-white px-[14px] last:border-r-0"
+                  className="flex h-12 items-center gap-[8px] border-r border-b border-r-[#F5F5F3] border-b-[#F0F0EE] bg-white px-[14px] last:border-r-0"
                 >
                   <span className="text-[13px]" style={{ color: isToday ? "#2563EB" : "#6B6B72" }}>
                     {weekday}
@@ -158,7 +158,8 @@ export function ResourceTimelineGrid({
               {grouping === "vehicle" ? t("noVehicles") : t("noDrivers")}
             </p>
           ) : (
-            resources.map((resource) => {
+            resources.map((resource, resourceIndex) => {
+              const isLastResource = resourceIndex === resources.length - 1;
               const resourceRides = rides
                 .filter((r) => (grouping === "vehicle" ? r.vehicleId : r.driverId) === resource.id)
                 .map((ride) => {
@@ -184,7 +185,11 @@ export function ResourceTimelineGrid({
 
               return (
                 <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-                  <div className="sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-b border-r-[#F3F3F1] border-b-[#EEEEEC] bg-white px-5 py-[18px]">
+                  <div
+                    className={`sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px] ${
+                      isLastResource ? "" : "border-b border-b-[#F0F0EE]"
+                    }`}
+                  >
                     <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                     {resource.plate || resource.seats ? (
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">
@@ -195,7 +200,7 @@ export function ResourceTimelineGrid({
                     ) : null}
                   </div>
                   <div
-                    className="relative col-span-7 grid border-b border-b-[#EEEEEC]"
+                    className={`relative col-span-7 grid ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"}`}
                     style={{
                       gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
                       gridTemplateRows: `repeat(${laneCount}, minmax(118px, auto))`,
@@ -216,7 +221,7 @@ export function ResourceTimelineGrid({
                       return (
                         <div
                           key={i}
-                          className={`border-r border-b border-r-[#F3F3F1] border-b-[#EEEEEC] last:border-r-0 ${
+                          className={`border-r border-r-[#F5F5F3] last:border-r-0 ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"} ${
                             isDragTarget
                               ? dragOverTarget?.conflict
                                 ? "bg-[var(--chip-critical)]/30"
@@ -293,7 +298,7 @@ export function ResourceTimelineGrid({
           <button
             type="button"
             onClick={() => setAddingResource(true)}
-            className="flex h-12 w-full items-center gap-[6px] border-t border-t-[#EEEEEC] px-5 text-[13.5px] font-medium text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+            className="flex h-12 w-full items-center gap-[6px] border-t border-t-[#F0F0EE] px-5 text-[13.5px] font-medium text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
           >
             <Plus size={14} strokeWidth={1.9} />
             {grouping === "vehicle" ? tCarrier("addVehicle") : tCarrier("addDriver")}
