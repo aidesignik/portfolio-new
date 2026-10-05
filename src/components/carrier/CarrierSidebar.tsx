@@ -8,7 +8,14 @@ import { Link, usePathname } from "@/i18n/navigation";
 interface NavItem {
   href: string;
   labelKey: string;
-  icon: ComponentType<{ size?: number; strokeWidth?: number; color?: string; className?: string }>;
+  icon: ComponentType<{
+    size?: number;
+    strokeWidth?: number;
+    color?: string;
+    fill?: string;
+    fillOpacity?: number;
+    className?: string;
+  }>;
   count?: number;
   badge?: boolean;
 }
@@ -42,7 +49,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
           : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
       }`}
     >
-      <Icon size={17} strokeWidth={1.9} color={active ? "#0D0D0D" : "#6E6E76"} className="shrink-0" />
+      <Icon
+        size={17}
+        strokeWidth={1.9}
+        color={active ? "#0D0D0D" : "#6E6E76"}
+        fill={active ? "#0D0D0D" : "none"}
+        fillOpacity={active ? 0.16 : undefined}
+        className="shrink-0"
+      />
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
       {showCount ? (
         item.badge ? (
