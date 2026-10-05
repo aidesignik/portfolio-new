@@ -3,18 +3,10 @@ import { useTranslations } from "next-intl";
 import { ArrowRight, ArrowLeftRight, Clock, Users } from "lucide-react";
 import { RIDE_STATUS_BG } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
-import { usePopover, PopoverPanel } from "@/components/ui/Popover";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
 import { cityCode } from "@/lib/cityCodes";
 import type { CalendarRide } from "./types";
-
-// Must match the `@max-[160px]` container-query breakpoint used below —
-// Tailwind can't consume a JS constant inside an arbitrary-value class, so
-// the two are kept in sync by hand. Used to gate the route tooltip to
-// compact cards only (it has no CSS-only way to do that, since it's
-// portaled out of the card's own container-query subtree).
-const COMPACT_BREAKPOINT_PX = 160;
 
 export function RideBlockCard({
   ride,
@@ -49,26 +41,14 @@ export function RideBlockCard({
     driver: driverName ?? t("detail.noDriver"),
   });
 
-  // Route tooltip — compact cards only. The card's own width is only known
-  // at the moment the tooltip is about to open (there's no CSS-only way to
-  // gate a portaled element on an ancestor's container-query state), so the
-  // gate is a plain width check against the same breakpoint the CSS uses.
-  const { open, triggerRef, panelRef, triggerProps, panelHoverProps } = usePopover({
-    openDelayMs: 400,
-    closeGraceMs: 0,
-    enabled: () => (triggerRef.current?.getBoundingClientRect().width ?? Infinity) < COMPACT_BREAKPOINT_PX,
-  });
-
   return (
     <button
-      ref={triggerRef as React.Ref<HTMLButtonElement>}
       type="button"
       onClick={onClick}
       style={{ ...style, background, containerType: "inline-size" }}
       className="group relative flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-[8px] text-left transition-[background-color,box-shadow,scale] duration-[.12s] ease-out hover:shadow-[0_1px_2px_rgba(20,20,19,.06),0_4px_12px_rgba(20,20,19,.06)] active:scale-[0.99] active:shadow-none"
       title={`${clientLabel} · ${route}`}
       aria-label={ariaLabel}
-      {...triggerProps}
     >
       {/* Darken-on-interaction overlay, layered on top of the status fill
           rather than mixed into it, so the status color never shifts hue —
@@ -133,18 +113,6 @@ export function RideBlockCard({
           ) : null}
         </div>
       </div>
-
-      <PopoverPanel
-        open={open}
-        triggerRef={triggerRef}
-        panelRef={panelRef}
-        hoverProps={panelHoverProps}
-        placement="top"
-        interactive={false}
-        className="z-[70] whitespace-nowrap rounded-[8px] bg-[#1A1A19] px-[10px] py-[6px] text-[13px] font-medium text-white shadow-[0_4px_12px_rgba(20,20,19,.16)]"
-      >
-        {route}
-      </PopoverPanel>
     </button>
   );
 }
