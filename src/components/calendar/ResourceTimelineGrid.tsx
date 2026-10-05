@@ -184,12 +184,12 @@ export function ResourceTimelineGrid({
               ]);
 
               return (
-                <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-                  <div
-                    className={`sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px] ${
-                      isLastResource ? "" : "border-b border-b-[#F0F0EE]"
-                    }`}
-                  >
+                <div
+                  key={resource.id}
+                  className={`grid ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"}`}
+                  style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}
+                >
+                  <div className="sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px]">
                     <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                     {resource.plate || resource.seats ? (
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">
@@ -200,7 +200,7 @@ export function ResourceTimelineGrid({
                     ) : null}
                   </div>
                   <div
-                    className={`relative col-span-7 grid ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"}`}
+                    className="relative col-span-7 grid"
                     style={{
                       gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
                       gridTemplateRows: `repeat(${laneCount}, minmax(118px, auto))`,
@@ -221,7 +221,7 @@ export function ResourceTimelineGrid({
                       return (
                         <div
                           key={i}
-                          className={`border-r border-r-[#F5F5F3] last:border-r-0 ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"} ${
+                          className={`border-r border-r-[#F5F5F3] last:border-r-0 ${
                             isDragTarget
                               ? dragOverTarget?.conflict
                                 ? "bg-[var(--chip-critical)]/30"
