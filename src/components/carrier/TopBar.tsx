@@ -15,13 +15,13 @@ export async function TopBar() {
 
   return (
     <div className="flex shrink-0">
-      {/* Same px-8 gutter as PageContent below (no max-width cap on
+      {/* Same px-6 gutter as PageContent below (no max-width cap on
           either), so the search bar and avatar line up with the
-          calendar/table edges at any screen width. py-8 matches that
-          same 32px so the gap above the search bar is an actual,
+          calendar/table edges at any screen width. py-6 matches that
+          same 24px so the gap above the search bar is an actual,
           deliberate padding value instead of an incidental few px left
           over from centering it in a fixed-height row. */}
-      <div className="flex w-full items-center justify-between gap-4 px-8 py-8">
+      <div className="flex w-full items-center justify-between gap-4 px-6 py-6">
         <div className="relative w-full max-w-[420px]">
           <Search
             size={16}
