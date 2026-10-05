@@ -15,10 +15,10 @@ export async function TopBar() {
 
   return (
     <div className="flex h-16 shrink-0 items-center">
-      {/* Same max-w-[1280px]/px-8 column as PageContent below, so the
-          search bar and avatar line up with the calendar/table edges
-          instead of hugging the panel's own (wider) padding. */}
-      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-8">
+      {/* Same px-8 gutter as PageContent below (no max-width cap on
+          either), so the search bar and avatar line up with the
+          calendar/table edges at any screen width. */}
+      <div className="flex w-full items-center justify-between gap-4 px-8">
         <div className="relative w-full max-w-[420px]">
           <Search
             size={16}

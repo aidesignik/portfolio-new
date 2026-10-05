@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 
-// Shared scroll region + max-width wrapper for every gated carrier page:
-// the title row and the work surface (calendar/table) both live inside
-// this same 1280px-capped, centered column.
+// Shared scroll region for every gated carrier page: the title row and the
+// work surface (calendar/table) both live inside this same px-8 gutter, no
+// max-width cap — on a wide screen the content fills the panel instead of
+// centering with a large empty margin either side (see TopBar, which uses
+// the same px-8 so both rows share one consistent edge).
 export function PageContent({
   children,
   compactTop = false,
@@ -22,7 +24,7 @@ export function PageContent({
     // instead of scrolling with this region's content.
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div
-        className={`mx-auto flex h-full min-h-full w-full max-w-[1280px] flex-col gap-5 px-8 ${
+        className={`flex h-full min-h-full w-full flex-col gap-5 px-8 ${
           compactTop ? "pt-[18px]" : "pt-7"
         } ${compactBottom ? "pb-3" : "pb-8"}`}
       >
