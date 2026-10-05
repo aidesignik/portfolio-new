@@ -37,7 +37,9 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       className={`${NAV_ITEM_CLASS} ${
-        active ? "bg-[var(--bg-nav-active)] font-semibold text-[#0D0D0D]" : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
+        active
+          ? "bg-[var(--surface-card-bg)] font-semibold text-[#0D0D0D] shadow-[var(--shadow-surface-card)]"
+          : "font-medium text-[#3F3F46] hover:bg-[#EBEBEB]"
       }`}
     >
       <Icon size={17} strokeWidth={1.9} color={active ? "#0D0D0D" : "#6E6E76"} className="shrink-0" />

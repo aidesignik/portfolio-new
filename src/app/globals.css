@@ -83,6 +83,28 @@
      action-blue's hue (desaturated/darkened so it reads as a shadow, not
      a blue glow) so the panel's elevation echoes the brand accent. */
   --shadow-panel: 0 2px 4px rgba(29, 38, 74, 0.07), 0 16px 40px rgba(29, 38, 74, 0.16);
+
+  /* Surface depth pass — background fills + barely-there corner-tint
+     gradients for the app's background layers (shell, panel, card), so
+     the stack reads with subtle depth instead of flat grey-on-grey.
+     Each surface pairs a solid fallback color with its gradient and
+     shadow, all as tokens rather than hardcoded per component. */
+  --surface-app-bg: #f0f2f1;
+  --surface-app-gradient: radial-gradient(45% 55% at 0% 0%, rgba(110, 145, 235, 0.06), transparent),
+    radial-gradient(45% 55% at 0% 100%, rgba(150, 125, 230, 0.06), transparent),
+    radial-gradient(40% 50% at 100% 0%, rgba(130, 150, 235, 0.05), transparent),
+    radial-gradient(40% 50% at 100% 100%, rgba(110, 190, 170, 0.05), transparent);
+
+  --surface-shell-bg: #f6f8f7;
+  --surface-shell-gradient: radial-gradient(40% 50% at 0% 0%, rgba(110, 145, 235, 0.07), transparent),
+    radial-gradient(45% 55% at 100% 100%, rgba(150, 125, 230, 0.07), transparent),
+    radial-gradient(35% 45% at 0% 100%, rgba(110, 190, 170, 0.05), transparent);
+  --shadow-shell: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 8px rgba(16, 24, 40, 0.05);
+
+  --surface-card-bg: #ffffff;
+  /* Shared by the calendar card and the two header/nav surfaces that sit
+     at the same elevation (search input, active nav item). */
+  --shadow-surface-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 2px 6px rgba(16, 24, 40, 0.05);
 }
 
 @theme inline {
@@ -114,6 +136,20 @@ h1,
 h2,
 h3 {
   letter-spacing: -0.02em;
+}
+
+/* Surface depth pass — background-image gradients have too many commas
+   for Tailwind's arbitrary-value class syntax, so the two gradient
+   surfaces get plain classes referencing the tokens above instead. */
+.surface-app {
+  background-color: var(--surface-app-bg);
+  background-image: var(--surface-app-gradient);
+}
+
+.surface-shell {
+  background-color: var(--surface-shell-bg);
+  background-image: var(--surface-shell-gradient);
+  box-shadow: var(--shadow-shell);
 }
 
 /* Tailwind's preflight resets buttons to `cursor: default` (matching the

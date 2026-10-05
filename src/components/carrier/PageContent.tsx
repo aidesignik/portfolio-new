@@ -17,7 +17,10 @@ export function PageContent({
   compactBottom?: boolean;
 }) {
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--bg-content)]">
+    // No background of its own — the shell panel behind it (.surface-shell
+    // in the gated layout) carries the fill/gradient so it stays fixed
+    // instead of scrolling with this region's content.
+    <div className="min-h-0 flex-1 overflow-y-auto">
       <div
         className={`mx-auto flex h-full min-h-full w-full max-w-[1280px] flex-col gap-5 px-8 ${
           compactTop ? "pt-[18px]" : "pt-7"
