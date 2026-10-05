@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { ArrowRight, ArrowLeftRight, Clock, Users } from "lucide-react";
-import { RIDE_STATUS_ACCENT } from "./statusStyles";
+import { RIDE_STATUS_BG } from "./statusStyles";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
@@ -28,31 +28,25 @@ export function RideBlockCard({
   });
   const clientLabel = clientDisplayName(ride.client);
   const status = displayRideStatus(ride);
-  const accent = RIDE_STATUS_ACCENT[status];
-  // A completed trip has nothing left pending — the bar reads as fully
-  // done (solid) instead of colored-plus-grey-remainder.
-  const isCompleted = status === "COMPLETED";
+  const background = RIDE_STATUS_BG[status];
 
   return (
     <button
       type="button"
       onClick={onClick}
-      style={style}
-      className="flex w-full min-w-0 flex-col overflow-hidden rounded-[8px] border border-[var(--border-hairline)] bg-white text-left shadow-[var(--shadow-card)] transition-shadow duration-[.12s] ease-out hover:shadow-[0_2px_8px_rgba(24,24,27,.10)]"
+      style={{ ...style, background }}
+      className="group relative flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-[8px] text-left transition-[background-color,box-shadow,scale] duration-[.12s] ease-out hover:shadow-[0_1px_2px_rgba(20,20,19,.06),0_4px_12px_rgba(20,20,19,.06)] active:scale-[0.99] active:shadow-none"
       title={`${clientLabel} · ${ride.pickupCity} ${ride.isRoundTrip ? "⇄" : "→"} ${ride.destinationCity}`}
     >
-      <div className="flex flex-col gap-[6px] px-[10px] py-[10px]">
-        <div className="flex h-[4px] shrink-0 items-center gap-[3px]">
-          {isCompleted ? (
-            <span className="h-full rounded-full" style={{ width: 39, background: accent }} />
-          ) : (
-            <>
-              <span className="h-full rounded-full" style={{ width: 26, background: accent }} />
-              <span className="h-full rounded-full" style={{ width: 10, background: "#E4E4E7" }} />
-            </>
-          )}
-        </div>
-        <div className="min-w-0">
+      {/* Darken-on-interaction overlay, layered on top of the status fill
+          rather than mixed into it, so the status color never shifts hue —
+          only its perceived brightness. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[rgba(20,20,19,0)] transition-colors duration-[.12s] ease-out group-hover:bg-[rgba(20,20,19,.04)] group-active:bg-[rgba(20,20,19,.08)]"
+      />
+      <div className="relative flex flex-1 flex-col gap-[6px] px-[10px] py-[8px]">
+        <div className="flex min-w-0 flex-col gap-[2px]">
           <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium text-[var(--ink-primary)]">
             <span className="min-w-0 truncate">{ride.pickupCity}</span>
             {ride.isRoundTrip ? (
@@ -64,7 +58,7 @@ export function RideBlockCard({
           </p>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
-        <div className="flex items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
+        <div className="mt-auto flex items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
           <div className="flex min-w-0 flex-1 items-center gap-[8px] overflow-hidden">
             <span className="flex min-w-0 shrink items-center gap-[3px]">
               <Clock size={13} strokeWidth={1.9} className="shrink-0" />
@@ -80,7 +74,7 @@ export function RideBlockCard({
           </div>
           {driverName ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" muted />
+              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" colorful />
             </span>
           ) : null}
         </div>

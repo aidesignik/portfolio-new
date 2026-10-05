@@ -184,7 +184,7 @@ export function ResourceTimelineGrid({
 
               return (
                 <div key={resource.id} className="grid" style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}>
-                  <div className="sticky left-0 z-10 flex min-h-[132px] flex-col justify-center gap-[2px] border-r border-b border-[var(--border-hairline)] bg-white px-5 py-[18px]">
+                  <div className="sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-b border-[var(--border-hairline)] bg-white px-5 py-[18px]">
                     <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                     {resource.plate || resource.seats ? (
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">
@@ -198,7 +198,7 @@ export function ResourceTimelineGrid({
                     className="relative col-span-7 grid border-b border-[var(--border-hairline)]"
                     style={{
                       gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                      gridTemplateRows: `repeat(${laneCount}, minmax(132px, auto))`,
+                      gridTemplateRows: `repeat(${laneCount}, minmax(118px, auto))`,
                     }}
                     onDragOver={(e) => {
                       if (!draggingRideId) return;
@@ -238,7 +238,7 @@ export function ResourceTimelineGrid({
                           gridRow: (laneOf.get(block.id) ?? 0) + 1,
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
                           margin: "12px 8px",
-                          background: "#EDE9FE",
+                          background: "var(--status-blocked-bg)",
                           color: "#3B1F87",
                           alignSelf: "start",
                         }}
