@@ -5,13 +5,16 @@ import { useLocale, useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Bus, UserRound } from "lucide-react";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
 import { UnassignedQueue } from "./UnassignedQueue";
-import { CalendarLegend } from "./CalendarLegend";
 import { NewRideModal } from "./NewRideModal";
 import { RideDetailDrawer } from "./RideDetailDrawer";
 import { useNewRide } from "./NewRideContext";
+import { FilterDropdown } from "@/components/carrier/FilterDropdown";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
-import type { CalendarData, CalendarRide, ResourceGrouping } from "./types";
+import { displayRideStatus } from "@/lib/rideStatus";
+import type { CalendarData, CalendarRide, ResourceGrouping, RideStatus } from "./types";
+
+const STATUSES: RideStatus[] = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const AVERAGE_TRIP_DURATION_HOURS = 4;
@@ -41,19 +44,22 @@ function windowsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
 
 // Prev/next/date live in one bordered segmented control; the arrows get a
 // hover tint only (no border of their own — the shared control draws it).
+// Every toolbar control is exactly 40px tall.
 const WEEK_ARROW_CLASS =
   "flex h-full w-10 shrink-0 items-center justify-center text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
 const TODAY_BUTTON_CLASS =
-  "flex h-9 shrink-0 items-center rounded-[10px] bg-[var(--border-soft)] px-3 text-[13.5px] font-semibold text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-control)]";
+  "flex h-10 shrink-0 items-center rounded-[10px] bg-[var(--border-soft)] px-3 text-[13.5px] font-semibold text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-control)]";
 
 export function RidesCalendar() {
   const t = useTranslations("carrier.calendar");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   // sr's default Intl formatting is Cyrillic; the rest of this app's
   // Serbian copy is Latin.
   const intlLocale = locale === "sr" ? "sr-Latn" : "en";
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [grouping, setGrouping] = useState<ResourceGrouping>("vehicle");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
   const { showNewRide, closeNewRide } = useNewRide();
@@ -85,6 +91,14 @@ export function RidesCalendar() {
   }, [load]);
 
   const allRides = useMemo(() => (data ? [...data.rides, ...data.unassigned] : []), [data]);
+  const statusOptions = useMemo(
+    () => STATUSES.map((status) => ({ value: status, label: t(`legend.${status}`) })),
+    [t],
+  );
+  const filteredRides = useMemo(
+    () => (data && statusFilter ? data.rides.filter((r) => displayRideStatus(r) === statusFilter) : (data?.rides ?? [])),
+    [data, statusFilter],
+  );
   const draggingRide = draggingRideId ? allRides.find((r) => r.id === draggingRideId) ?? null : null;
   const selectedRide = selectedRideId ? allRides.find((r) => r.id === selectedRideId) ?? null : null;
 
@@ -154,7 +168,7 @@ export function RidesCalendar() {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[var(--surface-card-bg)] shadow-[var(--shadow-surface-card)]">
       <div className="flex shrink-0 items-center gap-2 p-4">
         <div
-          className="flex h-9 shrink-0 items-center overflow-hidden rounded-[10px]"
+          className="flex h-10 shrink-0 items-center overflow-hidden rounded-[10px]"
           style={{ boxShadow: "inset 0 0 0 1px var(--border-control)" }}
         >
           <button
@@ -188,35 +202,40 @@ export function RidesCalendar() {
           {t("today")}
         </button>
 
-        <div className="ml-auto">
-          <CalendarLegend />
-        </div>
-
-        <div className="ml-4 flex h-9 shrink-0 items-center gap-[3px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
-          <button
-            type="button"
-            onClick={() => setGrouping("vehicle")}
-            className={`flex h-[30px] items-center gap-[6px] rounded-[8px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
-              grouping === "vehicle"
-                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
-                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
-            }`}
-          >
-            <Bus size={14} strokeWidth={1.9} />
-            {t("byVehicle")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setGrouping("driver")}
-            className={`flex h-[30px] items-center gap-[6px] rounded-[8px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
-              grouping === "driver"
-                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
-                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
-            }`}
-          >
-            <UserRound size={14} strokeWidth={1.9} />
-            {t("byDriver")}
-          </button>
+        <div className="ml-auto flex items-center gap-2">
+          <FilterDropdown
+            size="lg"
+            label={tCommon("status")}
+            options={statusOptions}
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
+          <div className="flex h-10 shrink-0 items-center gap-[3px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
+            <button
+              type="button"
+              onClick={() => setGrouping("vehicle")}
+              className={`flex h-[34px] items-center gap-[6px] rounded-[8px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+                grouping === "vehicle"
+                  ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
+                  : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+              }`}
+            >
+              <Bus size={14} strokeWidth={1.9} />
+              {t("byVehicle")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGrouping("driver")}
+              className={`flex h-[34px] items-center gap-[6px] rounded-[8px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+                grouping === "driver"
+                  ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
+                  : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+              }`}
+            >
+              <UserRound size={14} strokeWidth={1.9} />
+              {t("byDriver")}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -233,7 +252,7 @@ export function RidesCalendar() {
           grouping={grouping}
           vehicles={data.vehicles}
           drivers={data.drivers}
-          rides={data.rides}
+          rides={filteredRides}
           blocks={data.blocks}
           onRideClick={setSelectedRideId}
           onDropRide={handleDrop}

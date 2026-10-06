@@ -5,7 +5,7 @@
 // name, vehicle, driver, route) flexes with the remaining width and only
 // the metadata columns (status, documents, pax, actions…) stay fixed-width.
 
-export const CALENDAR_RESOURCE_COLUMN_WIDTH = 220;
+export const CALENDAR_RESOURCE_COLUMN_WIDTH = 240;
 // Day columns flex to fill available width but never shrink below 120px —
 // without a floor they'd just keep compressing on a narrow viewport instead
 // of the grid ever overflowing, which would mean the horizontal scroll (and
