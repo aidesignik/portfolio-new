@@ -8,32 +8,30 @@ import { displayRideStatus } from "@/lib/rideStatus";
 import { cityCode } from "@/lib/cityCodes";
 import type { CalendarRide, RideStatus } from "./types";
 
-// Top-right status tag — a labeled pill once the card (not its day span)
-// is wide enough, collapsing to just the dot (with a soft halo, and the
-// status on hover/aria) below ~180px. Both variants render at once and
-// toggle via the card's own container query, same mechanism as the
-// wide/compact body layout below, so this follows the card's actual
-// rendered width rather than guessing from how many days it spans.
-function StatusTag({ status, label, ariaLabel }: { status: RideStatus; label: string; ariaLabel: string }) {
+// Top-right status tag. One component for both the card's wide and
+// compact layouts, so the pill's size/colors/position can't drift
+// between them — `compact` just hides the label, shrinking the same
+// pill down to a 22×22px circle around the dot rather than swapping in
+// a differently-sized indicator.
+function StatusTag({ status, compact = false }: { status: RideStatus; compact?: boolean }) {
+  const t = useTranslations("carrier.calendar");
+  const label = t(`legend.${status}`);
   const dot = RIDE_STATUS_DOT[status];
+  const a11yProps = compact ? { title: label, "aria-label": t("statusAriaLabel", { status: label }) } : {};
+
   return (
-    <>
-      <span
-        className="flex h-[22px] shrink-0 items-center gap-[5px] rounded-full px-[8px] @max-[180px]:hidden"
-        style={{ background: "rgba(255,255,255,.7)" }}
-      >
-        <span aria-hidden className="h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: dot }} />
+    <span
+      {...a11yProps}
+      className={`flex h-[22px] shrink-0 items-center justify-center gap-[5px] rounded-full ${compact ? "w-[22px] px-0" : "px-[8px]"}`}
+      style={{ background: "rgba(255,255,255,.7)" }}
+    >
+      <span aria-hidden className="h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: dot }} />
+      {compact ? null : (
         <span className="text-[11.5px] font-semibold" style={{ color: RIDE_STATUS_TEXT[status] }}>
           {label}
         </span>
-      </span>
-      <span
-        className="hidden h-[8px] w-[8px] shrink-0 rounded-full @max-[180px]:block"
-        style={{ background: dot, boxShadow: `0 0 0 3px color-mix(in srgb, ${dot} 15%, transparent)` }}
-        title={label}
-        aria-label={ariaLabel}
-      />
-    </>
+      )}
+    </span>
   );
 }
 
@@ -67,8 +65,6 @@ export function RideBlockCard({
     time,
     driver: driver?.name ?? t("detail.noDriver"),
   });
-  const statusLabel = t(`legend.${status}`);
-  const statusAriaLabel = t("statusAriaLabel", { status: statusLabel });
   const titleColor = status === "CANCELLED" ? "var(--ink-muted)" : "var(--ink-primary)";
 
   return (
@@ -92,7 +88,7 @@ export function RideBlockCard({
           span) drops below ~160px. */}
       <div className="relative flex flex-1 flex-col gap-[6px] px-[10px] py-[8px] @max-[160px]:hidden">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <div className="flex items-start justify-between gap-[6px]">
+          <div className="flex items-center justify-between gap-[6px]">
             <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium" style={{ color: titleColor }}>
               <span className="min-w-0 truncate">{ride.pickupCity}</span>
               {ride.isRoundTrip ? (
@@ -102,7 +98,7 @@ export function RideBlockCard({
               )}
               <span className="min-w-0 truncate">{ride.destinationCity}</span>
             </p>
-            <StatusTag status={status} label={statusLabel} ariaLabel={statusAriaLabel} />
+            <StatusTag status={status} />
           </div>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
@@ -132,11 +128,11 @@ export function RideBlockCard({
           full names, no passenger count, smaller avatar, no clock icon. */}
       <div className="relative hidden flex-1 flex-col gap-[6px] px-[10px] py-[8px] @max-[160px]:flex">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <div className="flex items-start justify-between gap-[6px]">
+          <div className="flex items-center justify-between gap-[6px]">
             <p className="min-w-0 truncate text-[14px] font-medium" style={{ color: titleColor }}>
               {cityCode(ride.pickupCity)} {routeArrow} {cityCode(ride.destinationCity)}
             </p>
-            <StatusTag status={status} label={statusLabel} ariaLabel={statusAriaLabel} />
+            <StatusTag status={status} compact />
           </div>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
