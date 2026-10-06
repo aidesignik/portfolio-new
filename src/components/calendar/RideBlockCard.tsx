@@ -87,7 +87,7 @@ export function RideBlockCard({
           </div>
           {driver ? (
             <span className="shrink-0">
-              <DriverAvatar driver={driver} size={26} ring decorative />
+              <DriverAvatar driver={driver} size={24} ring decorative />
             </span>
           ) : null}
         </div>
@@ -106,7 +106,7 @@ export function RideBlockCard({
           <span className="min-w-0 truncate font-medium">{time}</span>
           {driver ? (
             <span className="shrink-0">
-              <DriverAvatar driver={driver} size={20} ring decorative />
+              <DriverAvatar driver={driver} size={24} ring decorative />
             </span>
           ) : null}
         </div>
