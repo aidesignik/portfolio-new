@@ -152,7 +152,7 @@ export function RidesCalendar() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[var(--surface-card-bg)] shadow-[var(--shadow-surface-card)]">
-      <div className="flex h-[60px] shrink-0 items-center gap-2 px-4">
+      <div className="flex shrink-0 items-center gap-2 p-4">
         <div
           className="flex h-10 shrink-0 items-center overflow-hidden rounded-[8px]"
           style={{ boxShadow: "inset 0 0 0 1px var(--border-control)" }}
