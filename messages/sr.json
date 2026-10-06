@@ -339,7 +339,8 @@
         "VACATION": "Godišnji odmor",
         "OTHER": "Ostalo"
       },
-      "cardAriaLabel": "{route}, {client}, {time}, vozač {driver}"
+      "cardAriaLabel": "{route}, {client}, {time}, vozač {driver}",
+      "statusAriaLabel": "Status: {status}"
     },
     "requestsTitle": "Novi zahtevi",
     "noIncomingRequests": "Trenutno nema novih zahteva.",

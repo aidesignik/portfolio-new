@@ -70,11 +70,19 @@
   /* Saturated pairing of the fills above — for small elements (legend
      dots, status pill text, tooltips) where the soft fill reads too
      faint. */
-  --status-pending-dot: #e0566b;
-  --status-confirmed-dot: #4f7bea;
-  --status-completed-dot: #3ba55c;
-  --status-cancelled-dot: #a3a3a0;
-  --status-blocked-dot: #9b7be6;
+  --status-pending-dot: #d64553;
+  --status-confirmed-dot: #3b63e0;
+  --status-completed-dot: #2f8a57;
+  --status-cancelled-dot: #a3a39c;
+  --status-blocked-dot: #8b5cf6;
+
+  /* Darker still — status-card tag labels, which sit on the card's own
+     tinted background and need more contrast than the dot alone. */
+  --status-pending-text: #a3232f;
+  --status-confirmed-text: #2a46a8;
+  --status-completed-text: #1f6b41;
+  --status-cancelled-text: #57574f;
+  --status-blocked-text: #6233c9;
 
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
   --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 14px rgba(24, 24, 27, 0.06);

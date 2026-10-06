@@ -1,12 +1,41 @@
 import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, ArrowLeftRight, Clock, Users } from "lucide-react";
-import { RIDE_STATUS_BG } from "./statusStyles";
+import { RIDE_STATUS_BG, RIDE_STATUS_DOT, RIDE_STATUS_TEXT } from "./statusStyles";
 import { DriverAvatar, type DriverAvatarDriver } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
 import { cityCode } from "@/lib/cityCodes";
-import type { CalendarRide } from "./types";
+import type { CalendarRide, RideStatus } from "./types";
+
+// Top-right status tag — a labeled pill once the card (not its day span)
+// is wide enough, collapsing to just the dot (with a soft halo, and the
+// status on hover/aria) below ~180px. Both variants render at once and
+// toggle via the card's own container query, same mechanism as the
+// wide/compact body layout below, so this follows the card's actual
+// rendered width rather than guessing from how many days it spans.
+function StatusTag({ status, label, ariaLabel }: { status: RideStatus; label: string; ariaLabel: string }) {
+  const dot = RIDE_STATUS_DOT[status];
+  return (
+    <>
+      <span
+        className="flex h-[22px] shrink-0 items-center gap-[5px] rounded-full px-[8px] @max-[180px]:hidden"
+        style={{ background: "rgba(255,255,255,.7)" }}
+      >
+        <span aria-hidden className="h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: dot }} />
+        <span className="text-[11.5px] font-semibold" style={{ color: RIDE_STATUS_TEXT[status] }}>
+          {label}
+        </span>
+      </span>
+      <span
+        className="hidden h-[8px] w-[8px] shrink-0 rounded-full @max-[180px]:block"
+        style={{ background: dot, boxShadow: `0 0 0 3px color-mix(in srgb, ${dot} 15%, transparent)` }}
+        title={label}
+        aria-label={ariaLabel}
+      />
+    </>
+  );
+}
 
 export function RideBlockCard({
   ride,
@@ -38,6 +67,9 @@ export function RideBlockCard({
     time,
     driver: driver?.name ?? t("detail.noDriver"),
   });
+  const statusLabel = t(`legend.${status}`);
+  const statusAriaLabel = t("statusAriaLabel", { status: statusLabel });
+  const titleColor = status === "CANCELLED" ? "var(--ink-muted)" : "var(--ink-primary)";
 
   return (
     <button
@@ -60,15 +92,18 @@ export function RideBlockCard({
           span) drops below ~160px. */}
       <div className="relative flex flex-1 flex-col gap-[6px] px-[10px] py-[8px] @max-[160px]:hidden">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium text-[var(--ink-primary)]">
-            <span className="min-w-0 truncate">{ride.pickupCity}</span>
-            {ride.isRoundTrip ? (
-              <ArrowLeftRight size={14} strokeWidth={1.75} className="shrink-0" />
-            ) : (
-              <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
-            )}
-            <span className="min-w-0 truncate">{ride.destinationCity}</span>
-          </p>
+          <div className="flex items-start justify-between gap-[6px]">
+            <p className="flex min-w-0 items-center gap-[5px] text-[14px] font-medium" style={{ color: titleColor }}>
+              <span className="min-w-0 truncate">{ride.pickupCity}</span>
+              {ride.isRoundTrip ? (
+                <ArrowLeftRight size={14} strokeWidth={1.75} className="shrink-0" />
+              ) : (
+                <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
+              )}
+              <span className="min-w-0 truncate">{ride.destinationCity}</span>
+            </p>
+            <StatusTag status={status} label={statusLabel} ariaLabel={statusAriaLabel} />
+          </div>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
         <div className="mt-auto flex items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
@@ -97,9 +132,12 @@ export function RideBlockCard({
           full names, no passenger count, smaller avatar, no clock icon. */}
       <div className="relative hidden flex-1 flex-col gap-[6px] px-[10px] py-[8px] @max-[160px]:flex">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
-            {cityCode(ride.pickupCity)} {routeArrow} {cityCode(ride.destinationCity)}
-          </p>
+          <div className="flex items-start justify-between gap-[6px]">
+            <p className="min-w-0 truncate text-[14px] font-medium" style={{ color: titleColor }}>
+              {cityCode(ride.pickupCity)} {routeArrow} {cityCode(ride.destinationCity)}
+            </p>
+            <StatusTag status={status} label={statusLabel} ariaLabel={statusAriaLabel} />
+          </div>
           <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">{clientLabel}</p>
         </div>
         <div className="mt-auto flex items-center justify-between gap-[6px] text-[12.5px]" style={{ color: "#55555C" }}>

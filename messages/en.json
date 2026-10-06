@@ -339,7 +339,8 @@
         "VACATION": "Vacation",
         "OTHER": "Other"
       },
-      "cardAriaLabel": "{route}, {client}, {time}, driver {driver}"
+      "cardAriaLabel": "{route}, {client}, {time}, driver {driver}",
+      "statusAriaLabel": "Status: {status}"
     },
     "requestsTitle": "Incoming requests",
     "noIncomingRequests": "No incoming requests right now.",
