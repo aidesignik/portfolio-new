@@ -5,9 +5,17 @@ import { useTranslations } from "next-intl";
 import { FileText, FileCheck, Download, Mail } from "lucide-react";
 import type { Document, DocumentType } from "@prisma/client";
 import { formatShortDate, formatTime24 } from "@/lib/rideDateFormat";
-import { EmailDocumentsModal } from "@/components/forms/EmailDocumentsModal";
+import { EmailDocumentsPopover } from "@/components/forms/EmailDocumentsPopover";
 
 const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
+
+// Which trigger opened the popover — "header" for the section-level "Email
+// to client" action (pre-checks every ready document) or a single type for
+// a row's own mail icon (pre-checks just that one). The popover itself
+// renders anchored inside whichever trigger's own wrapper matches this, so
+// it floats next to the control that opened it instead of centering over
+// the page.
+type EmailTrigger = "header" | DocumentType;
 
 // Documents are generated server-side (on assignment and on every trip
 // edit — see lib/documents/regenerate.ts), so this only ever reads and
@@ -17,8 +25,7 @@ const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
 export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; clientEmail: string }) {
   const t = useTranslations();
   const [documents, setDocuments] = useState<Document[] | null>(null);
-  // null = closed; an array = open, pre-checked to these types.
-  const [emailPreselect, setEmailPreselect] = useState<DocumentType[] | null>(null);
+  const [emailTrigger, setEmailTrigger] = useState<EmailTrigger | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,6 +62,10 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
     );
   }
 
+  function toggleTrigger(trigger: EmailTrigger) {
+    setEmailTrigger((prev) => (prev === trigger ? null : trigger));
+  }
+
   return (
     <div className="border-t border-[var(--border-hairline)] px-6 py-5">
       <div className="flex items-baseline justify-between gap-2">
@@ -70,14 +81,26 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
             </span>
           ) : null}
           {readyTypes.length > 0 ? (
-            <button
-              type="button"
-              onClick={() => setEmailPreselect(readyTypes)}
-              className="flex items-center gap-[5px] text-[12.5px] font-semibold text-[var(--action-bg)] hover:underline"
-            >
-              <Mail size={13} strokeWidth={2} />
-              {t("carrier.emailDocuments.trigger")}
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleTrigger("header")}
+                className="flex items-center gap-[5px] text-[12.5px] font-semibold text-[var(--action-bg)] hover:underline"
+              >
+                <Mail size={13} strokeWidth={2} />
+                {t("carrier.emailDocuments.trigger")}
+              </button>
+              {emailTrigger === "header" ? (
+                <EmailDocumentsPopover
+                  rideId={rideId}
+                  readyTypes={readyTypes}
+                  preselectTypes={readyTypes}
+                  defaultEmail={clientEmail}
+                  onClose={() => setEmailTrigger(null)}
+                  onSent={(sentTypes, to) => markEmailed(sentTypes, to)}
+                />
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
@@ -100,14 +123,26 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
               ) : null}
               {ready ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => setEmailPreselect([type])}
-                    aria-label={t("carrier.emailDocuments.trigger")}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
-                  >
-                    <Mail size={16} strokeWidth={1.9} />
-                  </button>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleTrigger(type)}
+                      aria-label={t("carrier.emailDocuments.trigger")}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+                    >
+                      <Mail size={16} strokeWidth={1.9} />
+                    </button>
+                    {emailTrigger === type ? (
+                      <EmailDocumentsPopover
+                        rideId={rideId}
+                        readyTypes={readyTypes}
+                        preselectTypes={[type]}
+                        defaultEmail={clientEmail}
+                        onClose={() => setEmailTrigger(null)}
+                        onSent={(sentTypes, to) => markEmailed(sentTypes, to)}
+                      />
+                    ) : null}
+                  </div>
                   <a
                     href={`/api/documents/${doc.id}/download`}
                     aria-label={t("common.download")}
@@ -125,17 +160,6 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
           );
         })}
       </div>
-
-      {emailPreselect ? (
-        <EmailDocumentsModal
-          rideId={rideId}
-          readyTypes={readyTypes}
-          preselectTypes={emailPreselect}
-          defaultEmail={clientEmail}
-          onClose={() => setEmailPreselect(null)}
-          onSent={(sentTypes, to) => markEmailed(sentTypes, to)}
-        />
-      ) : null}
     </div>
   );
 }

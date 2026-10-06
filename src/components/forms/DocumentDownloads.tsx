@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { EmailDocumentsModal } from "@/components/forms/EmailDocumentsModal";
+import { EmailDocumentsPopover } from "@/components/forms/EmailDocumentsPopover";
 import type { Document, DocumentType } from "@prisma/client";
 
 const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
@@ -24,7 +24,7 @@ export function DocumentDownloads({
   const t = useTranslations();
   const [documents, setDocuments] = useState(initialDocuments);
   const [loadingType, setLoadingType] = useState<DocumentType | null>(null);
-  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailOpenType, setEmailOpenType] = useState<DocumentType | null>(null);
 
   async function generate(type: DocumentType) {
     setLoadingType(type);
@@ -53,14 +53,26 @@ export function DocumentDownloads({
             {isGenerated ? (
               <div className="flex items-center gap-3">
                 {clientEmail ? (
-                  <button
-                    type="button"
-                    onClick={() => setEmailOpen(true)}
-                    className="flex items-center gap-1 text-sm font-medium text-zinc-900 underline"
-                  >
-                    <Mail size={14} strokeWidth={1.9} />
-                    {t("carrier.emailDocuments.trigger")}
-                  </button>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setEmailOpenType((prev) => (prev === type ? null : type))}
+                      className="flex items-center gap-1 text-sm font-medium text-zinc-900 underline"
+                    >
+                      <Mail size={14} strokeWidth={1.9} />
+                      {t("carrier.emailDocuments.trigger")}
+                    </button>
+                    {emailOpenType === type ? (
+                      <EmailDocumentsPopover
+                        rideId={bookingId}
+                        readyTypes={readyTypes}
+                        preselectTypes={readyTypes}
+                        defaultEmail={clientEmail}
+                        onClose={() => setEmailOpenType(null)}
+                        onSent={() => setEmailOpenType(null)}
+                      />
+                    ) : null}
+                  </div>
                 ) : null}
                 <a href={`/api/documents/${doc.id}/download`} className="text-sm font-medium text-zinc-900 underline">
                   {t("common.download")}
@@ -79,16 +91,6 @@ export function DocumentDownloads({
           </div>
         );
       })}
-
-      {emailOpen && clientEmail ? (
-        <EmailDocumentsModal
-          rideId={bookingId}
-          readyTypes={readyTypes}
-          defaultEmail={clientEmail}
-          onClose={() => setEmailOpen(false)}
-          onSent={() => setEmailOpen(false)}
-        />
-      ) : null}
     </div>
   );
 }

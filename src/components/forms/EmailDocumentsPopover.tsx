@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { X } from "lucide-react";
 import type { DocumentType } from "@prisma/client";
-import { Modal } from "@/components/ui/Modal";
+import { Popover } from "@/components/ui/Popover";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
 
-export function EmailDocumentsModal({
+export function EmailDocumentsPopover({
   rideId,
   readyTypes,
   preselectTypes,
@@ -78,45 +79,59 @@ export function EmailDocumentsModal({
   }
 
   return (
-    <Modal title={t("carrier.emailDocuments.title")} onClose={onClose}>
-      {sent ? (
-        <div className="space-y-4">
-          <p className="text-[14px] text-[var(--ink-body)]">{t("carrier.emailDocuments.success", { email })}</p>
-          <Button type="button" variant="secondary" onClick={onClose} className="w-full">
-            {t("common.close")}
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <Field label={t("carrier.emailDocuments.emailLabel")}>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="client@example.com"
-              autoFocus
-            />
-          </Field>
+    <Popover onClose={onClose}>
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--border-hairline)] px-4 py-3">
+        <h3 className="text-[14px] font-semibold text-[var(--ink-primary)]">{t("carrier.emailDocuments.title")}</h3>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("common.close")}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+        >
+          <X size={15} strokeWidth={1.9} />
+        </button>
+      </div>
 
-          <div className="space-y-[7px]">
-            <span className="block text-[13px] font-semibold text-[var(--ink-2)]">
-              {t("carrier.emailDocuments.documentsLabel")}
-            </span>
-            {TYPES.filter((type) => readyTypes.includes(type)).map((type) => (
-              <label key={type} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
-                <input type="checkbox" checked={selected.has(type)} onChange={() => toggle(type)} />
-                {t(`documents.${type}`)}
-              </label>
-            ))}
+      <div className="px-4 py-4">
+        {sent ? (
+          <div className="space-y-4">
+            <p className="text-[14px] text-[var(--ink-body)]">{t("carrier.emailDocuments.success", { email })}</p>
+            <Button type="button" variant="secondary" onClick={onClose} className="w-full">
+              {t("common.close")}
+            </Button>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <Field label={t("carrier.emailDocuments.emailLabel")}>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="client@example.com"
+                autoFocus
+              />
+            </Field>
 
-          {error ? <p className="text-[13px] text-[#7F1D1D]">{error}</p> : null}
+            <div className="space-y-[7px]">
+              <span className="block text-[13px] font-semibold text-[var(--ink-2)]">
+                {t("carrier.emailDocuments.documentsLabel")}
+              </span>
+              {TYPES.filter((type) => readyTypes.includes(type)).map((type) => (
+                <label key={type} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
+                  <input type="checkbox" checked={selected.has(type)} onChange={() => toggle(type)} />
+                  {t(`documents.${type}`)}
+                </label>
+              ))}
+            </div>
 
-          <Button type="button" onClick={onSubmit} disabled={sending} className="w-full">
-            {sending ? t("carrier.emailDocuments.sending") : t("carrier.emailDocuments.send")}
-          </Button>
-        </div>
-      )}
-    </Modal>
+            {error ? <p className="text-[13px] text-[#7F1D1D]">{error}</p> : null}
+
+            <Button type="button" onClick={onSubmit} disabled={sending} className="w-full">
+              {sending ? t("carrier.emailDocuments.sending") : t("carrier.emailDocuments.send")}
+            </Button>
+          </div>
+        )}
+      </div>
+    </Popover>
   );
 }
