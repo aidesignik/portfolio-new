@@ -119,8 +119,12 @@ export function BookingsTable({
           const departure = new Date(booking.departureAt);
           const dayNum = departure.getDate();
           const monthAbbr = new Intl.DateTimeFormat(intlLocale, { month: "short" }).format(departure).toUpperCase();
+          // Only ever differs for a past booking viewed in Prošle/Sve — the
+          // upcoming list can't contain one — but checked unconditionally
+          // rather than threading the active tab in just for this.
+          const showYear = departure.getFullYear() !== new Date().getFullYear();
+          const yearShort = String(departure.getFullYear()).slice(-2);
           const weekday = departure.toLocaleDateString(intlLocale, { weekday: "short" });
-          const dayMonth = new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short" }).format(departure);
           const time = departure.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 
           const vehicle = vehicles.find((v) => v.id === booking.vehicleId) ?? null;
@@ -147,7 +151,10 @@ export function BookingsTable({
                   style={{ boxShadow: "inset 0 0 0 1px var(--border-control)" }}
                 >
                   <span className="text-[16px] font-semibold leading-none text-[var(--ink-primary)]">{dayNum}</span>
-                  <span className="mt-[3px] text-[11px] uppercase leading-none text-[var(--ink-muted)]">{monthAbbr}</span>
+                  <span className="mt-[3px] whitespace-nowrap text-[11px] uppercase leading-none text-[var(--ink-muted)]">
+                    {monthAbbr}
+                    {showYear ? ` ${yearShort}` : ""}
+                  </span>
                 </div>
                 <div className="min-w-0">
                   <p className="flex min-w-0 items-center gap-[6px] text-[14.5px] font-semibold text-[var(--ink-primary)]">
@@ -170,8 +177,9 @@ export function BookingsTable({
                 </div>
               </div>
 
-              <div role="cell" className="min-w-0 truncate text-[13.5px] font-medium text-[var(--ink-primary)]">
-                {weekday} {dayMonth} · {time}
+              <div role="cell" className="min-w-0">
+                <p className="truncate text-[14.5px] font-semibold text-[var(--ink-primary)]">{time}</p>
+                <p className="truncate text-[12.5px] text-[var(--ink-muted)]">{weekday}</p>
               </div>
 
               <div role="cell" className="min-w-0">
