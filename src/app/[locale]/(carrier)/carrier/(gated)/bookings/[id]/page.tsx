@@ -4,6 +4,7 @@ import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { DocumentDownloads } from "@/components/forms/DocumentDownloads";
+import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { formatRoute } from "@/lib/location";
 import { clientDisplayName } from "@/lib/clientDisplay";
 
@@ -45,9 +46,13 @@ export default async function CarrierBookingDetailPage({
         <p className="text-sm text-zinc-600">{t("common.phone")}: {booking.client.phone}</p>
         <p className="text-sm text-zinc-600">
           {booking.vehicle ? `${t(`vehicleType.${booking.vehicle.type}`)} ${booking.vehicle.model}` : t("carrier.assignment.noVehicleAssigned")}
-          {" · "}
-          {booking.driver ? booking.driver.name : t("carrier.assignment.noDriverAssigned")}
         </p>
+        <div className="flex items-center gap-2">
+          <DriverAvatar driver={booking.driver} size={32} decorative={Boolean(booking.driver)} />
+          <p className="text-sm text-zinc-600">
+            {booking.driver ? booking.driver.name : t("carrier.assignment.noDriverAssigned")}
+          </p>
+        </div>
         <p className="text-lg font-semibold text-zinc-900">
           {Number(booking.price ?? 0).toLocaleString()} {booking.currency}
         </p>

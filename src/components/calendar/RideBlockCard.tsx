@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, ArrowLeftRight, Clock, Users } from "lucide-react";
 import { RIDE_STATUS_BG } from "./statusStyles";
-import { DriverAvatar } from "@/components/ui/DriverAvatar";
+import { DriverAvatar, type DriverAvatarDriver } from "@/components/ui/DriverAvatar";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
 import { cityCode } from "@/lib/cityCodes";
@@ -13,15 +13,13 @@ export function RideBlockCard({
   onClick,
   style,
   seats,
-  driverName,
-  driverId,
+  driver,
 }: {
   ride: CalendarRide;
   onClick: () => void;
   style?: CSSProperties;
   seats?: number | null;
-  driverName?: string | null;
-  driverId?: string | null;
+  driver?: DriverAvatarDriver | null;
 }) {
   const t = useTranslations("carrier.calendar");
   const time = new Date(ride.departureAt).toLocaleTimeString([], {
@@ -38,7 +36,7 @@ export function RideBlockCard({
     route,
     client: clientLabel,
     time,
-    driver: driverName ?? t("detail.noDriver"),
+    driver: driver?.name ?? t("detail.noDriver"),
   });
 
   return (
@@ -87,9 +85,9 @@ export function RideBlockCard({
               </span>
             </span>
           </div>
-          {driverName ? (
+          {driver ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="sm" colorful />
+              <DriverAvatar driver={driver} size={26} ring decorative />
             </span>
           ) : null}
         </div>
@@ -106,9 +104,9 @@ export function RideBlockCard({
         </div>
         <div className="mt-auto flex items-center justify-between gap-[6px] text-[12.5px]" style={{ color: "#55555C" }}>
           <span className="min-w-0 truncate font-medium">{time}</span>
-          {driverName ? (
+          {driver ? (
             <span className="shrink-0">
-              <DriverAvatar id={driverId ?? undefined} name={driverName} size="xs" colorful />
+              <DriverAvatar driver={driver} size={20} ring decorative />
             </span>
           ) : null}
         </div>

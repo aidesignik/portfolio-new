@@ -25,7 +25,7 @@ export interface FleetTableVehicle {
   photos: string[];
   lastRegistrationDate: Date | null;
   lastInspectionDate: Date | null;
-  drivers: { id: string; name: string }[];
+  drivers: { id: string; name: string; avatarColor: string | null }[];
 }
 
 const HEADER_CLASS = "text-[12px] font-semibold text-[#8E8E93]";
@@ -114,12 +114,12 @@ export function FleetTable({
               <StopClickPropagation className="flex min-w-0 items-center gap-[8px]">
                 {driver ? (
                   <>
-                    <DriverAvatar id={driver.id} name={driver.name} size="xs" />
+                    <DriverAvatar driver={driver} size={20} decorative />
                     <span className="truncate text-[13px] text-[#27272B]">{driver.name}</span>
                   </>
                 ) : (
                   <>
-                    <DriverAvatar empty size="xs" />
+                    <DriverAvatar driver={null} size={20} />
                     <span className="truncate text-[13px] text-[#8E8E93]">{t("carrier.fleetTable.noDriver")}</span>
                   </>
                 )}

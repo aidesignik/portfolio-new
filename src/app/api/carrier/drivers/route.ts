@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { driverSchema } from "@/lib/validation/driver.schema";
+import { leastUsedDriverColor } from "@/lib/driverAvatarAssignment";
 
 export async function GET() {
   const { session, error } = await requireApiRole("CARRIER");
@@ -27,11 +28,12 @@ export async function POST(request: Request) {
   }
 
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session.user.id } });
-  const { vehicleIds, ...data } = parsed.data;
+  const { vehicleIds, avatarColor, ...data } = parsed.data;
 
   const driver = await prisma.driver.create({
     data: {
       ...data,
+      avatarColor: avatarColor ?? (await leastUsedDriverColor(prisma, carrier.id)),
       carrierId: carrier.id,
       vehicles: {
         create: vehicleIds.map((vehicleId) => ({ vehicleId })),

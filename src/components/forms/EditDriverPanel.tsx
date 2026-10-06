@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
 import { DriverForm } from "@/components/forms/DriverForm";
+import { isDriverColorKey } from "@/lib/driver-colors";
 
 interface DriverRecord {
   id: string;
@@ -13,6 +14,7 @@ interface DriverRecord {
   phone: string;
   isAvailable: boolean;
   licenseNumber: string | null;
+  avatarColor: string | null;
   vehicles: { vehicleId: string }[];
   idCardExpiry: string | null;
   idCardFrontUrl: string | null;
@@ -112,6 +114,7 @@ export function EditDriverPanel({
               phone: driver.phone,
               isAvailable: driver.isAvailable,
               licenseNumber: driver.licenseNumber ?? "",
+              avatarColor: isDriverColorKey(driver.avatarColor) ? driver.avatarColor : undefined,
               vehicleIds: driver.vehicles.map((v) => v.vehicleId),
               idCardExpiry: driver.idCardExpiry,
               idCardFrontUrl: driver.idCardFrontUrl ?? "",

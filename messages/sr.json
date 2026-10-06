@@ -418,6 +418,8 @@
       "phone": "Telefon",
       "isAvailable": "Dostupan",
       "licenseNumber": "Broj vozačke dozvole",
+      "avatarColor": "Boja",
+      "colorAuto": "Ako ne izaberete, boja se dodeljuje automatski",
       "assignedVehicles": "Dodeljena vozila",
       "documentsTitle": "Dokumenta",
       "idCard": "Lična karta (obe strane)",

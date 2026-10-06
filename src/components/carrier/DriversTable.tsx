@@ -18,6 +18,7 @@ export interface DriversTableDriver {
   id: string;
   name: string;
   phone: string;
+  avatarColor: string | null;
   licenseNumber: string | null;
   idCardExpiry: Date | null;
   licenseExpiry: Date | null;
@@ -87,7 +88,7 @@ export function DriversTable({
               style={{ gridTemplateColumns: DRIVERS_GRID_TEMPLATE }}
             >
               <div role="cell" className="flex min-w-0 items-center gap-[10px]">
-                <DriverAvatar name={driver.name} id={driver.id} />
+                <DriverAvatar driver={driver} size={40} decorative />
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-semibold text-[var(--ink-primary)]">{driver.name}</p>
                   <p className="truncate text-[12px] text-[#6B6B72]">

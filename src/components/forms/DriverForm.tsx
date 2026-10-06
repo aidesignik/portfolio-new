@@ -6,6 +6,36 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
+import { DRIVER_COLORS, DRIVER_COLOR_KEYS, type DriverColorKey } from "@/lib/driver-colors";
+
+function ColorPicker({ value, onChange }: { value: DriverColorKey | undefined; onChange: (key: DriverColorKey) => void }) {
+  const t = useTranslations();
+  return (
+    <div className="flex flex-wrap gap-2">
+      {DRIVER_COLOR_KEYS.map((key) => {
+        const selected = value === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            aria-pressed={selected}
+            aria-label={key}
+            title={key}
+            className="h-7 w-7 shrink-0 rounded-full transition-[box-shadow] duration-[.12s] ease-out"
+            style={{
+              background: DRIVER_COLORS[key].bg,
+              boxShadow: selected
+                ? `0 0 0 2px #FFFFFF, 0 0 0 4px ${DRIVER_COLORS[key].fg}`
+                : "0 0 0 1px rgba(0,0,0,.08)",
+            }}
+          />
+        );
+      })}
+      {!value ? <p className="w-full text-[12.5px] text-[var(--ink-muted)]">{t("carrier.driverForm.colorAuto")}</p> : null}
+    </div>
+  );
+}
 
 function toDateInputValue(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -159,6 +189,7 @@ type DriverFormValues = {
   phone: string;
   isAvailable: boolean;
   licenseNumber: string;
+  avatarColor: DriverColorKey | undefined;
   vehicleIds: string[];
   idCardExpiry: string;
   idCardFrontUrl: string;
@@ -189,6 +220,7 @@ const EMPTY_FORM: DriverFormValues = {
   phone: "",
   isAvailable: true,
   licenseNumber: "",
+  avatarColor: undefined,
   vehicleIds: [],
   idCardExpiry: "",
   idCardFrontUrl: "",
@@ -290,6 +322,9 @@ export function DriverForm({
       </Field>
       <Field label={t("carrier.driverForm.licenseNumber")}>
         <Input value={form.licenseNumber} onChange={(e) => set("licenseNumber", e.target.value)} />
+      </Field>
+      <Field label={t("carrier.driverForm.avatarColor")}>
+        <ColorPicker value={form.avatarColor} onChange={(key) => set("avatarColor", key)} />
       </Field>
       <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
         <input

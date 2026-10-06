@@ -17,7 +17,7 @@ export default async function FleetPage({
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const vehicles = await prisma.vehicle.findMany({
     where: { carrierId: carrier.id },
-    include: { drivers: { include: { driver: { select: { id: true, name: true } } } } },
+    include: { drivers: { include: { driver: { select: { id: true, name: true, avatarColor: true } } } } },
     orderBy: { createdAt: "desc" },
   });
 

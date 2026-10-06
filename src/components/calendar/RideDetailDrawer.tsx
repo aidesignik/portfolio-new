@@ -863,7 +863,7 @@ export function RideDetailDrawer({
               <div className="flex min-h-[44px] items-center gap-3">
                 {driver ? (
                   <>
-                    <DriverAvatar id={driver.id} name={driver.name} size="md" />
+                    <DriverAvatar driver={driver} size={32} decorative />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">{driver.name}</p>
                       <p className="truncate text-[13px] text-[var(--ink-secondary)]">{driver.phone || "—"}</p>
@@ -874,7 +874,7 @@ export function RideDetailDrawer({
                   </>
                 ) : (
                   <>
-                    <DriverAvatar empty size="md" />
+                    <DriverAvatar driver={null} size={32} />
                     <div className="min-w-0 flex-1">
                       <p className="text-[14px] font-medium text-[var(--ink-secondary)]">{tDetail("noDriver")}</p>
                       <p className="truncate text-[13px] text-[var(--ink-muted)]">

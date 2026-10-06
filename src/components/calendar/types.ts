@@ -53,6 +53,7 @@ export interface CalendarDriver {
   name: string;
   phone: string;
   isAvailable: boolean;
+  avatarColor: string | null;
 }
 
 export interface CalendarData {

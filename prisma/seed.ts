@@ -1,5 +1,6 @@
 import { PrismaClient, type VehicleAmenity, type VehicleType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { leastUsedDriverColor } from "../src/lib/driverAvatarAssignment";
 
 const prisma = new PrismaClient();
 
@@ -134,6 +135,7 @@ async function seedCarrier(spec: CarrierSeed) {
         name: spec.driverName,
         phone: spec.driverPhone,
         isAvailable: true,
+        avatarColor: await leastUsedDriverColor(prisma, carrier.id),
       },
     }));
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Wrench, Plus } from "lucide-react";
 import { RideBlockCard } from "./RideBlockCard";
+import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { AddVehiclePanel } from "@/components/forms/AddVehiclePanel";
 import { AddDriverPanel } from "@/components/forms/AddDriverPanel";
 import { CALENDAR_GRID_TEMPLATE } from "@/lib/tableLayout";
@@ -23,6 +24,7 @@ interface Resource {
   name: string;
   plate: string | null;
   seats: number | null;
+  avatarColor: string | null;
 }
 
 function startOfDay(date: Date) {
@@ -101,8 +103,14 @@ export function ResourceTimelineGrid({
 
   const resources: Resource[] =
     grouping === "vehicle"
-      ? vehicles.map((v) => ({ id: v.id, name: `${tType(v.type)} ${v.model}`, plate: v.licensePlate, seats: v.seats }))
-      : drivers.map((d) => ({ id: d.id, name: d.name, plate: null, seats: null }));
+      ? vehicles.map((v) => ({
+          id: v.id,
+          name: `${tType(v.type)} ${v.model}`,
+          plate: v.licensePlate,
+          seats: v.seats,
+          avatarColor: null,
+        }))
+      : drivers.map((d) => ({ id: d.id, name: d.name, plate: null, seats: null, avatarColor: d.avatarColor ?? null }));
 
   const resourceCountLabel =
     grouping === "vehicle"
@@ -189,15 +197,24 @@ export function ResourceTimelineGrid({
                   className={`grid ${isLastResource ? "" : "border-b border-b-[#F0F0EE]"}`}
                   style={{ gridTemplateColumns: GRID_TEMPLATE_COLUMNS }}
                 >
-                  <div className="sticky left-0 z-10 flex min-h-[118px] flex-col justify-center gap-[2px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px]">
-                    <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
-                    {resource.plate || resource.seats ? (
-                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                        {resource.plate ? <span className="text-[12.5px]">{resource.plate}</span> : null}
-                        {resource.plate && resource.seats ? " · " : ""}
-                        {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
-                      </p>
+                  <div className="sticky left-0 z-10 flex min-h-[118px] items-center gap-[10px] border-r border-r-[#F5F5F3] bg-white px-5 py-[18px]">
+                    {grouping === "driver" ? (
+                      <DriverAvatar
+                        driver={{ id: resource.id, name: resource.name, avatarColor: resource.avatarColor }}
+                        size={40}
+                        decorative
+                      />
                     ) : null}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
+                      {resource.plate || resource.seats ? (
+                        <p className="truncate text-[13px] text-[var(--ink-secondary)]">
+                          {resource.plate ? <span className="text-[12.5px]">{resource.plate}</span> : null}
+                          {resource.plate && resource.seats ? " · " : ""}
+                          {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                   <div
                     className="relative col-span-7 grid"
@@ -269,8 +286,7 @@ export function ResourceTimelineGrid({
                           onClick={() => onRideClick(ride.id)}
                           style={{ height: "100%" }}
                           seats={seatsFor(ride)}
-                          driverName={driverFor(ride)?.name}
-                          driverId={driverFor(ride)?.id}
+                          driver={driverFor(ride)}
                         />
                       </div>
                     ))}

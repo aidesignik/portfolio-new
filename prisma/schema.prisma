@@ -42,6 +42,21 @@ enum VehicleType {
   DOUBLE_DECKER
 }
 
+// Mirrors the keys of DRIVER_COLORS in src/lib/driver-colors.ts — that
+// module is the source of truth for the actual bg/fg/accent hex values.
+enum DriverColor {
+  lavender
+  periwinkle
+  sky
+  teal
+  mint
+  sage
+  butter
+  peach
+  rose
+  orchid
+}
+
 enum RideStatus {
   PENDING
   CONFIRMED
@@ -161,6 +176,13 @@ model Driver {
   phone         String
   isAvailable   Boolean  @default(true)
   licenseNumber String?
+
+  // Assigned once at creation (least-used color among the carrier's
+  // existing drivers) and only ever changed explicitly via the color
+  // picker — never derived from the name, so renaming a driver can't
+  // change their color. Nullable as a safety net: DriverAvatar falls back
+  // to a deterministic hash of the driver id if this is missing/invalid.
+  avatarColor DriverColor?
 
   // Required driver documents — ID card, driver's license, CPC and medical
   // certificate — each with an expiry date and a front/back photo.

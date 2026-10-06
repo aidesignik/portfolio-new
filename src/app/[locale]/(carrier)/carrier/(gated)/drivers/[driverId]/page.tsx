@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { DriverForm } from "@/components/forms/DriverForm";
 import { DeleteButton } from "@/components/forms/DeleteButton";
+import { DriverAvatar } from "@/components/ui/DriverAvatar";
+import { isDriverColorKey } from "@/lib/driver-colors";
 
 export default async function EditDriverPage({
   params,
@@ -26,7 +28,10 @@ export default async function EditDriverPage({
   return (
     <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">{driver.name}</h1>
+        <div className="flex items-center gap-3">
+          <DriverAvatar driver={driver} size={40} decorative />
+          <h1 className="text-2xl font-semibold text-zinc-900">{driver.name}</h1>
+        </div>
         <DeleteButton url={`/api/carrier/drivers/${driver.id}`} redirectTo="/carrier/drivers" />
       </div>
       <Card>
@@ -38,6 +43,7 @@ export default async function EditDriverPage({
             phone: driver.phone,
             isAvailable: driver.isAvailable,
             licenseNumber: driver.licenseNumber ?? "",
+            avatarColor: isDriverColorKey(driver.avatarColor) ? driver.avatarColor : undefined,
             vehicleIds: driver.vehicles.map((v) => v.vehicleId),
             idCardExpiry: driver.idCardExpiry,
             idCardFrontUrl: driver.idCardFrontUrl ?? "",

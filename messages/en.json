@@ -418,6 +418,8 @@
       "phone": "Phone",
       "isAvailable": "Available",
       "licenseNumber": "License number",
+      "avatarColor": "Color",
+      "colorAuto": "Leave unselected to auto-assign a color",
       "assignedVehicles": "Assigned vehicles",
       "documentsTitle": "Documents",
       "idCard": "ID card (both sides)",
