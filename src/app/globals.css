@@ -60,40 +60,21 @@
   --accent-watch: #fde68a;
 
   /* Calendar ride-card fills — the card's whole background now carries its
-     status instead of a top accent bar. Pending/Cancelled/Blocked are
-     derived from their --status-*-dot color via the same ~90%-white blend
-     that produced the hand-picked Confirmed/Completed values, so all five
-     stay visually consistent. */
-  --status-pending-bg: #fbecee;
-  --status-confirmed-bg: #ebf0fd;
-  --status-completed-bg: #e9f4ec;
-  --status-cancelled-bg: #f6f6f5;
-  --status-blocked-bg: #f3effe;
+     status instead of a top accent bar. */
+  --status-pending-bg: #fbe1e4;
+  --status-confirmed-bg: #dde8fb;
+  --status-completed-bg: #ddf5e6;
+  --status-cancelled-bg: #eeeeec;
+  --status-blocked-bg: #ece4fb;
 
   /* Saturated pairing of the fills above — for small elements (legend
      dots, status pill text, tooltips) where the soft fill reads too
      faint. */
-  --status-pending-dot: #d64553;
-  --status-confirmed-dot: #3b63e0;
-  --status-completed-dot: #2f8a57;
-  --status-cancelled-dot: #a3a39c;
-  --status-blocked-dot: #8b5cf6;
-
-  /* Darkened/desaturated status hue for text sitting on the tinted
-     backgrounds above — two shades each (lighter for a caption-level line,
-     darker for a smaller/denser line) so text stays readable without
-     relying on the saturated dot color, which fails contrast on a light
-     tint. */
-  --status-pending-text-1: #7c3c42;
-  --status-pending-text-2: #5d2d31;
-  --status-confirmed-text-1: #4d5c85;
-  --status-confirmed-text-2: #3b4770;
-  --status-completed-text-1: #4e6656;
-  --status-completed-text-2: #3c5245;
-  --status-cancelled-text-1: #5e5e5a;
-  --status-cancelled-text-2: #464643;
-  --status-blocked-text-1: #4c3285;
-  --status-blocked-text-2: #392664;
+  --status-pending-dot: #e0566b;
+  --status-confirmed-dot: #4f7bea;
+  --status-completed-dot: #3ba55c;
+  --status-cancelled-dot: #a3a3a0;
+  --status-blocked-dot: #9b7be6;
 
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.16);
   --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 14px rgba(24, 24, 27, 0.06);
@@ -108,47 +89,32 @@
      the stack reads with subtle depth instead of flat grey-on-grey.
      Each surface pairs a solid fallback color with its gradient and
      shadow, all as tokens rather than hardcoded per component. */
-  /* Flat, warm-neutral surfaces (Atlas Build Review v3) — separation now
-     comes from the hairlines/rings above rather than gradients. */
-  --surface-app-bg: #f2f2ef;
-  --surface-shell-bg: #fafaf8;
+  --surface-app-bg: #f0f2f1;
+  --surface-app-gradient: radial-gradient(45% 55% at 0% 0%, rgba(110, 145, 235, 0.06), transparent),
+    radial-gradient(45% 55% at 0% 100%, rgba(150, 125, 230, 0.06), transparent),
+    radial-gradient(40% 50% at 100% 0%, rgba(130, 150, 235, 0.05), transparent),
+    radial-gradient(40% 50% at 100% 100%, rgba(110, 190, 170, 0.05), transparent);
+
+  --surface-shell-bg: #f6f8f7;
+  --surface-shell-gradient: radial-gradient(40% 50% at 0% 0%, rgba(110, 145, 235, 0.07), transparent),
+    radial-gradient(45% 55% at 100% 100%, rgba(150, 125, 230, 0.07), transparent),
+    radial-gradient(35% 45% at 0% 100%, rgba(110, 190, 170, 0.05), transparent);
+  --shadow-shell: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 8px rgba(16, 24, 40, 0.05);
 
   --surface-card-bg: #ffffff;
-
-  /* Atlas Build Review v3 — calm, neutral-warm visual pass for the app
-     shell (sidebar/top bar) and the Availability calendar page. These are
-     NEW, separately-named tokens rather than overwrites of the ink/bg/
-     shadow-surface-card tokens above (which are still used by Fleet,
-     Drivers, Bookings, Requests and the client-facing pages) — so this
-     pass restyles only the shell and calendar without reskinning the
-     rest of the app. */
-  --shell-ink-1: #141413;
-  --shell-ink-2: #1b1b19;
-  --shell-ink-secondary: #57574f;
-  --shell-ink-muted: #6e6e68;
-  --shell-ink-faint: #8a8a83;
-  --shell-hairline-row: #efefec;
-  --shell-hairline-col: #f1f1ee;
-  --shell-hairline-month: #e4e4e0;
-  --accent: #2b55e6;
-
-  --ring-1: 0 0 0 1px rgba(20, 20, 19, 0.06);
-  --ring-2: 0 0 0 1px rgba(20, 20, 19, 0.07);
-  --ring-3: 0 0 0 1px rgba(20, 20, 19, 0.09);
-
-  --shadow-calendar-card: 0 0 0 1px rgba(20, 20, 19, 0.07), 0 8px 24px -16px rgba(20, 20, 19, 0.12);
-  --shadow-nav-active: 0 1px 2px rgba(20, 20, 19, 0.06), 0 0 0 1px rgba(20, 20, 19, 0.05);
-  --shadow-new-ride: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(20, 20, 19, 0.12),
-    0 4px 12px -4px rgba(36, 76, 214, 0.45);
-  --shadow-booking-hover: 0 6px 16px -8px rgba(20, 20, 19, 0.25);
-  --shadow-kbd: inset 0 -1px 0 rgba(20, 20, 19, 0.12);
+  /* Shared by the calendar card and the active nav item. */
+  --shadow-surface-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 2px 6px rgba(16, 24, 40, 0.05);
+  /* Lighter elevation for the header search bar specifically — it sits in
+     a much smaller, denser row than the card/nav surfaces above, where
+     the fuller shadow read as too heavy. */
+  --shadow-search: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-ui);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-data);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -175,12 +141,18 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+/* Surface depth pass — background-image gradients have too many commas
+   for Tailwind's arbitrary-value class syntax, so the two gradient
+   surfaces get plain classes referencing the tokens above instead. */
 .surface-app {
   background-color: var(--surface-app-bg);
+  background-image: var(--surface-app-gradient);
 }
 
 .surface-shell {
   background-color: var(--surface-shell-bg);
+  background-image: var(--surface-shell-gradient);
+  box-shadow: var(--shadow-shell);
 }
 
 /* Tailwind's preflight resets buttons to `cursor: default` (matching the

@@ -12,10 +12,9 @@ export function NewRideSplitButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      style={{ background: "var(--accent)", boxShadow: "var(--shadow-new-ride)" }}
-      className="flex h-11 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[12px] px-[16px] text-[15px] font-semibold text-white transition-[filter,transform] duration-[.12s] ease-out hover:brightness-[1.06] active:translate-y-[1px]"
+      className="flex h-9 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[9px] bg-[var(--action-bg)] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]"
     >
-      <Plus size={17} strokeWidth={2} />
+      <Plus size={16} strokeWidth={1.9} />
       {t("newRide")}
     </button>
   );

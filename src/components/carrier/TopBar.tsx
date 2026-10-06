@@ -24,41 +24,34 @@ export async function TopBar() {
       <div className="flex w-full items-center justify-between gap-4 px-6 py-6">
         <div className="relative w-full max-w-[420px]">
           <Search
-            size={18}
+            size={16}
             strokeWidth={1.9}
-            color="#8A8A83"
+            color="#A1A1AA"
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
           />
           <input
             type="search"
             placeholder={t("search")}
-            className="h-11 w-full rounded-[12px] border-0 bg-[var(--surface-card-bg)] pl-10 pr-16 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--shell-ink-faint)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
-            style={{ boxShadow: "var(--ring-2)" }}
+            className="h-9 w-full rounded-[9px] border-0 bg-[var(--surface-card-bg)] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] shadow-[var(--shadow-search)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
           />
-          <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-[6px] bg-[#F4F4F1] px-[6px] py-[2px] font-mono text-[11.5px] font-medium text-[var(--shell-ink-faint)] shadow-[var(--shadow-kbd)]">
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-[6px] bg-white px-[6px] py-[2px] text-[11px] font-medium text-[var(--ink-muted)] shadow-[var(--shadow-pill)]">
             ⌘K
-          </kbd>
+          </span>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <button
             type="button"
-            className="relative flex h-11 w-11 items-center justify-center rounded-[12px] text-[var(--shell-ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
+            className="flex h-9 w-9 items-center justify-center rounded-[9px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
             aria-label={t("notifications")}
           >
-            <Bell size={18} strokeWidth={1.9} />
-            <span
-              aria-hidden
-              className="absolute right-[9px] top-[9px] h-2 w-2 rounded-full"
-              style={{ background: "#D64553", boxShadow: "0 0 0 2px var(--surface-shell-bg)" }}
-            />
+            <Bell size={16} strokeWidth={1.9} />
           </button>
           <UserMenu
             name={displayName}
             email={session?.user.email ?? null}
             image={session?.user.image}
             profileHref="/carrier/onboarding"
-            size={40}
-            ringed
+            size={34}
           />
         </div>
       </div>

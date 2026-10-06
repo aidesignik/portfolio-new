@@ -1,7 +1,6 @@
-const SIZE_CLASSES: Record<"2xs" | "xs" | "sm" | "md", string> = {
-  "2xs": "h-5 w-5 text-[9.5px]",
+const SIZE_CLASSES: Record<"xs" | "sm" | "md", string> = {
   xs: "h-6 w-6 text-[10.5px]",
-  sm: "h-[26px] w-[26px] text-[11px]",
+  sm: "h-7 w-7 text-[11px]",
   md: "h-[34px] w-[34px] text-[12px]",
 };
 
@@ -37,31 +36,26 @@ function driverColor(key: string): string {
 // at a glance wherever they appear side by side. The filled name goes in
 // `title` only (per the design system, an assigned-driver avatar carries no
 // visible label) — callers that have room for a name render it separately.
-// Colored by default (a stable per-driver hash into DRIVER_COLORS), so the
-// same driver reads as the same color everywhere they're shown — fleet/
-// driver tables, the ride detail drawer, and calendar ride cards alike.
-// `colorful={false}` is kept as an opt-out for a context that wants the
-// flat neutral-grey fill instead (none currently does).
+// Neutral grey fill by default: per the "color only for problems" design
+// principle, an avatar's own color carries no meaning, so it doesn't vary
+// by driver — except the calendar's `colorful` ride-card avatars, which
+// intentionally use color as a stable per-driver identity cue.
 export function DriverAvatar({
   name,
   photoUrl,
   size = "md",
   id,
   empty = false,
-  colorful = true,
-  ringColor = "#FFFFFF",
+  colorful = false,
 }: {
   name?: string;
   photoUrl?: string | null;
-  size?: "2xs" | "xs" | "sm" | "md";
+  size?: "xs" | "sm" | "md";
   id?: string;
   empty?: boolean;
+  // Per-driver hashed color (calendar ride cards) instead of the default
+  // neutral grey fill. Default stays the regular identity treatment.
   colorful?: boolean;
-  // The colorful variant's 2px ring — defaults to white, but a caller
-  // placing the avatar on a tinted surface (e.g. a status-tinted booking
-  // card) can match that tint instead so the ring doesn't look like a
-  // mismatched white halo.
-  ringColor?: string;
 }) {
   const dims = SIZE_CLASSES[size];
 
@@ -86,7 +80,7 @@ export function DriverAvatar({
       <div
         title={name}
         className={`flex ${dims} shrink-0 items-center justify-center rounded-full font-normal text-white`}
-        style={{ background: driverColor(id ?? name), letterSpacing: "0.02em", boxShadow: `0 0 0 2px ${ringColor}` }}
+        style={{ background: driverColor(id ?? name), letterSpacing: "0.02em", boxShadow: "0 0 0 2px #FFFFFF" }}
       >
         {initials(name)}
       </div>

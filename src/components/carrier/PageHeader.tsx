@@ -8,7 +8,6 @@ export function PageHeader({
   context,
   actions,
   bold = false,
-  hero = false,
 }: {
   title: string;
   context?: string;
@@ -17,18 +16,13 @@ export function PageHeader({
   // changing the default (600) every other page sharing this component
   // already uses.
   bold?: boolean;
-  // Opt-in larger "hero" title (32px/650/-0.03em) for the Availability
-  // calendar page specifically — every other page keeps its current size.
-  hero?: boolean;
 }) {
   return (
     <div className="flex min-h-[36px] shrink-0 items-center justify-between gap-4">
       <div className="flex min-w-0 items-baseline gap-3">
         <h1
-          className={`truncate text-[var(--ink-primary)] ${
-            hero
-              ? "text-[32px] font-[650] leading-[1.1] tracking-[-0.03em]"
-              : `text-[24px] tracking-[-0.02em] ${bold ? "font-extrabold" : "font-semibold"}`
+          className={`truncate text-[24px] tracking-[-0.02em] text-[var(--ink-primary)] ${
+            bold ? "font-extrabold" : "font-semibold"
           }`}
         >
           {title}

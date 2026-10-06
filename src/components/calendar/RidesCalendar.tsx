@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Bus, UserRound } from "lucide-react";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
 import { UnassignedQueue } from "./UnassignedQueue";
@@ -39,20 +39,20 @@ function windowsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   return aStart.getTime() - pad <= bEnd.getTime() && aEnd.getTime() + pad >= bStart.getTime();
 }
 
-// Prev/next/date live in one bordered segmented control; the arrows get a
-// hover tint only (no border of their own — the shared control draws it).
-const WEEK_ARROW_CLASS =
-  "flex h-full w-10 shrink-0 items-center justify-center text-[var(--shell-ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[rgba(20,20,19,.045)]";
+// Prev/next are plain icons — no border box, just a hover tint.
+const ICON_NAV_BUTTON_CLASS =
+  "flex h-8 w-8 items-center justify-center rounded-[8px] text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+// Today keeps the bordered-button treatment, sized by its padding — no
+// fixed width, so the border actually wraps the label instead of clipping
+// or overflowing it.
 const TODAY_BUTTON_CLASS =
-  "flex h-10 shrink-0 items-center rounded-[10px] bg-[#F4F4F1] px-3 text-[13.5px] font-semibold text-[var(--shell-ink-1)] transition-colors duration-[.12s] ease-out hover:bg-[rgba(20,20,19,.07)]";
+  "flex h-8 items-center rounded-[8px] bg-[#F3F3F1] px-3 text-[13.5px] font-medium text-[var(--ink-body)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]";
+// "Today" and the grouping toggle sit at the same rank in the toolbar, so
+// both read at 13.5px — only the week label (the one emphasized readout)
+// stays a step larger at 14px.
 
 export function RidesCalendar() {
   const t = useTranslations("carrier.calendar");
-  const locale = useLocale();
-  // sr's default Intl formatting is Cyrillic; the rest of this app's
-  // Serbian copy is Latin, matching the weekday/day-number formatting
-  // ResourceTimelineGrid already uses.
-  const intlLocale = locale === "sr" ? "sr-Latn" : "en";
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [grouping, setGrouping] = useState<ResourceGrouping>("vehicle");
   const [data, setData] = useState<CalendarData | null>(null);
@@ -148,45 +148,31 @@ export function RidesCalendar() {
   }
 
   const weekEnd = new Date(weekStart.getTime() + 6 * DAY_MS);
-  const fmtDay = (d: Date) => new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short" }).format(d);
-  const weekLabel = `${fmtDay(weekStart)} – ${fmtDay(weekEnd)} ${weekEnd.getFullYear()}`;
+  const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
+  const weekLabel = sameMonth
+    ? `${weekStart.getDate()} – ${weekEnd.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`
+    : `${weekStart.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`;
 
   return (
-    <div
-      className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] bg-[var(--surface-card-bg)]"
-      style={{ boxShadow: "var(--shadow-calendar-card)" }}
-    >
-      <div
-        className="flex flex-wrap items-center gap-2 px-4 py-[14px]"
-        style={{ borderBottom: "1px solid var(--shell-hairline-row)" }}
-      >
-        <div
-          className="flex h-10 shrink-0 items-center overflow-hidden rounded-[10px]"
-          style={{ boxShadow: "var(--ring-2)" }}
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[var(--surface-card-bg)] shadow-[var(--shadow-surface-card)]">
+      <div className="flex h-[60px] shrink-0 items-center gap-2 px-4">
+        <button
+          type="button"
+          onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
+          aria-label={t("today")}
+          className={ICON_NAV_BUTTON_CLASS}
         >
-          <button
-            type="button"
-            onClick={() => setWeekStart(new Date(weekStart.getTime() - 7 * DAY_MS))}
-            aria-label={t("previousWeek")}
-            className={WEEK_ARROW_CLASS}
-          >
-            <ChevronLeft size={16} strokeWidth={1.9} />
-          </button>
-          <span
-            className="flex h-full items-center whitespace-nowrap px-3 text-[14.5px] font-semibold text-[var(--shell-ink-1)]"
-            style={{ borderLeft: "1px solid var(--shell-hairline-row)", borderRight: "1px solid var(--shell-hairline-row)" }}
-          >
-            {weekLabel}
-          </span>
-          <button
-            type="button"
-            onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
-            aria-label={t("nextWeek")}
-            className={WEEK_ARROW_CLASS}
-          >
-            <ChevronRight size={16} strokeWidth={1.9} />
-          </button>
-        </div>
+          <ChevronLeft size={16} strokeWidth={1.9} />
+        </button>
+        <span className="min-w-[136px] text-center text-[14px] font-medium text-[var(--ink-body)]">{weekLabel}</span>
+        <button
+          type="button"
+          onClick={() => setWeekStart(new Date(weekStart.getTime() + 7 * DAY_MS))}
+          aria-label={t("today")}
+          className={ICON_NAV_BUTTON_CLASS}
+        >
+          <ChevronRight size={16} strokeWidth={1.9} />
+        </button>
         <button
           type="button"
           onClick={() => setWeekStart(startOfWeek(new Date()))}
@@ -199,15 +185,14 @@ export function RidesCalendar() {
           <CalendarLegend />
         </div>
 
-        <div className="ml-4 flex shrink-0 items-center gap-[3px] rounded-[10px] bg-[#F4F4F1] p-[3px]">
+        <div className="ml-4 flex shrink-0 items-center gap-[3px] rounded-[9px] bg-[var(--border-soft)] p-[3px]">
           <button
             type="button"
             onClick={() => setGrouping("vehicle")}
-            aria-pressed={grouping === "vehicle"}
-            className={`flex h-[40px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "vehicle"
-                ? "bg-white font-semibold text-[var(--shell-ink-1)] shadow-[var(--ring-1)]"
-                : "font-medium text-[#6E6E68] hover:text-[var(--shell-ink-1)]"
+                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
+                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
             <Bus size={14} strokeWidth={1.9} />
@@ -216,11 +201,10 @@ export function RidesCalendar() {
           <button
             type="button"
             onClick={() => setGrouping("driver")}
-            aria-pressed={grouping === "driver"}
-            className={`flex h-[40px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
+            className={`flex h-[26px] items-center gap-[6px] rounded-[7px] px-[10px] text-[13.5px] font-medium transition-[background-color,box-shadow,color] duration-[.12s] ease-out ${
               grouping === "driver"
-                ? "bg-white font-semibold text-[var(--shell-ink-1)] shadow-[var(--ring-1)]"
-                : "font-medium text-[#6E6E68] hover:text-[var(--shell-ink-1)]"
+                ? "bg-white text-[var(--ink-primary)] shadow-[var(--shadow-pill)]"
+                : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
             }`}
           >
             <UserRound size={14} strokeWidth={1.9} />

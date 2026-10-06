@@ -27,17 +27,12 @@ export function UserMenu({
   image,
   profileHref,
   size = 32,
-  ringed = false,
 }: {
   name: string;
   email: string | null;
   image?: string | null;
   profileHref: string | null;
-  size?: 32 | 34 | 40;
-  // Adds a 3px gap + 1px outer ring around the avatar (Atlas Build Review
-  // v3's app-shell top bar) — opt-in so the plain avatar used elsewhere
-  // (e.g. Navbar) is unaffected.
-  ringed?: boolean;
+  size?: 32 | 34;
 }) {
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -70,11 +65,7 @@ export function UserMenu({
         aria-label={t("accountMenu")}
         aria-expanded={open}
         aria-haspopup="menu"
-        style={{
-          height: size,
-          width: size,
-          boxShadow: ringed ? "0 0 0 3px var(--surface-shell-bg), 0 0 0 4px rgba(20,20,19,.12)" : undefined,
-        }}
+        style={{ height: size, width: size }}
         className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-medium text-white transition-opacity duration-[.12s] ease-out hover:opacity-80"
       >
         {image ? (
