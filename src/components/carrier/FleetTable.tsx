@@ -11,7 +11,7 @@ import { StopClickPropagation } from "@/components/carrier/StopClickPropagation"
 import { EditVehiclePanel } from "@/components/forms/EditVehiclePanel";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips } from "@/lib/documentChips";
-import { formatPlateDisplay } from "@/lib/plateDisplay";
+import { PlateChip } from "@/components/ui/PlateChip";
 import { FLEET_GRID_TEMPLATE } from "@/lib/tableLayout";
 
 export interface FleetTableVehicle {
@@ -99,8 +99,12 @@ export function FleetTable({
                       </span>
                     ) : null}
                   </p>
-                  <p className="truncate font-mono text-[11.5px] text-[#6B6B72]">
-                    {vehicle.licensePlate ? formatPlateDisplay(vehicle.licensePlate) : "—"}
+                  <p className="truncate">
+                    {vehicle.licensePlate ? (
+                      <PlateChip plate={vehicle.licensePlate} />
+                    ) : (
+                      <span className="text-[11.5px] text-[#6B6B72]">—</span>
+                    )}
                   </p>
                 </div>
               </div>

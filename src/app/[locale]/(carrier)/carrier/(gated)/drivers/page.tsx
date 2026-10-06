@@ -19,7 +19,9 @@ export default async function DriversPage({
     prisma.driver.findMany({
       where: { carrierId: carrier.id },
       include: {
-        vehicles: { include: { vehicle: { select: { id: true, type: true, model: true, photos: true } } } },
+        vehicles: {
+          include: { vehicle: { select: { id: true, type: true, model: true, licensePlate: true, photos: true } } },
+        },
       },
       orderBy: { createdAt: "desc" },
     }),

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Wrench, Plus } from "lucide-react";
 import { RideBlockCard } from "./RideBlockCard";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
+import { PlateChip } from "@/components/ui/PlateChip";
 import { AddVehiclePanel } from "@/components/forms/AddVehiclePanel";
 import { AddDriverPanel } from "@/components/forms/AddDriverPanel";
 import { CALENDAR_GRID_TEMPLATE } from "@/lib/tableLayout";
@@ -208,9 +209,9 @@ export function ResourceTimelineGrid({
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14px] font-semibold text-[var(--ink-strong)]">{resource.name}</p>
                       {resource.plate || resource.seats ? (
-                        <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                          {resource.plate ? <span className="text-[12.5px]">{resource.plate}</span> : null}
-                          {resource.plate && resource.seats ? " · " : ""}
+                        <p className="flex items-center gap-[6px] truncate text-[13px] text-[var(--ink-secondary)]">
+                          {resource.plate ? <PlateChip plate={resource.plate} /> : null}
+                          {resource.plate && resource.seats ? "·" : ""}
                           {resource.seats ? `${resource.seats} ${tCarrier("fleetTable.seats")}` : ""}
                         </p>
                       ) : null}

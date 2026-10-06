@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
+import { PlateChip } from "@/components/ui/PlateChip";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { RideDocumentsSection } from "./RideDocumentsSection";
@@ -810,13 +811,9 @@ export function RideDetailDrawer({
                       <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
                         {tType(vehicle.type)} {vehicle.model}
                       </p>
-                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">
-                        {vehicle.licensePlate ? (
-                          <span className="font-mono uppercase">{vehicle.licensePlate}</span>
-                        ) : (
-                          "—"
-                        )}
-                        {` · ${vehicle.seats} ${t("carrier.fleetTable.seats")}`}
+                      <p className="flex items-center gap-[6px] truncate text-[13px] text-[var(--ink-secondary)]">
+                        {vehicle.licensePlate ? <PlateChip plate={vehicle.licensePlate} /> : "—"}
+                        {`· ${vehicle.seats} ${t("carrier.fleetTable.seats")}`}
                       </p>
                     </div>
                     <button type="button" onClick={() => startChanging("vehicle")} className={SECONDARY_BTN_CLASS}>
