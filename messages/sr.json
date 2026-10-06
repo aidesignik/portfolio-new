@@ -178,6 +178,20 @@
       "noVehicleAssigned": "Dodeli vozilo",
       "noDriverAssigned": "Nije dodeljen vozač"
     },
+    "emailDocuments": {
+      "trigger": "Pošalji e-poštom",
+      "title": "Pošalji dokumenta e-poštom",
+      "emailLabel": "E-mail adresa",
+      "documentsLabel": "Dokumenta",
+      "send": "Pošalji",
+      "sending": "Slanje…",
+      "success": "Dokumenta su poslata na {email}.",
+      "sentBadge": "Poslato",
+      "errorGeneric": "Slanje nije uspelo — pokušajte ponovo.",
+      "errorNotConfigured": "Slanje e-pošte još nije podešeno za ovu aplikaciju.",
+      "errorInvalidEmail": "Unesite ispravnu e-mail adresu.",
+      "errorNoneSelected": "Izaberite bar jedan dokument."
+    },
     "docChip": {
       "registration": "Registracija",
       "inspection": "Pregled",

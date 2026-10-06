@@ -178,6 +178,20 @@
       "noVehicleAssigned": "Assign vehicle",
       "noDriverAssigned": "No driver assigned"
     },
+    "emailDocuments": {
+      "trigger": "Email to client",
+      "title": "Email documents",
+      "emailLabel": "Email address",
+      "documentsLabel": "Documents",
+      "send": "Send",
+      "sending": "Sending…",
+      "success": "Documents sent to {email}.",
+      "sentBadge": "Sent",
+      "errorGeneric": "Failed to send — please try again.",
+      "errorNotConfigured": "Email sending isn't set up for this app yet.",
+      "errorInvalidEmail": "Enter a valid email address.",
+      "errorNoneSelected": "Select at least one document."
+    },
     "docChip": {
       "registration": "Registration",
       "inspection": "Inspection",

@@ -935,7 +935,9 @@ export function RideDetailDrawer({
             </div>
           </div>
 
-          {vehicle && driver && ride.price !== null ? <RideDocumentsSection rideId={ride.id} /> : null}
+          {vehicle && driver && ride.price !== null ? (
+            <RideDocumentsSection rideId={ride.id} clientEmail={ride.client.email} />
+          ) : null}
 
           {error ? <p className="border-b border-[var(--border-hairline)] px-6 py-3 text-[13.5px] text-[#DC2626]">{error}</p> : null}
         </div>

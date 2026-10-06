@@ -346,6 +346,12 @@ model Document {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
+  // Set together, only after a successful send — lets the UI show "Sent to
+  // x@y.com on <date>" instead of just a bare "Email" action with no
+  // record of whether/where it already went.
+  emailedAt DateTime?
+  emailedTo String?
+
   @@unique([rideId, type])
   @@index([rideId])
 }

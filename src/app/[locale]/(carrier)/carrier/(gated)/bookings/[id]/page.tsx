@@ -60,7 +60,7 @@ export default async function CarrierBookingDetailPage({
 
       <Card>
         <h2 className="mb-4 text-lg font-medium text-zinc-900">{t("documents.generateAll")}</h2>
-        <DocumentDownloads bookingId={booking.id} initialDocuments={booking.documents} />
+        <DocumentDownloads bookingId={booking.id} initialDocuments={booking.documents} clientEmail={booking.client.email} />
       </Card>
     </div>
   );

@@ -22,7 +22,7 @@ export default async function CarrierBookingsPage({
   const [allBookings, vehicles, drivers] = await Promise.all([
     prisma.ride.findMany({
       where: { carrierId: carrier.id },
-      include: { client: { select: { name: true, companyName: true, phone: true } }, stops: STOPS_INCLUDE },
+      include: { client: { select: { name: true, companyName: true, phone: true, email: true } }, stops: STOPS_INCLUDE },
       orderBy: { departureAt: "desc" },
     }),
     prisma.vehicle.findMany({ where: { carrierId: carrier.id } }),

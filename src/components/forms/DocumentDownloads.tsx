@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { EmailDocumentsModal } from "@/components/forms/EmailDocumentsModal";
 import type { Document, DocumentType } from "@prisma/client";
 
 const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
@@ -10,13 +12,19 @@ const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
 export function DocumentDownloads({
   bookingId,
   initialDocuments,
+  // Only the carrier side passes this — a client viewing their own
+  // booking already has these documents, so "email to client" (meaning
+  // them) has no reason to appear on that page.
+  clientEmail,
 }: {
   bookingId: string;
   initialDocuments: Document[];
+  clientEmail?: string;
 }) {
   const t = useTranslations();
   const [documents, setDocuments] = useState(initialDocuments);
   const [loadingType, setLoadingType] = useState<DocumentType | null>(null);
+  const [emailOpen, setEmailOpen] = useState(false);
 
   async function generate(type: DocumentType) {
     setLoadingType(type);
@@ -32,6 +40,8 @@ export function DocumentDownloads({
     setLoadingType(null);
   }
 
+  const readyTypes = documents.filter((d) => d.status === "GENERATED").map((d) => d.type);
+
   return (
     <div className="space-y-2">
       {TYPES.map((type) => {
@@ -41,9 +51,21 @@ export function DocumentDownloads({
           <div key={type} className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-2">
             <span className="text-sm font-medium text-zinc-900">{t(`documents.${type}`)}</span>
             {isGenerated ? (
-              <a href={`/api/documents/${doc.id}/download`} className="text-sm font-medium text-zinc-900 underline">
-                {t("common.download")}
-              </a>
+              <div className="flex items-center gap-3">
+                {clientEmail ? (
+                  <button
+                    type="button"
+                    onClick={() => setEmailOpen(true)}
+                    className="flex items-center gap-1 text-sm font-medium text-zinc-900 underline"
+                  >
+                    <Mail size={14} strokeWidth={1.9} />
+                    {t("carrier.emailDocuments.trigger")}
+                  </button>
+                ) : null}
+                <a href={`/api/documents/${doc.id}/download`} className="text-sm font-medium text-zinc-900 underline">
+                  {t("common.download")}
+                </a>
+              </div>
             ) : (
               <Button
                 type="button"
@@ -57,6 +79,16 @@ export function DocumentDownloads({
           </div>
         );
       })}
+
+      {emailOpen && clientEmail ? (
+        <EmailDocumentsModal
+          rideId={bookingId}
+          readyTypes={readyTypes}
+          defaultEmail={clientEmail}
+          onClose={() => setEmailOpen(false)}
+          onSent={() => setEmailOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

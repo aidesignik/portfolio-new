@@ -20,7 +20,7 @@ export default async function CarrierRequestDetailPage({
     prisma.ride.findUnique({
       where: { id },
       include: {
-        client: { select: { name: true, companyName: true, phone: true } },
+        client: { select: { name: true, companyName: true, phone: true, email: true } },
         stops: { where: { leg: "OUTBOUND" }, orderBy: { order: "asc" } },
       },
     }),
