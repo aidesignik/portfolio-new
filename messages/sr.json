@@ -9,6 +9,7 @@
     "loading": "Učitavanje…",
     "edit": "Izmeni",
     "delete": "Obriši",
+    "open": "Otvori",
     "remove": "Ukloni",
     "confirm": "Potvrdi",
     "reject": "Odbij",
@@ -231,11 +232,16 @@
     },
     "bookingsTable": {
       "route": "Relacija",
-      "dateTime": "Datum i vreme",
+      "dateTime": "Vreme",
+      "vehicle": "Vozilo",
+      "driver": "Vozač",
       "passengers": "Putnici",
       "upcoming": "Predstojeće",
       "past": "Prošle",
-      "all": "Sve"
+      "all": "Sve",
+      "extraStops": "+{count} stanica",
+      "overCapacity": "Prekoračen kapacitet",
+      "noneAssigned": "Nije dodeljen"
     },
     "calendarTitle": "Kalendar zauzetosti",
     "calendar": {

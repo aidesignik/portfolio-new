@@ -9,6 +9,7 @@
     "loading": "Loading…",
     "edit": "Edit",
     "delete": "Delete",
+    "open": "Open",
     "remove": "Remove",
     "confirm": "Confirm",
     "reject": "Reject",
@@ -231,11 +232,16 @@
     },
     "bookingsTable": {
       "route": "Route",
-      "dateTime": "Date & time",
+      "dateTime": "Time",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
       "passengers": "Passengers",
       "upcoming": "Upcoming",
       "past": "Past",
-      "all": "All"
+      "all": "All",
+      "extraStops": "+{count} stops",
+      "overCapacity": "Over capacity",
+      "noneAssigned": "Not assigned"
     },
     "calendarTitle": "Availability calendar",
     "calendar": {

@@ -19,5 +19,5 @@ export const FLEET_GRID_TEMPLATE = "minmax(0,2fr) 190px minmax(0,1.5fr) minmax(0
 // driver, licenseNumber, vehicle, documents, kebab
 export const DRIVERS_GRID_TEMPLATE = "minmax(0,1.6fr) 170px minmax(0,1.5fr) minmax(0,1.4fr) 36px";
 
-// route, date & time, passengers, status
-export const BOOKINGS_GRID_TEMPLATE = "minmax(0,1fr) 180px 100px 140px";
+// route, time, vehicle, driver, passengers, status, kebab
+export const BOOKINGS_GRID_TEMPLATE = "minmax(0,2fr) 160px minmax(0,1.1fr) minmax(0,1fr) 96px 132px 36px";

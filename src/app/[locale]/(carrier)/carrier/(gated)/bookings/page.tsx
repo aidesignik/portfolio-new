@@ -4,9 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/carrier/PageHeader";
 import { PageContent } from "@/components/carrier/PageContent";
-import { FilterButton } from "@/components/carrier/FilterButton";
 import { AddRideButton } from "@/components/forms/AddRideButton";
-import { BookingsTable } from "@/components/carrier/BookingsTable";
+import { BookingsListSection } from "@/components/carrier/BookingsListSection";
 import { STOPS_INCLUDE, splitLegs } from "@/lib/rideStopsShape";
 import type { CalendarRide } from "@/components/calendar/types";
 
@@ -18,12 +17,7 @@ export default async function CarrierBookingsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const [session, t, tRoot, params] = await Promise.all([
-    auth(),
-    getTranslations("carrier"),
-    getTranslations(),
-    searchParams,
-  ]);
+  const [session, t, params] = await Promise.all([auth(), getTranslations("carrier"), searchParams]);
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session!.user.id } });
   const [allBookings, vehicles, drivers] = await Promise.all([
     prisma.ride.findMany({
@@ -36,7 +30,13 @@ export default async function CarrierBookingsPage({
   ]);
 
   const now = new Date();
-  const upcoming = allBookings.filter((b) => b.departureAt >= now && b.status !== "CANCELLED");
+  // allBookings is already departureAt desc (the base query's orderBy),
+  // which is exactly what Prošle/Sve want — only Predstojeće needs the
+  // opposite (soonest first), so it gets its own ascending sort instead of
+  // inheriting the shared order.
+  const upcoming = allBookings
+    .filter((b) => b.departureAt >= now && b.status !== "CANCELLED")
+    .sort((a, b) => a.departureAt.getTime() - b.departureAt.getTime());
   const past = allBookings.filter((b) => b.departureAt < now || b.status === "CANCELLED");
 
   const scopeParam = Array.isArray(params.scope) ? params.scope[0] : params.scope;
@@ -51,32 +51,29 @@ export default async function CarrierBookingsPage({
 
   return (
     <PageContent>
-      <PageHeader title={t("bookingsTitle")} context={`${allBookings.length}`} actions={<AddRideButton />} />
+      <PageHeader title={t("bookingsTitle")} bold actions={<AddRideButton />} />
 
-      <div className="flex shrink-0 items-center justify-between gap-4">
-        <div className="flex items-center gap-5">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.key}
-              href={tab.key === "upcoming" ? "/carrier/bookings" : `/carrier/bookings?scope=${tab.key}`}
-              className={`flex items-center gap-[6px] border-b-2 pb-[10px] text-[14px] font-medium transition-colors duration-[.12s] ease-out ${
-                scope === tab.key
-                  ? "border-[var(--ink-primary)] text-[var(--ink-primary)]"
-                  : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
-              }`}
-            >
-              {tab.label}
-              <span className="text-[13px] text-[var(--ink-muted)]">{tab.count}</span>
-            </Link>
-          ))}
-        </div>
-        <FilterButton label={tRoot("common.status")} />
+      <div className="flex shrink-0 items-center gap-5">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.key}
+            href={tab.key === "upcoming" ? "/carrier/bookings" : `/carrier/bookings?scope=${tab.key}`}
+            className={`flex items-center gap-[6px] border-b-2 pb-[10px] text-[14px] font-medium transition-colors duration-[.12s] ease-out ${
+              scope === tab.key
+                ? "border-[var(--ink-primary)] text-[var(--ink-primary)]"
+                : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+            }`}
+          >
+            {tab.label}
+            <span className="text-[13px] text-[var(--ink-muted)]">{tab.count}</span>
+          </Link>
+        ))}
       </div>
 
       {bookings.length === 0 ? (
         <p className="text-[13.5px] text-[var(--ink-secondary)]">—</p>
       ) : (
-        <BookingsTable
+        <BookingsListSection
           bookings={bookings.map(splitLegs).map(
             (b): CalendarRide => ({
               ...b,
