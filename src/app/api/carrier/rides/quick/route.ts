@@ -3,7 +3,10 @@ import { requireApiRole } from "@/auth/api";
 import { prisma } from "@/lib/prisma";
 import { quickRideSchema } from "@/lib/validation/quickRide.schema";
 import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
-import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
+import { buildStopsCreate, returnLegScalars, resolveReturnLeg } from "@/lib/rideReturnLeg";
+import { suggestPrice } from "@/lib/pricing";
+import { estimateRouteDistance } from "@/lib/tripDistance";
+import { regenerateRideDocuments } from "@/lib/documents/regenerate";
 
 // The calendar's "+ New Ride" button — creates a ride already claimed by
 // this carrier (so it shows in their own unassigned queue, not the
@@ -101,6 +104,43 @@ export async function POST(request: Request) {
     }
   }
 
+  // Assigning both up front skips the later /assign step entirely, so this
+  // is the only place that ride's price (and thus its documents) ever gets
+  // computed — without this, a ride created with vehicle+driver already
+  // picked would stay CONFIRMED with a null price forever, and the
+  // documents section (and its "email to client" action) would never
+  // appear. Mirrors /assign's own distance/price computation.
+  let distanceKm = data.distanceKm;
+  let price: number | undefined;
+  if (data.vehicleId && data.driverId) {
+    if (!distanceKm) {
+      const outboundWaypoints = [
+        { city: data.pickupCity, location: data.pickupLocation },
+        ...data.stops,
+        { city: data.destinationCity, location: data.destinationLocation },
+      ];
+      const outboundEstimate = await estimateRouteDistance(outboundWaypoints).catch(() => null);
+      distanceKm = outboundEstimate?.distanceKm;
+
+      if (distanceKm !== undefined && data.isRoundTrip) {
+        const returnLeg = resolveReturnLeg(data, data);
+        const returnWaypoints = [
+          { city: returnLeg.pickupCity, location: returnLeg.pickupLocation },
+          ...returnLeg.stops,
+          { city: returnLeg.destinationCity, location: returnLeg.destinationLocation },
+        ];
+        const returnEstimate = await estimateRouteDistance(returnWaypoints).catch(() => null);
+        distanceKm = returnEstimate ? distanceKm + returnEstimate.distanceKm : undefined;
+      }
+    }
+    if (distanceKm) {
+      price = suggestPrice(distanceKm, {
+        ratePerKm: carrier.ratePerKm ? Number(carrier.ratePerKm) : null,
+        fixedFee: carrier.fixedFee ? Number(carrier.fixedFee) : null,
+      });
+    }
+  }
+
   const ride = await prisma.ride.create({
     data: {
       clientId: client.id,
@@ -117,11 +157,16 @@ export async function POST(request: Request) {
       ...returnLegScalars(data),
       passengerCount: data.passengerCount,
       specialRequests: data.specialRequests,
-      estimatedDistanceKm: data.distanceKm,
+      estimatedDistanceKm: distanceKm,
+      price,
       status: data.vehicleId && data.driverId ? "CONFIRMED" : "PENDING",
       stops: { create: buildStopsCreate(data) },
     },
   });
+
+  if (data.vehicleId && data.driverId) {
+    await regenerateRideDocuments(ride.id);
+  }
 
   return NextResponse.json({ ride }, { status: 201 });
 }
