@@ -240,6 +240,8 @@
     "calendarTitle": "Availability calendar",
     "calendar": {
       "today": "Today",
+      "previousWeek": "Previous week",
+      "nextWeek": "Next week",
       "byVehicle": "Vehicles",
       "byDriver": "Drivers",
       "newRide": "New ride",
