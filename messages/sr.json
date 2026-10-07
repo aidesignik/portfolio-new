@@ -66,6 +66,7 @@
   },
   "auth": {
     "loginTitle": "Prijava",
+    "loginHeadline": "Planirajte vožnje, ne tabele.",
     "loginSubtitle": "Dobrodošli nazad.",
     "registerTitle": "Kreiraj klijentski nalog",
     "registerCarrierTitle": "Registruj prevozničku firmu",

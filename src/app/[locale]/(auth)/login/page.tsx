@@ -27,9 +27,9 @@ export default async function LoginPage({
 
   return (
     <AuthSplitScreen>
-      <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold text-zinc-900">{t("loginTitle")}</h1>
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <div className="text-left">
+          <h1 className="text-2xl font-semibold text-zinc-900">{t("loginHeadline")}</h1>
           <p className="mt-1 text-sm text-zinc-600">
             {t("newHere")}{" "}
             <Link href={registerHref} className="font-medium text-zinc-900 underline">

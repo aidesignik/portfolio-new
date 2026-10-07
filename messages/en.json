@@ -66,6 +66,7 @@
   },
   "auth": {
     "loginTitle": "Log in",
+    "loginHeadline": "Plan rides, not spreadsheets.",
     "loginSubtitle": "Welcome back.",
     "registerTitle": "Create a client account",
     "registerCarrierTitle": "Register your transport company",
