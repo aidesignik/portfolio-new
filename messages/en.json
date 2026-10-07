@@ -70,6 +70,7 @@
     "loginSubtitle": "Welcome back.",
     "registerTitle": "Create a client account",
     "registerCarrierTitle": "Register your transport company",
+    "registerTabLabel": "Register",
     "registerSubtitle": "Book transport without phone calls.",
     "registerCarrierSubtitle": "Your carrier account will be reviewed before approval.",
     "carrierMarketingTitle": "Less administration. More rides.",
