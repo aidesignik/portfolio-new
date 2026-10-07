@@ -35,7 +35,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             <span className="text-[14.5px] font-semibold text-[var(--ink-primary)]">{t("showcaseTitle")}</span>
           </div>
 
-          <div className="relative mt-2 min-h-0 flex-1">
+          <div className="relative mt-6 min-h-0 flex-1">
             {/* Scene A — compose: route + price, ending in a "Confirm ride" button. */}
             <div
               className="absolute inset-0 flex flex-col"
