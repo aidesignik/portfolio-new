@@ -14,14 +14,19 @@ import {
   tripStateToRequestBody,
 } from "@/lib/tripQueryParams";
 
-export function LoginForm() {
+// Shared by the login and carrier-registration pages — both forms only
+// ever collect email + password (the carrier's company details come
+// later, in /carrier/onboarding), so the only real difference between
+// "log in" and "register" is which endpoint gets called and where the
+// user lands afterward. `mode` picks that branch.
+export function AuthCredentialsForm({ mode }: { mode: "login" | "register" }) {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
-    searchParams.get("error") === "AccessDenied"
+    mode === "login" && searchParams.get("error") === "AccessDenied"
       ? t("auth.googleAccountTypeMismatch")
       : null,
   );
@@ -32,12 +37,34 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    if (mode === "register") {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "CARRIER", email, password }),
+      });
 
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setLoading(false);
+        if (body?.error === "EMAIL_IN_USE") {
+          setError(t("auth.emailInUse"));
+        } else if (body?.error?.fieldErrors?.email) {
+          setError(t("auth.invalidEmail"));
+        } else {
+          setError(t("common.saveFailed"));
+        }
+        return;
+      }
+
+      await signIn("credentials", { email, password, redirect: false });
+      setLoading(false);
+      router.push("/carrier/onboarding");
+      router.refresh();
+      return;
+    }
+
+    const result = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
 
     if (result?.error) {
@@ -84,24 +111,24 @@ export function LoginForm() {
       </div>
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label={t("common.email")}>
-          <Input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
         <Field label={t("common.password")}>
           <Input
             type="password"
             required
+            minLength={mode === "register" ? 8 : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? t("common.loading") : t("auth.loginTitle")}
+          {loading
+            ? t("common.loading")
+            : mode === "login"
+              ? t("auth.loginTitle")
+              : t("auth.registerCarrierTitle")}
         </Button>
       </form>
     </div>

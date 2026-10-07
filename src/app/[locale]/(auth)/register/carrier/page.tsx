@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/Card";
-import { RegisterCarrierForm } from "@/components/forms/RegisterCarrierForm";
+import { AuthCredentialsForm } from "@/components/forms/AuthCredentialsForm";
 import { AuthSplitScreen } from "@/components/layout/AuthSplitScreen";
 import { AuthTabs } from "@/components/layout/AuthTabs";
 
@@ -22,7 +22,7 @@ export default async function RegisterCarrierPage() {
           registerLabel={t("registerTabLabel")}
         />
         <Card bordered={false}>
-          <RegisterCarrierForm />
+          <AuthCredentialsForm mode="register" />
         </Card>
       </div>
     </AuthSplitScreen>

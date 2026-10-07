@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/Card";
-import { LoginForm } from "@/components/forms/LoginForm";
+import { AuthCredentialsForm } from "@/components/forms/AuthCredentialsForm";
 import { MARKETPLACE_ENABLED } from "@/config/features";
 import { AuthSplitScreen } from "@/components/layout/AuthSplitScreen";
 import { AuthTabs } from "@/components/layout/AuthTabs";
@@ -39,7 +39,7 @@ export default async function LoginPage({
           registerLabel={t("registerTabLabel")}
         />
         <Card bordered={false}>
-          <LoginForm />
+          <AuthCredentialsForm mode="login" />
         </Card>
       </div>
     </AuthSplitScreen>
