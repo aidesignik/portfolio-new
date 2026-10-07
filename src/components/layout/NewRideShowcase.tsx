@@ -24,7 +24,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
       <div className="flex h-full w-full items-center justify-center p-8">
         <div
-          className="w-full max-w-[320px] rounded-[16px] bg-white p-5"
+          className="flex aspect-square w-full max-w-[320px] flex-col rounded-[16px] bg-white p-3.5"
           style={{ boxShadow: "0 0 0 5px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.5)" }}
         >
           <div className="flex items-center gap-[8px]">
@@ -35,21 +35,18 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
           </div>
 
           <div
-            className="mt-2.5 flex flex-col gap-[2px]"
+            className="mt-2 flex flex-col gap-[2px]"
             style={{ animation: "showcase-route 9s ease-in-out infinite" }}
           >
             <div className="flex items-center gap-[10px]">
               <div className="flex h-5 w-4 shrink-0 items-center justify-center">
                 <RingMarker />
               </div>
-              <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
-                    {t("showcasePickupCity")}
-                  </p>
-                  <p className="truncate text-[12px] text-[var(--ink-secondary)]">{t("showcasePickupLocation")}</p>
-                </div>
-                <span className="shrink-0 pt-[1px] text-[12px] tabular-nums text-[var(--ink-secondary)]">
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
+                  {t("showcasePickupCity")}
+                </p>
+                <span className="shrink-0 text-[12px] tabular-nums text-[var(--ink-secondary)]">
                   {t("showcasePickupTime")}
                 </span>
               </div>
@@ -63,27 +60,22 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
               <div className="flex h-5 w-4 shrink-0 items-center justify-center">
                 <PinMarker />
               </div>
-              <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
-                    {t("showcaseDestinationCity")}
-                  </p>
-                  <p className="truncate text-[12px] text-[var(--ink-secondary)]">
-                    {t("showcaseDestinationLocation")}
-                  </p>
-                </div>
-                <span className="shrink-0 pt-[1px] text-[12px] tabular-nums text-[var(--ink-muted)]">
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
+                  {t("showcaseDestinationCity")}
+                </p>
+                <span className="shrink-0 text-[12px] tabular-nums text-[var(--ink-muted)]">
                   {t("showcaseDestinationTime")}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="my-2.5 h-px bg-[var(--border-hairline)]" />
+          <div className="my-1.5 h-px bg-[var(--border-hairline)]" />
 
           <div style={{ animation: "showcase-price-row 9s ease-in-out infinite" }}>
             <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcasePriceLabel")}</p>
-            <div className="relative mt-[2px] h-[24px]">
+            <div className="relative mt-[2px] h-[22px]">
               <span
                 className="absolute inset-0 flex items-center text-[13px] text-[var(--ink-muted)]"
                 style={{ animation: "showcase-price-placeholder 9s ease-in-out infinite" }}
@@ -91,7 +83,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
                 {t("showcasePriceCalculating")}
               </span>
               <span
-                className="absolute inset-0 -mx-1 flex items-center rounded-[6px] px-1 text-[18px] font-semibold text-[var(--ink-primary)]"
+                className="absolute inset-0 -mx-1 flex items-center rounded-[6px] px-1 text-[17px] font-semibold text-[var(--ink-primary)]"
                 style={{ animation: "showcase-price-value 9s ease-in-out infinite" }}
               >
                 {t("showcasePriceValue")}
@@ -99,11 +91,11 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             </div>
           </div>
 
-          <div className="my-2.5 h-px bg-[var(--border-hairline)]" />
+          <div className="my-1.5 h-px bg-[var(--border-hairline)]" />
 
           <div style={{ animation: "showcase-docs-row 9s ease-in-out infinite" }}>
             <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcaseDocsLabel")}</p>
-            <div className="mt-[6px] flex flex-col gap-[5px]">
+            <div className="mt-[5px] flex flex-col gap-[4px]">
               {DOC_ROWS.map(({ labelKey, reveal }) => (
                 <div
                   key={labelKey}
@@ -119,7 +111,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
           </div>
 
           <div
-            className="relative mt-3 h-[38px]"
+            className="relative mt-auto h-[34px]"
             style={{ animation: "showcase-email-row 9s ease-in-out infinite" }}
           >
             <div
