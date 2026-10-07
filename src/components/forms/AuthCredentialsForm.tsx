@@ -14,30 +14,57 @@ import {
   tripStateToRequestBody,
 } from "@/lib/tripQueryParams";
 
-// Shared by the login and carrier-registration pages — both forms only
-// ever collect email + password (the carrier's company details come
-// later, in /carrier/onboarding), so the only real difference between
-// "log in" and "register" is which endpoint gets called and where the
-// user lands afterward. `mode` picks that branch.
-export function AuthCredentialsForm({ mode }: { mode: "login" | "register" }) {
+// One screen for both login and carrier registration — the user never
+// picks a mode. Step 1 is just an email; submitting it asks
+// /api/auth/check-email whether that address already has an account.
+// Step 2 shows a password field with copy (and the submit action) that
+// matches what was found: an existing account logs in, a new one
+// registers (company details are collected afterward in
+// /carrier/onboarding, same as before).
+export function AuthCredentialsForm() {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [step, setStep] = useState<"email" | "password">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [accountExists, setAccountExists] = useState(false);
   const [error, setError] = useState<string | null>(
-    mode === "login" && searchParams.get("error") === "AccessDenied"
-      ? t("auth.googleAccountTypeMismatch")
-      : null,
+    searchParams.get("error") === "AccessDenied" ? t("auth.googleAccountTypeMismatch") : null,
   );
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(event: FormEvent) {
+  async function onSubmitEmail(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError(null);
 
-    if (mode === "register") {
+    const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+    setLoading(false);
+
+    if (!res.ok) {
+      setError(t("auth.invalidEmail"));
+      return;
+    }
+
+    const { exists } = await res.json();
+    setAccountExists(exists);
+    setStep("password");
+  }
+
+  function onChangeEmail() {
+    setStep("email");
+    setPassword("");
+    setError(null);
+  }
+
+  async function onSubmitPassword(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (!accountExists) {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,6 +75,7 @@ export function AuthCredentialsForm({ mode }: { mode: "login" | "register" }) {
         const body = await res.json().catch(() => null);
         setLoading(false);
         if (body?.error === "EMAIL_IN_USE") {
+          setAccountExists(true);
           setError(t("auth.emailInUse"));
         } else if (body?.error?.fieldErrors?.email) {
           setError(t("auth.invalidEmail"));
@@ -109,28 +137,58 @@ export function AuthCredentialsForm({ mode }: { mode: "login" | "register" }) {
         {t("auth.orDivider")}
         <span className="h-px flex-1 bg-zinc-200" />
       </div>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <Field label={t("common.email")}>
-          <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Field>
-        <Field label={t("common.password")}>
-          <Input
-            type="password"
-            required
-            minLength={mode === "register" ? 8 : undefined}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Field>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading
-            ? t("common.loading")
-            : mode === "login"
-              ? t("auth.loginTitle")
-              : t("auth.registerCarrierTitle")}
-        </Button>
-      </form>
+
+      {step === "email" ? (
+        <form onSubmit={onSubmitEmail} className="space-y-4">
+          <Field label={t("common.email")}>
+            <Input
+              type="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? t("common.loading") : t("auth.continueButton")}
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={onSubmitPassword} className="space-y-4">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="truncate text-zinc-700">{email}</span>
+            <button
+              type="button"
+              onClick={onChangeEmail}
+              className="shrink-0 font-medium text-zinc-900 underline"
+            >
+              {t("auth.changeEmail")}
+            </button>
+          </div>
+          <Field label={t("common.password")}>
+            <Input
+              type="password"
+              required
+              autoFocus
+              minLength={accountExists ? undefined : 8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Field>
+          {!accountExists ? (
+            <p className="text-sm text-zinc-600">{t("auth.registerCarrierSubtitle")}</p>
+          ) : null}
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading
+              ? t("common.loading")
+              : accountExists
+                ? t("auth.loginTitle")
+                : t("auth.createAccountButton")}
+          </Button>
+        </form>
+      )}
     </div>
   );
 }

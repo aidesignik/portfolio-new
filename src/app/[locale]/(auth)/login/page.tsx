@@ -7,14 +7,7 @@ export default async function LoginPage() {
 
   return (
     <AuthSplitScreen>
-      <AuthScreen
-        initialMode="login"
-        loginHeadline={t("loginHeadline")}
-        loginTabLabel={t("loginTitle")}
-        registerTabLabel={t("registerTabLabel")}
-        registerHeadline={t("registerCarrierTitle")}
-        registerSubtitle={t("registerCarrierSubtitle")}
-      />
+      <AuthScreen headline={t("loginHeadline")} />
     </AuthSplitScreen>
   );
 }
