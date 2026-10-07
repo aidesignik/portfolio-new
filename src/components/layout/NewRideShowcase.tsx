@@ -76,7 +76,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
               </div>
 
               <div
-                className="mt-auto"
+                className="mt-3"
                 style={{ animation: "showcase-price-row 9s ease-in-out infinite" }}
               >
                 <div className="mb-2 h-px bg-[var(--border-hairline)]" />
@@ -98,7 +98,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
               </div>
 
               <div
-                className="mt-2 flex h-[36px] items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
+                className="mt-auto flex h-[36px] items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
                 style={{ animation: "showcase-button-press 9s ease-in-out infinite", background: "#2563EB" }}
               >
                 <Check size={15} strokeWidth={2.5} />
