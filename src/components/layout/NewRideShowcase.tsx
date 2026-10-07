@@ -39,7 +39,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             {/* Scene A — compose: route + price, ending in a "Confirm ride" button. */}
             <div
               className="absolute inset-0 flex flex-col"
-              style={{ animation: "showcase-scene-a 9s ease-in-out infinite" }}
+              style={{ animation: "showcase-scene-a 12s ease-in-out infinite" }}
             >
               <div className="flex flex-col gap-[6px]">
                 <div className="flex items-center gap-[10px]">
@@ -77,20 +77,20 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
 
               <div
                 className="mt-3"
-                style={{ animation: "showcase-price-row 9s ease-in-out infinite" }}
+                style={{ animation: "showcase-price-row 12s ease-in-out infinite" }}
               >
                 <div className="mb-2 h-px bg-[var(--border-hairline)]" />
                 <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcasePriceLabel")}</p>
                 <div className="relative mt-[2px] h-[26px]">
                   <span
                     className="absolute inset-0 flex items-center text-[13px] text-[var(--ink-muted)]"
-                    style={{ animation: "showcase-price-placeholder 9s ease-in-out infinite" }}
+                    style={{ animation: "showcase-price-placeholder 12s ease-in-out infinite" }}
                   >
                     {t("showcasePriceCalculating")}
                   </span>
                   <span
                     className="absolute inset-0 -mx-1 flex items-center rounded-[6px] px-1 text-[19px] font-semibold text-[var(--ink-primary)]"
-                    style={{ animation: "showcase-price-value 9s ease-in-out infinite" }}
+                    style={{ animation: "showcase-price-value 12s ease-in-out infinite" }}
                   >
                     {t("showcasePriceValue")}
                   </span>
@@ -99,7 +99,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
 
               <div
                 className="mt-auto flex h-[36px] items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
-                style={{ animation: "showcase-button-press 9s ease-in-out infinite", background: "#2563EB" }}
+                style={{ animation: "showcase-button-press 12s ease-in-out infinite", background: "#2563EB" }}
               >
                 <Check size={15} strokeWidth={2.5} />
                 {t("showcaseConfirmButton")}
@@ -109,7 +109,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             {/* Scene B — result: generated documents, then emailed to the client. */}
             <div
               className="absolute inset-0 flex flex-col"
-              style={{ animation: "showcase-scene-b 9s ease-in-out infinite" }}
+              style={{ animation: "showcase-scene-b 12s ease-in-out infinite" }}
             >
               <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">
                 {t("showcasePickupCity")} → {t("showcaseDestinationCity")}
@@ -118,14 +118,14 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
 
               <div className="my-2 h-px bg-[var(--border-hairline)]" />
 
-              <div style={{ animation: "showcase-docs-row 9s ease-in-out infinite" }}>
+              <div style={{ animation: "showcase-docs-row 12s ease-in-out infinite" }}>
                 <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcaseDocsLabel")}</p>
                 <div className="mt-[6px] flex flex-col gap-[6px]">
                   {DOC_ROWS.map(({ labelKey, reveal }) => (
                     <div
                       key={labelKey}
                       className="flex items-center gap-[8px]"
-                      style={{ animation: `${reveal} 9s ease-in-out infinite` }}
+                      style={{ animation: `${reveal} 12s ease-in-out infinite` }}
                     >
                       <FileText size={14} strokeWidth={1.9} color="#16A34A" className="shrink-0" />
                       <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--ink-primary)]">
@@ -139,18 +139,18 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
 
               <div
                 className="relative mt-auto h-[34px]"
-                style={{ animation: "showcase-email-row 9s ease-in-out infinite" }}
+                style={{ animation: "showcase-email-row 12s ease-in-out infinite" }}
               >
                 <div
                   className="absolute inset-0 flex items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
-                  style={{ animation: "showcase-button-default 9s ease-in-out infinite", background: "#2563EB" }}
+                  style={{ animation: "showcase-button-default 12s ease-in-out infinite", background: "#2563EB" }}
                 >
                   <Mail size={14} strokeWidth={2} />
                   {t("showcaseEmailButton")}
                 </div>
                 <div
                   className="absolute inset-0 flex items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
-                  style={{ animation: "showcase-button-success 9s ease-in-out infinite", background: "#16A34A" }}
+                  style={{ animation: "showcase-button-success 12s ease-in-out infinite", background: "#16A34A" }}
                 >
                   <Check size={15} strokeWidth={2.5} />
                   {t("showcaseEmailSent")}
