@@ -18,7 +18,7 @@ export async function AuthSplitScreen({ children }: { children: ReactNode }) {
 
         <div
           className="relative hidden overflow-hidden rounded-[24px] bg-[#15317F] lg:block"
-          style={{ boxShadow: "0 0 0 4px #C7DBFF, 0 20px 60px rgba(16,30,80,.18)" }}
+          style={{ boxShadow: "0 20px 60px rgba(16,30,80,.18)" }}
         >
           <video
             className="absolute inset-0 h-full w-full object-cover"
