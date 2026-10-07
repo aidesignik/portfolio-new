@@ -4,31 +4,19 @@ import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { RingMarker, PinMarker, DotConnector } from "@/components/calendar/newRide/timelineMarkers";
 
-// Replaces a real screen recording on the login/register marketing panel:
-// a looping, purely decorative mock of creating a ride, built from the
+// Floats over the login/register marketing panel's background video: a
+// looping, purely decorative mock of creating a ride, built from the
 // app's own real row components (VehicleAvatar, DriverAvatar, the route
-// timeline markers) rather than a video file, so it never drifts out of
-// sync with how the product actually looks. All motion is driven by the
-// shared `showcase-*` keyframes in globals.css — see the comment there
-// for the timing model.
+// timeline markers) rather than screen-recorded footage, so the card
+// itself never drifts out of sync with how the product actually looks.
+// All motion is driven by the shared `showcase-*` keyframes in
+// globals.css — see the comment there for the timing model.
 export async function NewRideShowcase({ className = "" }: { className?: string }) {
   const t = await getTranslations("auth");
 
   return (
-    <div aria-hidden="true" className={`pointer-events-none relative overflow-hidden ${className}`}>
-      {/* Decorative background bars, like a faded equalizer — static, not
-          part of the timed sequence. */}
-      <div className="absolute inset-0">
-        {[8, 22, 36, 50, 64, 78, 92].map((left, i) => (
-          <span
-            key={left}
-            className="absolute bottom-0 w-[3%] rounded-full bg-white/10"
-            style={{ left: `${left}%`, height: `${[38, 58, 30, 72, 44, 60, 34][i]}%` }}
-          />
-        ))}
-      </div>
-
-      <div className="relative flex h-full w-full items-center justify-center p-8">
+    <div aria-hidden="true" className={`pointer-events-none ${className}`}>
+      <div className="flex h-full w-full items-center justify-center p-8">
         <div
           className="w-full max-w-[340px] rounded-[16px] bg-white p-5"
           style={{ animation: "showcase-card 9s ease-in-out infinite", boxShadow: "0 24px 60px rgba(10,22,64,.35)" }}
