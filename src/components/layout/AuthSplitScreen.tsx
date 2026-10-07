@@ -14,14 +14,11 @@ export async function AuthSplitScreen({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:py-16">
       <div className="lg:grid lg:grid-cols-2 lg:gap-14">
-        <div className="flex flex-col justify-center py-10">{children}</div>
+        <div className="flex flex-col justify-center py-10 lg:py-0">{children}</div>
 
         <div
           className="relative hidden overflow-hidden rounded-[24px] bg-[#15317F] lg:block"
-          style={{
-            boxShadow:
-              "0 0 0 1.5px rgba(147,183,255,0.55), 0 0 32px rgba(99,140,255,0.22), 0 20px 60px rgba(16,30,80,.18)",
-          }}
+          style={{ boxShadow: "0 0 0 4px #C7DBFF, 0 20px 60px rgba(16,30,80,.18)" }}
         >
           <video
             className="absolute inset-0 h-full w-full object-cover"
