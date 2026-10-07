@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Bus, UserRound } from "lucide-react";
 import { ResourceTimelineGrid, type DragOverTarget } from "./ResourceTimelineGrid";
@@ -8,10 +9,13 @@ import { UnassignedQueue } from "./UnassignedQueue";
 import { NewRideModal } from "./NewRideModal";
 import { RideDetailDrawer } from "./RideDetailDrawer";
 import { useNewRide } from "./NewRideContext";
-import { FilterDropdown } from "@/components/carrier/FilterDropdown";
+import { MultiSelectFilter, type MultiSelectOption } from "@/components/carrier/MultiSelectFilter";
+import { RIDE_STATUS_DOT } from "./statusStyles";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
+import { parseStatusParam, serializeStatusParam } from "@/lib/statusFilterParam";
 import type { CalendarData, CalendarRide, ResourceGrouping, RideStatus } from "./types";
 
 const STATUSES: RideStatus[] = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
@@ -57,9 +61,14 @@ export function RidesCalendar() {
   // sr's default Intl formatting is Cyrillic; the rest of this app's
   // Serbian copy is Latin.
   const intlLocale = locale === "sr" ? "sr-Latn" : "en";
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [grouping, setGrouping] = useState<ResourceGrouping>("vehicle");
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string[]>(() =>
+    parseStatusParam(searchParams.get("status"), STATUSES),
+  );
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
   const { showNewRide, closeNewRide } = useNewRide();
@@ -91,14 +100,36 @@ export function RidesCalendar() {
   }, [load]);
 
   const allRides = useMemo(() => (data ? [...data.rides, ...data.unassigned] : []), [data]);
-  const statusOptions = useMemo(
-    () => STATUSES.map((status) => ({ value: status, label: t(`legend.${status}`) })),
-    [t],
-  );
+  const statusOptions: MultiSelectOption[] = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const status of STATUSES) counts[status] = 0;
+    for (const ride of data?.rides ?? []) {
+      const status = displayRideStatus(ride);
+      counts[status] = (counts[status] ?? 0) + 1;
+    }
+    return STATUSES.map((status) => ({
+      value: status,
+      label: t(`legend.${status}`),
+      count: counts[status] ?? 0,
+      dotColor: RIDE_STATUS_DOT[status],
+    }));
+  }, [data, t]);
   const filteredRides = useMemo(
-    () => (data && statusFilter ? data.rides.filter((r) => displayRideStatus(r) === statusFilter) : (data?.rides ?? [])),
+    () =>
+      statusFilter.length > 0
+        ? (data?.rides ?? []).filter((r) => statusFilter.includes(displayRideStatus(r)))
+        : (data?.rides ?? []),
     [data, statusFilter],
   );
+
+  function updateStatusFilter(values: string[]) {
+    setStatusFilter(values);
+    const params = new URLSearchParams(searchParams);
+    if (values.length > 0) params.set("status", serializeStatusParam(values));
+    else params.delete("status");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }
   const draggingRide = draggingRideId ? allRides.find((r) => r.id === draggingRideId) ?? null : null;
   const selectedRide = selectedRideId ? allRides.find((r) => r.id === selectedRideId) ?? null : null;
 
@@ -203,12 +234,12 @@ export function RidesCalendar() {
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          <FilterDropdown
-            size="lg"
+          <MultiSelectFilter
             label={tCommon("status")}
+            clearLabel={tCommon("clearStatusFilter")}
             options={statusOptions}
-            value={statusFilter}
-            onChange={setStatusFilter}
+            selected={statusFilter}
+            onChange={updateStatusFilter}
           />
           <div className="flex h-10 shrink-0 items-center gap-[3px] rounded-[10px] bg-[var(--border-soft)] p-[3px]">
             <button

@@ -1,10 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FleetTable, type FleetTableVehicle } from "@/components/carrier/FleetTable";
 import { FilterDropdown } from "@/components/carrier/FilterDropdown";
+import { MultiSelectFilter, type MultiSelectOption } from "@/components/carrier/MultiSelectFilter";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { vehicleDocumentChips, documentFilterStatus, type DocumentFilterStatus } from "@/lib/documentChips";
+import { parseStatusParam, serializeStatusParam } from "@/lib/statusFilterParam";
+
+const STATUSES = ["ACTIVE", "INACTIVE"];
+// No shared color map for vehicle status (unlike ride status) — these
+// match the "boolean-ish" green/gray pairing used for Vozači's
+// availability filter below, kept local to each since neither is a ride
+// status.
+const STATUS_DOT: Record<string, string> = { ACTIVE: "#2F8A57", INACTIVE: "#A3A39C" };
 
 export function FleetListSection({
   vehicles,
@@ -14,13 +25,29 @@ export function FleetListSection({
   initialEditingId?: string | null;
 }) {
   const t = useTranslations();
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState<string[]>(() =>
+    parseStatusParam(searchParams.get("status"), STATUSES),
+  );
   const [docFilter, setDocFilter] = useState<DocumentFilterStatus | null>(null);
 
-  const statusOptions = [
-    { value: "ACTIVE", label: t("vehicleStatus.ACTIVE") },
-    { value: "INACTIVE", label: t("vehicleStatus.INACTIVE") },
-  ];
+  const preStatusFiltered = useMemo(
+    () => vehicles.filter((v) => !docFilter || documentFilterStatus(vehicleDocumentChips(v)) === docFilter),
+    [vehicles, docFilter],
+  );
+
+  const statusOptions: MultiSelectOption[] = useMemo(() => {
+    const counts: Record<string, number> = { ACTIVE: 0, INACTIVE: 0 };
+    for (const v of preStatusFiltered) counts[v.status] = (counts[v.status] ?? 0) + 1;
+    return STATUSES.map((status) => ({
+      value: status,
+      label: t(`vehicleStatus.${status}`),
+      count: counts[status] ?? 0,
+      dotColor: STATUS_DOT[status],
+    }));
+  }, [preStatusFiltered, t]);
   const docOptions = [
     { value: "valid", label: t("carrier.table.docFilterValid") },
     { value: "expiringSoon", label: t("carrier.table.docFilterExpiringSoon") },
@@ -29,25 +56,31 @@ export function FleetListSection({
   ];
 
   const filtered = useMemo(
-    () =>
-      vehicles.filter((vehicle) => {
-        if (statusFilter && vehicle.status !== statusFilter) return false;
-        if (docFilter && documentFilterStatus(vehicleDocumentChips(vehicle)) !== docFilter) return false;
-        return true;
-      }),
-    [vehicles, statusFilter, docFilter],
+    () => preStatusFiltered.filter((v) => statusFilter.length === 0 || statusFilter.includes(v.status)),
+    [preStatusFiltered, statusFilter],
   );
+
+  function updateStatusFilter(values: string[]) {
+    setStatusFilter(values);
+    const params = new URLSearchParams(searchParams);
+    if (values.length > 0) params.set("status", serializeStatusParam(values));
+    else params.delete("status");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }
 
   return (
     <>
       <div className="flex shrink-0 items-center gap-2">
-        <FilterDropdown
+        <MultiSelectFilter
           label={t("common.status")}
+          clearLabel={t("common.clearStatusFilter")}
           options={statusOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
+          selected={statusFilter}
+          onChange={updateStatusFilter}
         />
         <FilterDropdown
+          size="lg"
           label={t("carrier.table.documents")}
           options={docOptions}
           value={docFilter}

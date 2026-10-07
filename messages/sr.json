@@ -33,7 +33,10 @@
     "notifications": "Obaveštenja",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
     "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo.",
-    "all": "Sve"
+    "all": "Sve",
+    "clear": "Očisti",
+    "only": "Samo",
+    "clearStatusFilter": "Očisti filter statusa"
   },
   "nav": {
     "home": "Početna",
@@ -243,6 +246,10 @@
       "assignedVehicle": "Vozilo",
       "noVehicle": "Nije dodeljeno",
       "phoneLabel": "Tel."
+    },
+    "driverAvailability": {
+      "AVAILABLE": "Dostupan",
+      "UNAVAILABLE": "Nedostupan"
     },
     "bookingsTable": {
       "route": "Relacija",

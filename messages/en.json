@@ -33,7 +33,10 @@
     "notifications": "Notifications",
     "saveFailed": "Couldn't save — please check the fields and try again.",
     "loadFailed": "Couldn't load — try refreshing.",
-    "all": "All"
+    "all": "All",
+    "clear": "Clear",
+    "only": "Only",
+    "clearStatusFilter": "Clear status filter"
   },
   "nav": {
     "home": "Home",
@@ -243,6 +246,10 @@
       "assignedVehicle": "Vehicle",
       "noVehicle": "Not assigned",
       "phoneLabel": "Tel."
+    },
+    "driverAvailability": {
+      "AVAILABLE": "Available",
+      "UNAVAILABLE": "Unavailable"
     },
     "bookingsTable": {
       "route": "Route",

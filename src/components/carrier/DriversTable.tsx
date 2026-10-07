@@ -20,6 +20,7 @@ export interface DriversTableDriver {
   name: string;
   phone: string;
   avatarColor: string | null;
+  isAvailable: boolean;
   licenseNumber: string | null;
   idCardExpiry: Date | null;
   licenseExpiry: Date | null;
