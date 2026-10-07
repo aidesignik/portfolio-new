@@ -8,13 +8,14 @@ import { displayRideStatus } from "@/lib/rideStatus";
 import { cityCode } from "@/lib/cityCodes";
 import type { CalendarRide, RideStatus } from "./types";
 
-// Status tag — row 2, right side, next to the client name. One component
-// for every card: full (dot + label) once the card is wide enough,
-// collapsing to the same pill shrunk to a 22×22px circle around the dot
-// when it isn't, so size/colors/position can never drift between the two.
-// With `compact` omitted (the normal case), both variants render and the
-// card's own container query (not its day span) picks which one shows,
-// switching under ~170px; pass `compact` explicitly only to force one.
+// Status tag — top-right corner, top-aligned with the route title (same
+// row). One component for every card: full (dot + label) once the card
+// is wide enough, collapsing to the same pill shrunk to a 22×22px circle
+// around the dot when it isn't, so size/colors/position can never drift
+// between the two. With `compact` omitted (the normal case), both
+// variants render and the card's own container query (not its day span)
+// picks which one shows, switching under ~170px; pass `compact`
+// explicitly only to force one.
 function StatusTag({ status, compact }: { status: RideStatus; compact?: boolean }) {
   const t = useTranslations("carrier.calendar");
   const label = t(`legend.${status}`);
@@ -119,21 +120,21 @@ export function RideBlockCard({
           span) drops below ~160px. */}
       <div className="relative flex flex-1 flex-col gap-[6px] px-[14px] py-[12px] @max-[160px]:hidden">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <p className="flex min-w-0 items-center gap-[5px] text-[14.5px] font-semibold" style={{ color: titleColor }}>
-            <span className="min-w-0 truncate">{ride.pickupCity}</span>
-            {ride.isRoundTrip ? (
-              <ArrowLeftRight size={14} strokeWidth={1.75} className="shrink-0" />
-            ) : (
-              <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
-            )}
-            <span className="min-w-0 truncate">{ride.destinationCity}</span>
-          </p>
-          <div className="flex items-center justify-between gap-[6px]">
-            <span className="min-w-0 flex-1 truncate text-[12.5px]" style={{ color: clientColor }}>
-              {clientLabel}
-            </span>
+          <div className="flex items-start justify-between gap-[6px]">
+            <p className="flex min-w-0 items-center gap-[5px] text-[14.5px] font-semibold" style={{ color: titleColor }}>
+              <span className="min-w-0 truncate">{ride.pickupCity}</span>
+              {ride.isRoundTrip ? (
+                <ArrowLeftRight size={14} strokeWidth={1.75} className="shrink-0" />
+              ) : (
+                <ArrowRight size={11} strokeWidth={2.2} className="shrink-0" />
+              )}
+              <span className="min-w-0 truncate">{ride.destinationCity}</span>
+            </p>
             <StatusTag status={status} />
           </div>
+          <span className="truncate text-[12.5px]" style={{ color: clientColor }}>
+            {clientLabel}
+          </span>
         </div>
         {bottomRow}
       </div>
@@ -142,15 +143,15 @@ export function RideBlockCard({
           full names. */}
       <div className="relative hidden flex-1 flex-col gap-[6px] p-[12px] @max-[160px]:flex">
         <div className="flex min-w-0 flex-col gap-[2px]">
-          <p className="truncate text-[14.5px] font-semibold" style={{ color: titleColor }}>
-            {cityCode(ride.pickupCity)} {routeArrow} {cityCode(ride.destinationCity)}
-          </p>
-          <div className="flex items-center justify-between gap-[6px]">
-            <span className="min-w-0 flex-1 truncate text-[12.5px]" style={{ color: clientColor }}>
-              {clientLabel}
-            </span>
+          <div className="flex items-start justify-between gap-[6px]">
+            <p className="min-w-0 truncate text-[14.5px] font-semibold" style={{ color: titleColor }}>
+              {cityCode(ride.pickupCity)} {routeArrow} {cityCode(ride.destinationCity)}
+            </p>
             <StatusTag status={status} />
           </div>
+          <span className="truncate text-[12.5px]" style={{ color: clientColor }}>
+            {clientLabel}
+          </span>
         </div>
         {bottomRow}
       </div>
