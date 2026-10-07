@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { Bus, ArrowRight, FileText, Mail, Check } from "lucide-react";
+import { Bus, FileText, Mail, Check } from "lucide-react";
+import { RingMarker, PinMarker, DotConnector } from "@/components/calendar/newRide/timelineMarkers";
 
 const DOC_ROWS = [
   { labelKey: "showcaseDocContract", reveal: "showcase-doc-1" },
@@ -11,9 +12,11 @@ const DOC_ROWS = [
 // looping, purely decorative mock of booking a ride — route, suggested
 // price, generated documents, then emailed to the client — simplified
 // from the real flow to read clearly at a glance rather than matching
-// the app screen-for-screen. All motion is driven by the shared
-// `showcase-*` keyframes in globals.css — see the comment there for the
-// timing model.
+// the app screen-for-screen. The card itself never animates (it would
+// otherwise visibly vanish every loop) — only each section's content
+// fades in and back out in turn, via the shared `showcase-*` keyframes
+// in globals.css. Route rows reuse the app's own ring/pin/dot markers
+// for a consistent look.
 export async function NewRideShowcase({ className = "" }: { className?: string }) {
   const t = await getTranslations("auth");
 
@@ -22,10 +25,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
       <div className="flex h-full w-full items-center justify-center p-8">
         <div
           className="w-full max-w-[320px] rounded-[16px] bg-white p-5"
-          style={{
-            animation: "showcase-card 9s ease-in-out infinite",
-            boxShadow: "0 0 0 5px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.5)",
-          }}
+          style={{ boxShadow: "0 0 0 5px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.5)" }}
         >
           <div className="flex items-center gap-[8px]">
             <span className="flex h-7 w-7 items-center justify-center rounded-[8px]" style={{ background: "#EFF4FF" }}>
@@ -34,14 +34,50 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             <span className="text-[14.5px] font-semibold text-[var(--ink-primary)]">{t("showcaseTitle")}</span>
           </div>
 
-          <p
-            className="mt-2.5 flex items-center gap-[6px] text-[14px] font-medium text-[var(--ink-primary)]"
+          <div
+            className="mt-2.5 flex flex-col gap-[2px]"
             style={{ animation: "showcase-route 9s ease-in-out infinite" }}
           >
-            <span>{t("showcasePickupCity")}</span>
-            <ArrowRight size={12} strokeWidth={2.2} className="shrink-0 text-[var(--ink-muted)]" />
-            <span>{t("showcaseDestinationCity")}</span>
-          </p>
+            <div className="flex items-center gap-[10px]">
+              <div className="flex h-5 w-4 shrink-0 items-center justify-center">
+                <RingMarker />
+              </div>
+              <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
+                    {t("showcasePickupCity")}
+                  </p>
+                  <p className="truncate text-[12px] text-[var(--ink-secondary)]">{t("showcasePickupLocation")}</p>
+                </div>
+                <span className="shrink-0 pt-[1px] text-[12px] tabular-nums text-[var(--ink-secondary)]">
+                  {t("showcasePickupTime")}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-[10px]">
+              <div className="flex w-4 shrink-0 items-center justify-center">
+                <DotConnector />
+              </div>
+            </div>
+            <div className="flex items-center gap-[10px]">
+              <div className="flex h-5 w-4 shrink-0 items-center justify-center">
+                <PinMarker />
+              </div>
+              <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-medium leading-5 text-[var(--ink-primary)]">
+                    {t("showcaseDestinationCity")}
+                  </p>
+                  <p className="truncate text-[12px] text-[var(--ink-secondary)]">
+                    {t("showcaseDestinationLocation")}
+                  </p>
+                </div>
+                <span className="shrink-0 pt-[1px] text-[12px] tabular-nums text-[var(--ink-muted)]">
+                  {t("showcaseDestinationTime")}
+                </span>
+              </div>
+            </div>
+          </div>
 
           <div className="my-2.5 h-px bg-[var(--border-hairline)]" />
 

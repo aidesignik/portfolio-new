@@ -192,24 +192,20 @@ button:focus-visible,
 
 /* Login/register marketing panel (NewRideShowcase) — a looping, purely
    decorative mock of booking a ride (route -> price -> documents ->
-   emailed to the client), standing in for a real screen recording. One
-   shared 9s cycle; each piece becomes visible at its own keyframe offset
-   and then stays visible until the whole card fades out together at the
-   very end, so nothing needs its own fade-out or an animation-delay —
-   the loop restart alone resets everything. */
-@keyframes showcase-card {
-  0% { opacity: 0; transform: translateY(10px) scale(0.97); }
-  6% { opacity: 1; transform: translateY(0) scale(1); }
-  94% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(10px) scale(0.97); }
-}
+   emailed to the client), standing in for a real screen recording. The
+   card itself (the white box with the glass stroke) never animates and
+   stays on screen for the whole loop — only each row's content fades in
+   at its own offset, then fades back out together near the end (94%),
+   so the loop restart resets the scene without the card ever vanishing. */
 @keyframes showcase-route {
   0%, 8% { opacity: 0; transform: translateY(4px); }
-  12%, 100% { opacity: 1; transform: translateY(0); }
+  12%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(4px); }
 }
 @keyframes showcase-price-row {
   0%, 16% { opacity: 0; transform: translateY(4px); }
-  20%, 100% { opacity: 1; transform: translateY(0); }
+  20%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(4px); }
 }
 @keyframes showcase-price-placeholder {
   0%, 34% { opacity: 1; }
@@ -222,7 +218,8 @@ button:focus-visible,
 }
 @keyframes showcase-docs-row {
   0%, 44% { opacity: 0; transform: translateY(4px); }
-  48%, 100% { opacity: 1; transform: translateY(0); }
+  48%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(4px); }
 }
 @keyframes showcase-doc-1 {
   0%, 50% { opacity: 0; transform: translateX(-4px); }
@@ -238,7 +235,8 @@ button:focus-visible,
 }
 @keyframes showcase-email-row {
   0%, 70% { opacity: 0; transform: translateY(4px); }
-  74%, 100% { opacity: 1; transform: translateY(0); }
+  74%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(4px); }
 }
 @keyframes showcase-button-default {
   0%, 83% { opacity: 1; transform: scale(1); }
