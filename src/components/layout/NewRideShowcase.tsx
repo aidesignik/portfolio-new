@@ -25,7 +25,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
       <div className="flex h-full w-full items-center justify-center p-8">
         <div
-          className="relative flex aspect-square w-full max-w-[320px] flex-col overflow-hidden rounded-[16px] bg-white p-3.5"
+          className="relative flex aspect-square w-full max-w-[320px] flex-col overflow-hidden rounded-[16px] bg-white px-5 py-3.5"
           style={{ boxShadow: "0 0 0 5px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.5)" }}
         >
           <div className="flex items-center gap-[8px]">
