@@ -24,7 +24,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
           className="w-full max-w-[320px] rounded-[16px] bg-white p-5"
           style={{
             animation: "showcase-card 9s ease-in-out infinite",
-            boxShadow: "0 0 0 2px rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,255,255,0.5)",
+            boxShadow: "0 0 0 5px rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.5)",
           }}
         >
           <div className="flex items-center gap-[8px]">
