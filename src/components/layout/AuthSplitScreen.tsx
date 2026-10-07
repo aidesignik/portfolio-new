@@ -15,7 +15,7 @@ export async function AuthSplitScreen({ children }: { children: ReactNode }) {
       <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-14">
         <div className="flex flex-col justify-center py-10">{children}</div>
 
-        <div className="relative hidden aspect-[4/5] overflow-hidden rounded-[24px] bg-[#15317F] shadow-[0_20px_60px_rgba(16,30,80,.18)] lg:block">
+        <div className="relative hidden aspect-square overflow-hidden rounded-[24px] bg-[#15317F] shadow-[0_20px_60px_rgba(16,30,80,.18)] lg:block">
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src="/auth/background.mp4"
