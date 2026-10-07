@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Bus, Plus, FileText, Mail, Check } from "lucide-react";
+import { Bus, Check, FileText, Mail } from "lucide-react";
 import { RingMarker, PinMarker, DotConnector } from "@/components/calendar/newRide/timelineMarkers";
 
 const DOC_ROWS = [
@@ -12,10 +12,11 @@ const DOC_ROWS = [
 // looping, purely decorative mock of booking a ride, told as two scenes
 // that crossfade inside the same fixed-size square card (the card shell
 // itself never animates, so it never visibly disappears):
-//   Scene A ("compose") — route only, filling the whole card, ending in
-//     a "Create ride" button that visibly presses to simulate a click.
-//   Scene B ("result") — price, generated documents, then emailed to
-//     the client.
+//   Scene A ("compose") — route and price filling the whole card, ending
+//     in a "Confirm ride" button that visibly presses to simulate a
+//     click once the price has settled.
+//   Scene B ("result") — generated documents appearing one by one, then
+//     emailed to the client.
 // Timing is driven by the shared `showcase-*` keyframes in globals.css.
 export async function NewRideShowcase({ className = "" }: { className?: string }) {
   const t = await getTranslations("auth");
@@ -35,21 +36,21 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
           </div>
 
           <div className="relative mt-2 min-h-0 flex-1">
-            {/* Scene A — compose: route fills the card, ending in a "Create ride" button. */}
+            {/* Scene A — compose: route + price, ending in a "Confirm ride" button. */}
             <div
               className="absolute inset-0 flex flex-col"
               style={{ animation: "showcase-scene-a 9s ease-in-out infinite" }}
             >
-              <div className="flex flex-1 flex-col justify-center gap-[10px]">
+              <div className="flex flex-col gap-[6px]">
                 <div className="flex items-center gap-[10px]">
                   <div className="flex h-5 w-4 shrink-0 items-center justify-center">
                     <RingMarker />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <p className="truncate text-[15px] font-medium leading-5 text-[var(--ink-primary)]">
+                    <p className="truncate text-[14.5px] font-medium leading-5 text-[var(--ink-primary)]">
                       {t("showcasePickupCity")}
                     </p>
-                    <span className="shrink-0 text-[12.5px] tabular-nums text-[var(--ink-secondary)]">
+                    <span className="shrink-0 text-[12px] tabular-nums text-[var(--ink-secondary)]">
                       {t("showcasePickupTime")}
                     </span>
                   </div>
@@ -64,38 +65,23 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
                     <PinMarker />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <p className="truncate text-[15px] font-medium leading-5 text-[var(--ink-primary)]">
+                    <p className="truncate text-[14.5px] font-medium leading-5 text-[var(--ink-primary)]">
                       {t("showcaseDestinationCity")}
                     </p>
-                    <span className="shrink-0 text-[12.5px] tabular-nums text-[var(--ink-muted)]">
+                    <span className="shrink-0 text-[12px] tabular-nums text-[var(--ink-muted)]">
                       {t("showcaseDestinationTime")}
                     </span>
                   </div>
                 </div>
               </div>
+
               <div
-                className="flex h-[36px] items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
-                style={{ animation: "showcase-button-press 9s ease-in-out infinite", background: "#2563EB" }}
+                className="mt-auto"
+                style={{ animation: "showcase-price-row 9s ease-in-out infinite" }}
               >
-                <Plus size={15} strokeWidth={2.5} />
-                {t("showcaseCreateButton")}
-              </div>
-            </div>
-
-            {/* Scene B — result: price, documents, then emailed to the client. */}
-            <div
-              className="absolute inset-0 flex flex-col"
-              style={{ animation: "showcase-scene-b 9s ease-in-out infinite" }}
-            >
-              <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">
-                {t("showcasePickupCity")} → {t("showcaseDestinationCity")}
-              </p>
-
-              <div className="my-2 h-px bg-[var(--border-hairline)]" />
-
-              <div style={{ animation: "showcase-price-row 9s ease-in-out infinite" }}>
+                <div className="mb-2 h-px bg-[var(--border-hairline)]" />
                 <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcasePriceLabel")}</p>
-                <div className="relative mt-[2px] h-[22px]">
+                <div className="relative mt-[2px] h-[26px]">
                   <span
                     className="absolute inset-0 flex items-center text-[13px] text-[var(--ink-muted)]"
                     style={{ animation: "showcase-price-placeholder 9s ease-in-out infinite" }}
@@ -103,7 +89,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
                     {t("showcasePriceCalculating")}
                   </span>
                   <span
-                    className="absolute inset-0 -mx-1 flex items-center rounded-[6px] px-1 text-[17px] font-semibold text-[var(--ink-primary)]"
+                    className="absolute inset-0 -mx-1 flex items-center rounded-[6px] px-1 text-[19px] font-semibold text-[var(--ink-primary)]"
                     style={{ animation: "showcase-price-value 9s ease-in-out infinite" }}
                   >
                     {t("showcasePriceValue")}
@@ -111,11 +97,30 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
                 </div>
               </div>
 
+              <div
+                className="mt-2 flex h-[36px] items-center justify-center gap-[6px] rounded-[10px] text-[13.5px] font-semibold text-white"
+                style={{ animation: "showcase-button-press 9s ease-in-out infinite", background: "#2563EB" }}
+              >
+                <Check size={15} strokeWidth={2.5} />
+                {t("showcaseConfirmButton")}
+              </div>
+            </div>
+
+            {/* Scene B — result: generated documents, then emailed to the client. */}
+            <div
+              className="absolute inset-0 flex flex-col"
+              style={{ animation: "showcase-scene-b 9s ease-in-out infinite" }}
+            >
+              <p className="truncate text-[12.5px] text-[var(--ink-secondary)]">
+                {t("showcasePickupCity")} → {t("showcaseDestinationCity")}
+                <span className="text-[var(--ink-muted)]"> · {t("showcasePriceValue")}</span>
+              </p>
+
               <div className="my-2 h-px bg-[var(--border-hairline)]" />
 
               <div style={{ animation: "showcase-docs-row 9s ease-in-out infinite" }}>
                 <p className="text-[11.5px] text-[var(--ink-muted)]">{t("showcaseDocsLabel")}</p>
-                <div className="mt-[5px] flex flex-col gap-[4px]">
+                <div className="mt-[6px] flex flex-col gap-[6px]">
                   {DOC_ROWS.map(({ labelKey, reveal }) => (
                     <div
                       key={labelKey}

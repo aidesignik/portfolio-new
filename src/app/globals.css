@@ -193,58 +193,59 @@ button:focus-visible,
 /* Login/register marketing panel (NewRideShowcase) — a looping, purely
    decorative mock of booking a ride, told as two scenes that crossfade
    inside the same fixed-size card (the card shell itself never animates,
-   so it never visibly disappears): Scene A ("compose") shows the route
-   and ends with a "Create ride" button pressing, then crossfades into
-   Scene B ("result") — price, generated documents, then emailed to the
-   client — which fades back out at the very end so the loop restart
-   (back to Scene A) never looks like a jump cut. */
+   so it never visibly disappears): Scene A ("compose") shows the route,
+   then the price settling, ending with a "Confirm ride" button pressing;
+   it crossfades into Scene B ("result") — generated documents appearing
+   one by one, then emailed to the client — which fades back out at the
+   very end so the loop restart (back to Scene A) never looks like a
+   jump cut. */
 @keyframes showcase-scene-a {
   0% { opacity: 0; transform: translateY(4px); }
-  5%, 38% { opacity: 1; transform: translateY(0); }
-  44%, 100% { opacity: 0; transform: translateY(-4px); }
-}
-@keyframes showcase-button-press {
-  0%, 36% { transform: scale(1); }
-  39% { transform: scale(0.95); }
-  42%, 100% { transform: scale(1); }
-}
-@keyframes showcase-scene-b {
-  0%, 44% { opacity: 0; transform: translateY(4px); }
-  50%, 94% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-4px); }
+  5%, 40% { opacity: 1; transform: translateY(0); }
+  46%, 100% { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes showcase-price-row {
-  0%, 50% { opacity: 0; transform: translateY(4px); }
-  52%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 14% { opacity: 0; transform: translateY(4px); }
+  16%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-price-placeholder {
-  0%, 60% { opacity: 1; }
-  63%, 100% { opacity: 0; }
+  0%, 24% { opacity: 1; }
+  27%, 100% { opacity: 0; }
 }
 @keyframes showcase-price-value {
-  0%, 61% { opacity: 0; background-color: rgba(37, 99, 235, 0); }
-  65% { opacity: 1; background-color: rgba(37, 99, 235, 0.1); }
-  72%, 100% { opacity: 1; background-color: rgba(37, 99, 235, 0); }
+  0%, 25% { opacity: 0; background-color: rgba(37, 99, 235, 0); }
+  29% { opacity: 1; background-color: rgba(37, 99, 235, 0.1); }
+  36%, 100% { opacity: 1; background-color: rgba(37, 99, 235, 0); }
+}
+@keyframes showcase-button-press {
+  0%, 38% { transform: scale(1); }
+  41% { transform: scale(0.95); }
+  44%, 100% { transform: scale(1); }
+}
+@keyframes showcase-scene-b {
+  0%, 46% { opacity: 0; transform: translateY(4px); }
+  52%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes showcase-docs-row {
-  0%, 64% { opacity: 0; transform: translateY(4px); }
-  66%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 52% { opacity: 0; transform: translateY(4px); }
+  54%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-doc-1 {
-  0%, 67% { opacity: 0; transform: translateX(-4px); }
-  69%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 57% { opacity: 0; transform: translateX(-4px); }
+  59%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-doc-2 {
-  0%, 70% { opacity: 0; transform: translateX(-4px); }
-  72%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 61% { opacity: 0; transform: translateX(-4px); }
+  63%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-doc-3 {
-  0%, 73% { opacity: 0; transform: translateX(-4px); }
-  75%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 65% { opacity: 0; transform: translateX(-4px); }
+  67%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-email-row {
-  0%, 77% { opacity: 0; transform: translateY(4px); }
-  79%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 70% { opacity: 0; transform: translateY(4px); }
+  72%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-button-default {
   0%, 83% { opacity: 1; transform: scale(1); }
