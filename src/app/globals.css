@@ -191,59 +191,67 @@ button:focus-visible,
 }
 
 /* Login/register marketing panel (NewRideShowcase) — a looping, purely
-   decorative mock of booking a ride (route -> price -> documents ->
-   emailed to the client), standing in for a real screen recording. The
-   card itself (the white box with the glass stroke) never animates and
-   stays on screen for the whole loop — only each row's content fades in
-   at its own offset, then fades back out together near the end (94%),
-   so the loop restart resets the scene without the card ever vanishing. */
-@keyframes showcase-route {
-  0%, 8% { opacity: 0; transform: translateY(4px); }
-  12%, 94% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(4px); }
+   decorative mock of booking a ride, told as two scenes that crossfade
+   inside the same fixed-size card (the card shell itself never animates,
+   so it never visibly disappears): Scene A ("compose") shows the route
+   and ends with a "Create ride" button pressing, then crossfades into
+   Scene B ("result") — price, generated documents, then emailed to the
+   client — which fades back out at the very end so the loop restart
+   (back to Scene A) never looks like a jump cut. */
+@keyframes showcase-scene-a {
+  0% { opacity: 0; transform: translateY(4px); }
+  5%, 38% { opacity: 1; transform: translateY(0); }
+  44%, 100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes showcase-button-press {
+  0%, 36% { transform: scale(1); }
+  39% { transform: scale(0.95); }
+  42%, 100% { transform: scale(1); }
+}
+@keyframes showcase-scene-b {
+  0%, 44% { opacity: 0; transform: translateY(4px); }
+  50%, 94% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes showcase-price-row {
-  0%, 16% { opacity: 0; transform: translateY(4px); }
-  20%, 94% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(4px); }
+  0%, 50% { opacity: 0; transform: translateY(4px); }
+  52%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-price-placeholder {
-  0%, 34% { opacity: 1; }
-  37%, 100% { opacity: 0; }
+  0%, 60% { opacity: 1; }
+  63%, 100% { opacity: 0; }
 }
 @keyframes showcase-price-value {
-  0%, 35% { opacity: 0; background-color: rgba(37, 99, 235, 0); }
-  39% { opacity: 1; background-color: rgba(37, 99, 235, 0.1); }
-  47%, 100% { opacity: 1; background-color: rgba(37, 99, 235, 0); }
+  0%, 61% { opacity: 0; background-color: rgba(37, 99, 235, 0); }
+  65% { opacity: 1; background-color: rgba(37, 99, 235, 0.1); }
+  72%, 100% { opacity: 1; background-color: rgba(37, 99, 235, 0); }
 }
 @keyframes showcase-docs-row {
-  0%, 44% { opacity: 0; transform: translateY(4px); }
-  48%, 94% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(4px); }
+  0%, 64% { opacity: 0; transform: translateY(4px); }
+  66%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-doc-1 {
-  0%, 50% { opacity: 0; transform: translateX(-4px); }
-  53%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 67% { opacity: 0; transform: translateX(-4px); }
+  69%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-doc-2 {
-  0%, 56% { opacity: 0; transform: translateX(-4px); }
-  59%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 70% { opacity: 0; transform: translateX(-4px); }
+  72%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-doc-3 {
-  0%, 62% { opacity: 0; transform: translateX(-4px); }
-  65%, 100% { opacity: 1; transform: translateX(0); }
+  0%, 73% { opacity: 0; transform: translateX(-4px); }
+  75%, 100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes showcase-email-row {
-  0%, 70% { opacity: 0; transform: translateY(4px); }
-  74%, 94% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(4px); }
+  0%, 77% { opacity: 0; transform: translateY(4px); }
+  79%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes showcase-button-default {
   0%, 83% { opacity: 1; transform: scale(1); }
-  86% { opacity: 1; transform: scale(0.97); }
-  88%, 100% { opacity: 0; transform: scale(0.97); }
+  85% { opacity: 1; transform: scale(0.97); }
+  87%, 100% { opacity: 0; transform: scale(0.97); }
 }
 @keyframes showcase-button-success {
-  0%, 88% { opacity: 0; transform: scale(0.97); }
-  91%, 100% { opacity: 1; transform: scale(1); }
+  0%, 87% { opacity: 0; transform: scale(0.97); }
+  89%, 100% { opacity: 1; transform: scale(1); }
 }
