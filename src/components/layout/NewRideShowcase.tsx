@@ -22,10 +22,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
       <div className="flex h-full w-full items-center justify-center p-8">
         <div
           className="w-full max-w-[320px] rounded-[16px] bg-white p-5"
-          style={{
-            animation: "showcase-card 9s ease-in-out infinite",
-            boxShadow: "0 0 0 2px rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,255,255,0.4)",
-          }}
+          style={{ animation: "showcase-card 9s ease-in-out infinite" }}
         >
           <div className="flex items-center gap-[8px]">
             <span className="flex h-7 w-7 items-center justify-center rounded-[8px]" style={{ background: "#EFF4FF" }}>
