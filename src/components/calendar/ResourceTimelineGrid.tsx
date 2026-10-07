@@ -284,7 +284,7 @@ export function ResourceTimelineGrid({
                         style={{
                           gridRow: (laneOf.get(ride.id) ?? 0) + 1,
                           gridColumn: `${startIdx + 1} / ${endIdx + 2}`,
-                          margin: "10px 6px",
+                          margin: "6px",
                         }}
                       >
                         <RideBlockCard
