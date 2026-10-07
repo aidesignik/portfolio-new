@@ -21,11 +21,10 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
       <div className="flex h-full w-full items-center justify-center p-8">
         <div
-          className="w-full max-w-[320px] rounded-[16px] border bg-white p-5"
+          className="w-full max-w-[320px] rounded-[16px] bg-white p-5"
           style={{
             animation: "showcase-card 9s ease-in-out infinite",
-            borderColor: "rgba(255,255,255,0.6)",
-            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.25)",
+            boxShadow: "0 0 0 2px rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,255,255,0.4)",
           }}
         >
           <div className="flex items-center gap-[8px]">
