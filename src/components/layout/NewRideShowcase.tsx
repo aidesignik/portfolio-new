@@ -27,10 +27,10 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
       <div className="flex h-full w-full items-center justify-center">
         {/* Frame: a semi-transparent rim between the video and the white
-            card, sized to 66% of the outer square so it reads as a
+            card, sized to 80% of the outer square so it reads as a
             smaller square nested inside a bigger one. */}
         <div
-          className="showcase-anim-scope aspect-square w-[66%] rounded-[21px] p-[5px]"
+          className="showcase-anim-scope aspect-square w-[80%] rounded-[21px] p-[5px]"
           style={{ background: "rgba(255,255,255,0.35)" }}
         >
           <div
