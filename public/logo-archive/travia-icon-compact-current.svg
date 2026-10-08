@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 94 56" width="94" height="56">
+<defs><linearGradient id="travia-trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF1F3D"/><stop offset="0.5" stop-color="#FF5A14"/><stop offset="1" stop-color="#FFB800"/></linearGradient></defs>
+<g transform="scale(0.71553) translate(-21.20 -10.95)">
+<g fill="url(#travia-trail)">
+<path d="M38.5 37 L64.5 33.4 A3.6 3.6 0 0 1 64.5 40.6 Z"/>
+<path d="M21.2 50 L61.2 46.4 A3.6 3.6 0 0 1 61.2 53.6 Z"/>
+<path d="M34.2 63 L60.2 59.4 A3.6 3.6 0 0 1 60.2 66.6 Z"/>
+</g>
+<path fill="#101828" d="M109.3 10.95 L99.14 10.95 A22 40 15 0 0 69.47 50.01 A22 40 15 0 0 84.86 89.05 L95.78 89.05 A25 43 15 0 1 109.3 10.95 Z"/>
+<g fill="#101828" transform="translate(112 50) rotate(15)"><path fill-rule="evenodd" d="M22 0 A22 40 0 1 0 -22 0 A22 40 0 1 0 22 0 Z M13.2 0 A13.2 24 0 1 0 -13.2 0 A13.2 24 0 1 0 13.2 0 Z M10.12 0 A10.12 18.4 0 1 0 -10.12 0 A10.12 18.4 0 1 0 10.12 0 Z M2.64 0 A2.64 4.8 0 1 0 -2.64 0 A2.64 4.8 0 1 0 2.64 0 Z"/></g>
+</g>
+</svg>
