@@ -30,12 +30,12 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
             card, sized to 66% of the outer square so it reads as a
             smaller square nested inside a bigger one. */}
         <div
-          className="showcase-anim-scope aspect-square w-[66%] rounded-[26px] p-[6px]"
+          className="showcase-anim-scope aspect-square w-[66%] rounded-[21px] p-[5px]"
           style={{ background: "rgba(255,255,255,0.35)" }}
         >
           <div
-            className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] bg-white p-[28px]"
-            style={{ boxShadow: "0 24px 60px rgba(20,24,40,0.22)" }}
+            className="relative flex h-full w-full flex-col overflow-hidden rounded-[16px] bg-white p-[22px]"
+            style={{ boxShadow: "0 19px 48px rgba(20,24,40,0.22)" }}
           >
           <div className="flex items-center gap-[8px]">
             <span className="flex h-7 w-7 items-center justify-center rounded-[8px]" style={{ background: "#EFF4FF" }}>

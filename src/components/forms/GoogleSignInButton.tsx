@@ -45,8 +45,8 @@ export function GoogleSignInButton() {
       <Button
         type="button"
         variant="secondary"
-        className="w-full gap-2 text-[16px]"
-        style={{ height: 52, borderRadius: 12 }}
+        className="w-full gap-2 text-[14px]"
+        style={{ height: 42, borderRadius: 10 }}
         disabled={loading}
         onClick={onClick}
       >
