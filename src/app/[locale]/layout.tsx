@@ -20,7 +20,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Atlas — digital dispatcher for coach transport",
+  title: "Travia — digital dispatcher for coach transport",
   description: "Organize bus and coach transport bookings end to end.",
 };
 

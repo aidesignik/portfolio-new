@@ -94,6 +94,7 @@ export function CarrierSidebar({
   const pathname = usePathname();
   const t = useTranslations("carrier");
   const tNav = useTranslations("nav");
+  const tCommon = useTranslations("common");
 
   const mainItems: NavItem[] = [
     {
@@ -164,8 +165,9 @@ export function CarrierSidebar({
   return (
     <aside className="sticky top-0 h-dvh w-[252px] shrink-0">
       <div className="flex h-full flex-col gap-[10px] pt-[14px] pb-[18px] px-[10px]">
-        <div className="flex h-[28px] shrink-0 items-center px-[10px] text-[17px] font-extrabold text-[#0D0D0D]">
-          Atlas
+        <div className="flex h-[28px] shrink-0 items-center px-[10px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/travia-logo.svg" alt={tCommon("appName")} className="h-6 w-auto" />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto">

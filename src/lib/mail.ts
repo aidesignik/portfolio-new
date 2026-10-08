@@ -4,7 +4,7 @@ const apiKey = process.env.RESEND_API_KEY;
 // Resend's own shared test sender — works without a verified domain, but
 // only delivers to the account owner's own inbox. Set EMAIL_FROM once a
 // domain is verified in the Resend dashboard.
-const fromAddress = process.env.EMAIL_FROM || "Atlas <onboarding@resend.dev>";
+const fromAddress = process.env.EMAIL_FROM || "Travia <onboarding@resend.dev>";
 
 let client: Resend | null = null;
 
