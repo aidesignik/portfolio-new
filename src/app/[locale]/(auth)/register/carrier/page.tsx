@@ -11,7 +11,7 @@ export default async function RegisterCarrierPage() {
 
   return (
     <AuthSplitScreen>
-      <AuthScreen headline={t("loginHeadline")} />
+      <AuthScreen headline={t("loginHeadline")} subtitle={t("loginSubtitle")} />
     </AuthSplitScreen>
   );
 }

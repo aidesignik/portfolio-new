@@ -7,7 +7,7 @@ export default async function LoginPage() {
 
   return (
     <AuthSplitScreen>
-      <AuthScreen headline={t("loginHeadline")} />
+      <AuthScreen headline={t("loginHeadline")} subtitle={t("loginSubtitle")} />
     </AuthSplitScreen>
   );
 }
