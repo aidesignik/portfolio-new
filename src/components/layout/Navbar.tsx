@@ -41,8 +41,9 @@ export async function Navbar({
   return (
     <header className="border-b border-zinc-200 bg-white">
       <div className={containerClassName}>
-        <Link href="/" className="text-lg font-semibold text-zinc-900">
-          {t("appName")}
+        <Link href="/" className="flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/travia-logo.svg" alt={t("appName")} className="h-7 w-auto" />
         </Link>
         <nav className="flex items-center gap-4">
           {session?.user ? (
