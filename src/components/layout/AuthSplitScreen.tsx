@@ -11,15 +11,24 @@ import { NewRideShowcase } from "./NewRideShowcase";
 // line up, and vertically centers the row in the remaining viewport
 // height below the 60px header. Below ~900px the columns wrap: form
 // first, square panel full-width underneath.
+//
+// The panel's size is height-driven, not width-driven: the row stretches
+// both columns to the same height (the form's, since it's the taller of
+// the two), and the panel is square against THAT height (h-full +
+// aspect-square, width auto) rather than its own flex-basis width — so
+// it matches the form's height exactly instead of being its own
+// independently-sized square. Safe because both /login and
+// /register/carrier render the same AuthCredentialsForm, so there's only
+// one height to match across every entry point.
 export async function AuthSplitScreen({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto flex min-h-[calc(100vh-60px)] max-w-[1024px] items-center px-5 py-11 md:px-10">
-      <div className="flex w-full flex-wrap items-center justify-between gap-12">
+      <div className="flex w-full flex-wrap justify-between gap-12">
         <div className="min-w-0 flex-[1_1_300px] max-w-[380px]">{children}</div>
 
-        <div className="min-w-0 flex-[1_1_340px] max-w-[500px]">
+        <div className="flex min-w-0 flex-[1_1_340px] max-w-[500px] items-center justify-center">
           <div
-            className="relative aspect-square w-full overflow-hidden rounded-[26px] bg-[#15317F]"
+            className="relative aspect-square h-full max-w-full overflow-hidden rounded-[26px] bg-[#15317F]"
             style={{ boxShadow: "0 16px 48px rgba(16,30,80,.18)" }}
           >
             <video
