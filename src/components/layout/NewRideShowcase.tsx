@@ -10,24 +10,33 @@ const DOC_ROWS = [
 
 // Floats over the login/register marketing panel's background video: a
 // looping, purely decorative mock of booking a ride, told as two scenes
-// that crossfade inside the same fixed-size square card (the card shell
-// itself never animates, so it never visibly disappears):
+// that crossfade inside the same square card (the card shell itself
+// never animates, so it never visibly disappears):
 //   Scene A ("compose") — route and price filling the whole card, ending
 //     in a "Confirm ride" button that visibly presses to simulate a
 //     click once the price has settled.
 //   Scene B ("result") — generated documents appearing one by one, then
 //     emailed to the client.
 // Timing is driven by the shared `showcase-*` keyframes in globals.css.
+// Sized relative to its parent (66% width, aspect-square) rather than a
+// fixed pixel size, so it stays proportional as the outer square resizes.
 export async function NewRideShowcase({ className = "" }: { className?: string }) {
   const t = await getTranslations("auth");
 
   return (
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
-      <div className="flex h-full w-full items-center justify-center p-8">
+      <div className="flex h-full w-full items-center justify-center">
+        {/* Frame: a semi-transparent rim between the video and the white
+            card, sized to 66% of the outer square so it reads as a
+            smaller square nested inside a bigger one. */}
         <div
-          className="relative flex aspect-square w-full max-w-[320px] flex-col overflow-hidden rounded-[16px] bg-white px-5 py-3.5"
-          style={{ boxShadow: "0 0 0 5px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.5)" }}
+          className="showcase-anim-scope aspect-square w-[66%] rounded-[26px] p-[6px]"
+          style={{ background: "rgba(255,255,255,0.35)" }}
         >
+          <div
+            className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] bg-white p-[28px]"
+            style={{ boxShadow: "0 24px 60px rgba(20,24,40,0.22)" }}
+          >
           <div className="flex items-center gap-[8px]">
             <span className="flex h-7 w-7 items-center justify-center rounded-[8px]" style={{ background: "#EFF4FF" }}>
               <Bus size={15} strokeWidth={2} color="#2563EB" />
@@ -158,6 +167,7 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

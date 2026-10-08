@@ -41,11 +41,12 @@ export function GoogleSignInButton() {
   }
 
   return (
-    <div className="space-y-2">
+    <>
       <Button
         type="button"
         variant="secondary"
-        className="w-full gap-2"
+        className="w-full gap-2 text-[16px]"
+        style={{ height: 52, borderRadius: 12 }}
         disabled={loading}
         onClick={onClick}
       >
@@ -69,8 +70,7 @@ export function GoogleSignInButton() {
         </svg>
         {loading ? t("common.loading") : t("auth.continueWithGoogle")}
       </Button>
-      <p className="text-center text-xs text-zinc-400">{t("auth.googleMockNotice")}</p>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-    </div>
+      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+    </>
   );
 }

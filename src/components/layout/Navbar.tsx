@@ -6,7 +6,13 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import { UserMenu } from "./UserMenu";
 import { MARKETPLACE_ENABLED } from "@/config/features";
 
-export async function Navbar() {
+export async function Navbar({
+  containerClassName = "mx-auto flex max-w-5xl items-center justify-between px-4 py-3",
+  hideLoginLink = false,
+}: {
+  containerClassName?: string;
+  hideLoginLink?: boolean;
+} = {}) {
   const [session, t, tNav] = await Promise.all([
     auth(),
     getTranslations("common"),
@@ -34,7 +40,7 @@ export async function Navbar() {
 
   return (
     <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+      <div className={containerClassName}>
         <Link href="/" className="text-lg font-semibold text-zinc-900">
           {t("appName")}
         </Link>
@@ -52,9 +58,11 @@ export async function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                {tNav("login")}
-              </Link>
+              {!hideLoginLink ? (
+                <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                  {tNav("login")}
+                </Link>
+              ) : null}
               {MARKETPLACE_ENABLED ? (
                 <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
                   {tNav("register")}

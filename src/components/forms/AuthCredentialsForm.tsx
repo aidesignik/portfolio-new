@@ -7,12 +7,18 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Field } from "@/components/ui/Field";
 import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
 import {
   readTripSearchState,
   tripStateToRequestBody,
 } from "@/lib/tripQueryParams";
+
+// Google button, email/password inputs and the submit button all share
+// this sizing (52px tall, 12px radius, 16px type) per the sign-in page's
+// layout spec — overridden via inline style rather than editing the
+// shared Button/Input components, which are used all over the app.
+const CONTROL_STYLE = { height: 52, borderRadius: 12 } as const;
+const INPUT_STYLE = { ...CONTROL_STYLE, paddingLeft: 16, paddingRight: 16, fontSize: 16 } as const;
 
 // One screen for both login and carrier registration — the user never
 // picks a mode. Step 1 is just an email; submitting it asks
@@ -130,7 +136,7 @@ export function AuthCredentialsForm() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <GoogleSignInButton />
       <div className="flex items-center gap-3 text-xs text-zinc-400">
         <span className="h-px flex-1 bg-zinc-200" />
@@ -139,23 +145,33 @@ export function AuthCredentialsForm() {
       </div>
 
       {step === "email" ? (
-        <form onSubmit={onSubmitEmail} className="space-y-4">
-          <Field label={t("common.email")}>
+        <form onSubmit={onSubmitEmail} className="flex flex-col gap-4">
+          <div>
+            <label className="mb-2 block text-[13px] font-semibold text-[var(--ink-2)]">
+              {t("common.email")}
+            </label>
             <Input
               type="email"
               required
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full"
+              style={INPUT_STYLE}
             />
-          </Field>
+          </div>
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full text-[16px]"
+            style={CONTROL_STYLE}
+          >
             {loading ? t("common.loading") : t("auth.continueButton")}
           </Button>
         </form>
       ) : (
-        <form onSubmit={onSubmitPassword} className="space-y-4">
+        <form onSubmit={onSubmitPassword} className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="truncate text-zinc-700">{email}</span>
             <button
@@ -166,7 +182,10 @@ export function AuthCredentialsForm() {
               {t("auth.changeEmail")}
             </button>
           </div>
-          <Field label={t("common.password")}>
+          <div>
+            <label className="mb-2 block text-[13px] font-semibold text-[var(--ink-2)]">
+              {t("common.password")}
+            </label>
             <Input
               type="password"
               required
@@ -174,13 +193,20 @@ export function AuthCredentialsForm() {
               minLength={accountExists ? undefined : 8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full"
+              style={INPUT_STYLE}
             />
-          </Field>
+          </div>
           {!accountExists ? (
             <p className="text-sm text-zinc-600">{t("auth.registerCarrierSubtitle")}</p>
           ) : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full text-[16px]"
+            style={CONTROL_STYLE}
+          >
             {loading
               ? t("common.loading")
               : accountExists
@@ -189,6 +215,8 @@ export function AuthCredentialsForm() {
           </Button>
         </form>
       )}
+
+      <p className="text-[13px] text-zinc-400">{t("auth.googleMockNotice")}</p>
     </div>
   );
 }
