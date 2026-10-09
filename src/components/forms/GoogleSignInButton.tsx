@@ -47,25 +47,8 @@ export function GoogleSignInButton() {
         onClick={onClick}
         className="flex h-[52px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#131314] bg-[#131314] text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(19,19,20,0.18)] transition-colors duration-150 hover:bg-[#2A2A2C] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#3563E9] focus-visible:ring-offset-2"
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-white">
-          <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
-            <path
-              fill="#FFC107"
-              d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"
-            />
-            <path
-              fill="#FF3D00"
-              d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
-            />
-            <path
-              fill="#4CAF50"
-              d="M24 44c5.5 0 10.4-2.1 14.1-5.6l-6.5-5.5C29.5 34.9 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.5 5C9.6 39.6 16.3 44 24 44z"
-            />
-            <path
-              fill="#1976D2"
-              d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.6l6.5 5.5C41.4 35.6 44 30.3 44 24c0-1.3-.1-2.7-.4-3.5z"
-            />
-          </svg>
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[14px] font-bold text-[#131314]" aria-hidden="true">
+          G
         </span>
         {loading ? t("common.loading") : t("auth.continueWithGoogle")}
       </button>

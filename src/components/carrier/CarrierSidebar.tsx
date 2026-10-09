@@ -164,11 +164,21 @@ export function CarrierSidebar({
 
   return (
     <aside className="sticky top-0 h-dvh w-[252px] shrink-0">
-      <div className="flex h-full flex-col gap-[10px] pt-[14px] pb-[18px] px-[10px]">
-        <div className="flex h-[28px] shrink-0 items-center px-[10px]">
+      <div className="flex h-full flex-col gap-[10px] pt-[32px] pb-[18px] px-[10px]">
+        <Link
+          href="/carrier/dashboard"
+          aria-label="Travia home"
+          className="mb-[18px] flex h-9 shrink-0 items-center gap-[8px] px-[10px]"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/travia-logo.svg" alt={tCommon("appName")} className="h-6 w-auto" />
-        </div>
+          <img src="/travia-icon.svg" alt="" className="h-[22px] w-[22px] shrink-0" />
+          <span
+            className="text-[19px] font-semibold text-[#121433]"
+            style={{ letterSpacing: "-0.2px" }}
+          >
+            {tCommon("appName")}
+          </span>
+        </Link>
 
         <div className="flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto">
           <nav className="flex flex-col gap-[2px]">
