@@ -152,7 +152,7 @@ export function AuthCredentialsForm() {
           >
             {t("auth.workEmailLabel")}
           </label>
-          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-1.5 focus-within:border-[#3563E9] focus-within:shadow-[0_0_0_3px_rgba(53,99,233,0.25)]">
+          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-[3px] focus-within:border-[#3563E9] focus-within:shadow-[0_0_0_3px_rgba(53,99,233,0.25)]">
             <input
               id="auth-email-input"
               type="email"
