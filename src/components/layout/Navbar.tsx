@@ -10,10 +10,12 @@ export async function Navbar({
   containerClassName = "mx-auto flex max-w-5xl items-center justify-between px-4 py-3",
   hideLoginLink = false,
   showDivider = true,
+  showMarketingCta = false,
 }: {
   containerClassName?: string;
   hideLoginLink?: boolean;
   showDivider?: boolean;
+  showMarketingCta?: boolean;
 } = {}) {
   const [session, t, tNav] = await Promise.all([
     auth(),
@@ -48,51 +50,71 @@ export async function Navbar({
           <img src="/travia-logo.svg" alt={t("appName")} className="h-7 w-auto" />
         </Link>
         <nav className="flex items-center gap-4">
-          {session?.user ? (
+          {showMarketingCta && !session?.user ? (
             <>
-              {/* With the marketplace hidden, "/" already redirects a signed-in
-                  user straight to this same page (see src/proxy.ts) — the
-                  logo link covers it, so this would just be a duplicate. */}
-              {MARKETPLACE_ENABLED ? (
-                <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                  {tNav("dashboard")}
-                </Link>
-              ) : null}
+              <LocaleSwitcher variant="flag" />
+              <a
+                href="mailto:sales@travia.example"
+                className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
+              >
+                {tNav("talkToSales")}
+              </a>
+              <Link
+                href="/register/carrier"
+                className="rounded-[10px] bg-[#131314] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2A2A2C]"
+              >
+                {tNav("getStartedFree")}
+              </Link>
             </>
           ) : (
             <>
-              {!hideLoginLink ? (
-                <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                  {tNav("login")}
+              {session?.user ? (
+                <>
+                  {/* With the marketplace hidden, "/" already redirects a signed-in
+                      user straight to this same page (see src/proxy.ts) — the
+                      logo link covers it, so this would just be a duplicate. */}
+                  {MARKETPLACE_ENABLED ? (
+                    <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                      {tNav("dashboard")}
+                    </Link>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {!hideLoginLink ? (
+                    <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                      {tNav("login")}
+                    </Link>
+                  ) : null}
+                  {MARKETPLACE_ENABLED ? (
+                    <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                      {tNav("register")}
+                    </Link>
+                  ) : null}
+                </>
+              )}
+              {/* With the marketplace hidden this would just duplicate the login
+                  page's own register link, so it only shows once there's a
+                  distinct client side to contrast it against. */}
+              {MARKETPLACE_ENABLED && session?.user.role !== "CARRIER" ? (
+                <Link
+                  href="/register/carrier"
+                  className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
+                >
+                  {tNav("forCarriers")}
                 </Link>
               ) : null}
-              {MARKETPLACE_ENABLED ? (
-                <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
-                  {tNav("register")}
-                </Link>
-              ) : null}
+              {session?.user ? (
+                <UserMenu
+                  name={displayName}
+                  email={session.user.email ?? null}
+                  image={session.user.image}
+                  profileHref={profileHref}
+                />
+              ) : (
+                <LocaleSwitcher />
+              )}
             </>
-          )}
-          {/* With the marketplace hidden this would just duplicate the login
-              page's own register link, so it only shows once there's a
-              distinct client side to contrast it against. */}
-          {MARKETPLACE_ENABLED && session?.user.role !== "CARRIER" ? (
-            <Link
-              href="/register/carrier"
-              className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
-            >
-              {tNav("forCarriers")}
-            </Link>
-          ) : null}
-          {session?.user ? (
-            <UserMenu
-              name={displayName}
-              email={session.user.email ?? null}
-              image={session.user.image}
-              profileHref={profileHref}
-            />
-          ) : (
-            <LocaleSwitcher />
           )}
         </nav>
       </div>

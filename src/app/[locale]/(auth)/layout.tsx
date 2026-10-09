@@ -8,6 +8,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         containerClassName="flex h-[60px] w-full items-center justify-between px-5 md:px-10"
         hideLoginLink
         showDivider={false}
+        showMarketingCta
       />
       <div className="min-h-[calc(100vh-60px)] mx-4 rounded-[24px] bg-[#F3F1EA] md:mx-6">{children}</div>
     </div>

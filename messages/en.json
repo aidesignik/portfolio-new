@@ -54,7 +54,9 @@
     "settings": "Settings",
     "help": "Help",
     "carriers": "Carriers",
-    "forCarriers": "For carriers"
+    "forCarriers": "For carriers",
+    "talkToSales": "Talk to sales",
+    "getStartedFree": "Get started for free"
   },
   "home": {
     "title": "Book group transport in minutes.",

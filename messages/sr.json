@@ -54,7 +54,9 @@
     "settings": "Podešavanja",
     "help": "Pomoć",
     "carriers": "Prevoznici",
-    "forCarriers": "Za prevoznike"
+    "forCarriers": "Za prevoznike",
+    "talkToSales": "Razgovarajte sa prodajom",
+    "getStartedFree": "Počnite besplatno"
   },
   "home": {
     "title": "Rezervišite grupni prevoz za par minuta.",
