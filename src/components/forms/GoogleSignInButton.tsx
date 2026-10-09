@@ -40,15 +40,15 @@ export function GoogleSignInButton() {
   }
 
   return (
-    <div className="relative">
+    <div>
       <button
         type="button"
         disabled={loading}
         onClick={onClick}
-        className="relative flex h-[60px] w-full items-center justify-center gap-[14px] rounded-[14px] border border-[#131314] bg-[#131314] text-[18px] font-semibold text-white shadow-[0_6px_18px_rgba(19,19,20,0.18)] transition-colors duration-150 hover:bg-[#2A2A2C] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#3563E9] focus-visible:ring-offset-2"
+        className="flex h-[52px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#131314] bg-[#131314] text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(19,19,20,0.18)] transition-colors duration-150 hover:bg-[#2A2A2C] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#3563E9] focus-visible:ring-offset-2"
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white">
-          <svg viewBox="0 0 48 48" className="h-[18px] w-[18px]" aria-hidden="true">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-white">
+          <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
             <path
               fill="#FFC107"
               d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"
@@ -68,12 +68,6 @@ export function GoogleSignInButton() {
           </svg>
         </span>
         {loading ? t("common.loading") : t("auth.continueWithGoogle")}
-        <span
-          aria-hidden="true"
-          className="absolute -top-[11px] right-4 rounded-full border border-[#B7DFC2] bg-[#E6F4EA] px-[10px] py-[3px] text-[12px] font-bold tracking-[0.3px] text-[#1E6B34]"
-        >
-          {t("auth.recommendedBadge")}
-        </span>
       </button>
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
     </div>

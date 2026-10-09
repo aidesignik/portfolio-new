@@ -8,7 +8,10 @@ export function AuthScreen({ headline, subtitle }: { headline: string; subtitle:
   return (
     <div className="flex w-full flex-col gap-10">
       <div>
-        <h1 className="m-0 text-[clamp(28px,3.8vw,42px)] font-semibold leading-[1.05] tracking-[-0.03em] text-zinc-900">
+        <h1
+          className="m-0 text-[clamp(28px,3.8vw,42px)] font-semibold leading-[1.05] tracking-[-0.03em] text-zinc-900"
+          style={{ fontFamily: "var(--font-sora)" }}
+        >
           {headline}
         </h1>
         <p className="m-0 mt-3 text-[15px] leading-[1.5] text-zinc-600">{subtitle}</p>

@@ -122,7 +122,6 @@
     "orDivider": "or",
     "googleAccountTypeMismatch": "This email is already registered as a client account. Log in with email and password instead.",
     "googleMockNotice": "Demo mode: always signs in as the same demo Google account — no real Google account needed.",
-    "recommendedBadge": "Recommended",
     "workEmailLabel": "Work email",
     "workEmailPlaceholder": "you@company.com",
     "continueWithEmailAriaLabel": "Continue with email"
