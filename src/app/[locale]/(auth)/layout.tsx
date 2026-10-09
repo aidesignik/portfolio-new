@@ -5,7 +5,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-white">
       <Navbar
-        containerClassName="mx-auto flex h-[60px] max-w-[1024px] items-center justify-between px-5 md:px-10"
+        containerClassName="flex h-[60px] w-full items-center justify-between px-5 md:px-10"
         hideLoginLink
         showDivider={false}
       />
