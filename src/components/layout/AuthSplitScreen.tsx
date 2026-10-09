@@ -29,14 +29,23 @@ export async function AuthSplitScreen({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-[1_1_340px] max-w-[500px] items-center justify-center">
           <div
-            className="relative aspect-square h-full max-w-full overflow-hidden rounded-[26px] bg-[#15317F]"
+            className="aspect-square h-full max-w-full rounded-[26px]"
             style={{ boxShadow: "0 16px 48px rgba(16,30,80,.18)" }}
           >
-            <AuthBackgroundVideo className="absolute inset-0 h-full w-full object-cover" />
-            {/* A light scrim keeps the floating white card readable against
-                whatever the video's brightest moment happens to be. */}
-            <div className="absolute inset-0 bg-[#0E2466]/20" />
-            <NewRideShowcase className="relative h-full w-full" />
+            {/* The shadow and the corner-clip live on separate elements —
+                combining overflow-hidden + border-radius + box-shadow on one
+                element leaves a faint seam right at the clip edge in
+                Chromium. */}
+            <div
+              className="relative h-full w-full overflow-hidden rounded-[26px] bg-[#15317F]"
+              style={{ transform: "translateZ(0)" }}
+            >
+              <AuthBackgroundVideo className="absolute inset-0 h-full w-full object-cover" />
+              {/* A light scrim keeps the floating white card readable against
+                  whatever the video's brightest moment happens to be. */}
+              <div className="absolute inset-0 bg-[#0E2466]/20" />
+              <NewRideShowcase className="relative h-full w-full" />
+            </div>
           </div>
         </div>
       </div>
