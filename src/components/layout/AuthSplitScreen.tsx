@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AuthBackgroundVideo } from "./AuthBackgroundVideo";
 import { NewRideShowcase } from "./NewRideShowcase";
 
 // Shared split-screen shell for the login/register pages: the form sits
@@ -31,14 +32,7 @@ export async function AuthSplitScreen({ children }: { children: ReactNode }) {
             className="relative aspect-square h-full max-w-full overflow-hidden rounded-[26px] bg-[#15317F]"
             style={{ boxShadow: "0 16px 48px rgba(16,30,80,.18)" }}
           >
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              src="/auth/background.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
+            <AuthBackgroundVideo className="absolute inset-0 h-full w-full object-cover" />
             {/* A light scrim keeps the floating white card readable against
                 whatever the video's brightest moment happens to be. */}
             <div className="absolute inset-0 bg-[#0E2466]/20" />
