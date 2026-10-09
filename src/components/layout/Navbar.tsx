@@ -9,9 +9,11 @@ import { MARKETPLACE_ENABLED } from "@/config/features";
 export async function Navbar({
   containerClassName = "mx-auto flex max-w-5xl items-center justify-between px-4 py-3",
   hideLoginLink = false,
+  showDivider = true,
 }: {
   containerClassName?: string;
   hideLoginLink?: boolean;
+  showDivider?: boolean;
 } = {}) {
   const [session, t, tNav] = await Promise.all([
     auth(),
@@ -39,7 +41,7 @@ export async function Navbar({
   const profileHref = session?.user.role === "CARRIER" ? "/carrier/onboarding" : null;
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
+    <header className={`bg-white ${showDivider ? "border-b border-zinc-200" : ""}`}>
       <div className={containerClassName}>
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
