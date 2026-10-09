@@ -136,39 +136,54 @@ export function AuthCredentialsForm() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col">
       <GoogleSignInButton />
-      <div className="flex items-center gap-3 text-xs text-zinc-400">
-        <span className="h-px flex-1 bg-zinc-200" />
+      <div className="mb-5 mt-7 flex items-center gap-3 text-[14px] text-[#6B6F76]">
+        <span className="h-px flex-1 bg-[#E2E0DC]" />
         {t("auth.orDivider")}
-        <span className="h-px flex-1 bg-zinc-200" />
+        <span className="h-px flex-1 bg-[#E2E0DC]" />
       </div>
 
       {step === "email" ? (
-        <form onSubmit={onSubmitEmail} className="flex flex-col gap-3">
-          <div>
-            <label className="mb-1.5 block text-[12px] font-semibold text-[var(--ink-2)]">
-              {t("common.email")}
-            </label>
-            <Input
+        <form onSubmit={onSubmitEmail}>
+          <label
+            htmlFor="auth-email-input"
+            className="mb-2 block text-[15px] font-medium text-[#3A3D42]"
+          >
+            {t("auth.workEmailLabel")}
+          </label>
+          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-1.5 focus-within:border-[#3563E9] focus-within:shadow-[0_0_0_3px_rgba(53,99,233,0.25)]">
+            <input
+              id="auth-email-input"
               type="email"
+              autoComplete="email"
+              placeholder={t("auth.workEmailPlaceholder")}
               required
-              autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full"
-              style={INPUT_STYLE}
+              className="h-full flex-1 border-0 bg-transparent text-[16px] text-zinc-900 outline-none placeholder:text-zinc-400"
             />
+            <button
+              type="submit"
+              disabled={loading}
+              aria-label={t("auth.continueWithEmailAriaLabel")}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F0F1F3] text-[#3A3D42] transition-colors hover:bg-[#E4E6E9] disabled:pointer-events-none disabled:opacity-50"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </button>
           </div>
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full text-[14px]"
-            style={CONTROL_STYLE}
-          >
-            {loading ? t("common.loading") : t("auth.continueButton")}
-          </Button>
+          {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
         </form>
       ) : (
         <form onSubmit={onSubmitPassword} className="flex flex-col gap-3">
@@ -216,7 +231,7 @@ export function AuthCredentialsForm() {
         </form>
       )}
 
-      <p className="text-[12px] text-zinc-400">{t("auth.googleMockNotice")}</p>
+      <p className="mt-3 text-[12px] text-zinc-400">{t("auth.googleMockNotice")}</p>
     </div>
   );
 }

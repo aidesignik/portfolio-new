@@ -121,7 +121,11 @@
     "continueWithGoogle": "Nastavi sa Google nalogom",
     "orDivider": "ili",
     "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom.",
-    "googleMockNotice": "Demo režim: uvek prijavljuje isti demo Google nalog — nije potreban pravi Google nalog."
+    "googleMockNotice": "Demo режим: uvek prijavljuje isti demo Google nalog — nije potreban pravi Google nalog.",
+    "recommendedBadge": "Preporučeno",
+    "workEmailLabel": "Poslovni email",
+    "workEmailPlaceholder": "ti@kompanija.com",
+    "continueWithEmailAriaLabel": "Nastavi sa email adresom"
   },
   "carrierStatus": {
     "PENDING": "Čeka odobrenje",
