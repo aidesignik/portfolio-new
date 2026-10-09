@@ -168,7 +168,8 @@ export function CarrierSidebar({
         <Link
           href="/carrier/dashboard"
           aria-label="Travia home"
-          className="mb-[12px] flex h-[48px] shrink-0 items-center gap-[8px] px-[10px] pt-[16px]"
+          className="mb-[12px] flex h-9 shrink-0 items-center gap-[8px] px-[10px]"
+          style={{ marginTop: "calc(8px + var(--content-padding))" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/travia-icon.svg" alt="" className="h-[22px] w-[22px] shrink-0" />

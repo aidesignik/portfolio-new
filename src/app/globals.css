@@ -116,6 +116,14 @@
      a much smaller, denser row than the card/nav surfaces above, where
      the fuller shadow read as too heavy. */
   --shadow-search: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+  /* The gated carrier shell's single edge gutter: used by TopBar (its own
+     top/left/right padding) and PageContent (its bottom padding) so the
+     shell panel's inner edge is the same distance on all four sides, and
+     by CarrierSidebar's logo row (as its top offset) so the logo lines up
+     with the top bar inside that same gutter. One value, three call sites
+     — change it here and all three move together instead of drifting. */
+  --content-padding: 24px;
 }
 
 @theme inline {

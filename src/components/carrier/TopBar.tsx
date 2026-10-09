@@ -15,12 +15,12 @@ export async function TopBar() {
 
   return (
     <div className="flex shrink-0">
-      {/* Same px-6 gutter as PageContent below (no max-width cap on
-          either), so the search bar and avatar line up with the
-          calendar/table edges at any screen width. Fixed 48px height
-          (not padding-driven) so this row shares a height with the
-          sidebar's logo row and the two line up on the same line. */}
-      <div className="flex h-[48px] w-full items-center justify-between gap-4 px-6">
+      {/* --content-padding on top/left/right — the shell panel's single
+          edge gutter (see globals.css) — so the search bar and avatar
+          line up with the calendar/table edges below, and the sidebar's
+          logo row (which uses the same token as its top offset) lines up
+          with this row. */}
+      <div className="flex w-full items-center justify-between gap-4 pt-[var(--content-padding)] pr-[var(--content-padding)] pl-[var(--content-padding)]">
         <div className="relative w-full max-w-[420px]">
           <Search
             size={16}
