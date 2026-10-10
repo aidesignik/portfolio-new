@@ -124,19 +124,30 @@
      with the top bar inside that same gutter. One value, three call sites
      — change it here and all three move together instead of drifting. */
   --content-padding: 24px;
+
+  /* Landing/auth hero typography refresh — Calendly-like, lighter feel.
+     Used by the shared header (Navbar) and the sign-in hero (AuthScreen,
+     AuthCredentialsForm, GoogleSignInButton, LocaleSwitcher). */
+  --hero-ink: #0b1b33;
+  --hero-ink-muted: #476788;
+  --hero-ink-subtle: #5e7290;
+  --hero-surface: #f3f2ee;
+  --hero-border: #e4e2dc;
+  --hero-accent: #2f5bea;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-ui);
+  --font-sans: var(--font-figtree);
   --font-mono: var(--font-data);
+  --font-display: var(--font-sora);
 }
 
 body {
   background: var(--background);
   color: var(--ink-primary);
-  font-family: var(--font-ui), Helvetica, sans-serif;
+  font-family: var(--font-sans), Helvetica, sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.5;
@@ -144,10 +155,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3 {
-  letter-spacing: -0.02em;
+/* @layer base (not a bare rule): Tailwind's utility classes live in
+   @layer utilities, which beats any unlayered CSS regardless of
+   specificity — a bare `h1,h2,h3{...}` rule here would make every
+   heading's own font-weight/tracking utility class (e.g. PageHeader's
+   font-bold, AuthScreen's tracking-[-0.04em]) silently do nothing
+   sitewide. Base layer keeps this as the default, overridable per
+   element exactly like any other Tailwind base style. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display), var(--font-sans), Helvetica, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
 }
 
 /* Surface depth pass — background-image gradients have too many commas

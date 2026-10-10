@@ -1,29 +1,129 @@
 "use client";
 
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams } from "next/navigation";
+import { Globe, ChevronDown, Check } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
-const FLAGS: Record<string, string> = { en: "🇬🇧", sr: "🇷🇸" };
 const LOCALE_NAMES: Record<string, string> = { en: "English", sr: "Srpski" };
+// "Language" label, used both for the select's aria-label and the menu
+// trigger's aria-label ("Jezik: srpski" / "Language: English") — keyed by
+// the *current* locale, since that's the language the label itself reads
+// in, not the one being switched to.
+const LANGUAGE_WORD: Record<string, string> = { en: "Language", sr: "Jezik" };
 
-export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "flag" } = {}) {
+export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "menu" } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const params = useParams();
   const current = (params.locale as string) ?? routing.defaultLocale;
 
-  if (variant === "flag") {
-    const other = routing.locales.find((locale) => locale !== current) ?? current;
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function closeAndRefocus() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(event: MouseEvent) {
+      if (!triggerRef.current?.parentElement?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    // Escape closes the menu no matter which element currently has focus
+    // (a mouse click opens it without moving focus into an item, so the
+    // per-item keydown handler alone wouldn't catch it).
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeAndRefocus();
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  function selectLocale(locale: string) {
+    router.replace(pathname, { locale });
+    closeAndRefocus();
+  }
+
+  function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setOpen(true);
+      requestAnimationFrame(() => itemRefs.current[0]?.focus());
+    }
+  }
+
+  function onItemKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      itemRefs.current[(index + 1) % routing.locales.length]?.focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      itemRefs.current[(index - 1 + routing.locales.length) % routing.locales.length]?.focus();
+    } else if (event.key === "Tab") {
+      setOpen(false);
+    }
+  }
+
+  if (variant === "menu") {
     return (
-      <button
-        type="button"
-        aria-label={`Switch language to ${LOCALE_NAMES[other] ?? other}`}
-        onClick={() => router.replace(pathname, { locale: other })}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-[18px] leading-none hover:bg-zinc-100"
-      >
-        <span aria-hidden="true">{FLAGS[current] ?? current.toUpperCase()}</span>
-      </button>
+      <div className="relative">
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-label={`${LANGUAGE_WORD[current] ?? "Language"}: ${LOCALE_NAMES[current] ?? current}`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          onKeyDown={onTriggerKeyDown}
+          className="flex h-10 items-center gap-2 rounded-[8px] border bg-white pl-3 pr-[10px] transition-colors hover:bg-[var(--hero-surface)]"
+          style={{ borderColor: "var(--hero-border)" }}
+        >
+          <Globe size={16} strokeWidth={1.8} color="var(--hero-ink-muted)" />
+          <span className="text-[15px] font-medium text-[var(--hero-ink)]">
+            {current.toUpperCase()}
+          </span>
+          <ChevronDown size={14} strokeWidth={1.8} color="var(--hero-ink-muted)" />
+        </button>
+
+        {open ? (
+          <div
+            role="menu"
+            className="absolute right-0 top-[calc(100%+6px)] z-20 min-w-[180px] rounded-[10px] bg-white p-2 shadow-[0_8px_24px_rgba(11,27,51,0.14)]"
+          >
+            {routing.locales.map((locale, index) => (
+              <button
+                key={locale}
+                ref={(el) => {
+                  itemRefs.current[index] = el;
+                }}
+                role="menuitemradio"
+                aria-checked={locale === current}
+                type="button"
+                onClick={() => selectLocale(locale)}
+                onKeyDown={(event) => onItemKeyDown(event, index)}
+                className="flex h-9 w-full items-center justify-between gap-2 rounded-[6px] px-2 text-left text-[14px] font-medium text-[var(--hero-ink)] hover:bg-[var(--hero-surface)]"
+              >
+                {LOCALE_NAMES[locale] ?? locale}
+                {locale === current ? (
+                  <Check size={16} strokeWidth={2} color="var(--hero-accent)" />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
     );
   }
 

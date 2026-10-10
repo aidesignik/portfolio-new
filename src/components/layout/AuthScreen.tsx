@@ -6,15 +6,14 @@ import { AuthCredentialsForm } from "@/components/forms/AuthCredentialsForm";
 // column wrapper in AuthSplitScreen, not here.
 export function AuthScreen({ headline, subtitle }: { headline: string; subtitle: string }) {
   return (
-    <div className="flex w-full flex-col gap-10">
+    <div className="flex w-full flex-col gap-9">
       <div>
-        <h1
-          className="m-0 text-balance text-[clamp(28px,3.8vw,42px)] font-semibold leading-[1.05] tracking-[-0.03em] text-zinc-900"
-          style={{ fontFamily: "var(--font-sora)" }}
-        >
+        <h1 className="m-0 text-balance text-[38px] font-semibold leading-[1.1] tracking-[-0.04em] text-[var(--hero-ink)] md:text-[56px] md:leading-[1.08]">
           {headline}
         </h1>
-        <p className="m-0 mt-3 text-balance text-[15px] leading-[1.5] text-zinc-600">{subtitle}</p>
+        <p className="m-0 mt-5 text-balance text-[16px] leading-[1.55] text-[var(--hero-ink-muted)] md:text-[18px]">
+          {subtitle}
+        </p>
       </div>
       <AuthCredentialsForm />
     </div>

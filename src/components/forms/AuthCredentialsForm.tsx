@@ -138,21 +138,21 @@ export function AuthCredentialsForm() {
   return (
     <div className="flex flex-col">
       <GoogleSignInButton />
-      <div className="mb-5 mt-7 flex items-center gap-3 text-[14px] text-[#6B6F76]">
-        <span className="h-px flex-1 bg-[#E2E0DC]" />
+      <div className="my-6 flex items-center gap-3 text-[13px] text-[#6B7F99]">
+        <span className="h-px flex-1 bg-[#DEDCD5]" />
         {t("auth.orDivider")}
-        <span className="h-px flex-1 bg-[#E2E0DC]" />
+        <span className="h-px flex-1 bg-[#DEDCD5]" />
       </div>
 
       {step === "email" ? (
         <form onSubmit={onSubmitEmail}>
           <label
             htmlFor="auth-email-input"
-            className="mb-2 block text-[15px] font-medium text-[#3A3D42]"
+            className="mb-2 block text-[14px] font-medium text-[var(--hero-ink)]"
           >
             {t("auth.workEmailLabel")}
           </label>
-          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-[3px] focus-within:border-[#3563E9] focus-within:shadow-[0_0_0_3px_rgba(53,99,233,0.25)]">
+          <div className="flex h-[52px] items-center rounded-[10px] border border-[#D6D4CD] bg-white pl-4 pr-[5px] transition-[border-color,box-shadow] focus-within:border-[var(--hero-accent)] focus-within:shadow-[0_0_0_3px_rgba(47,91,234,0.25)]">
             <input
               id="auth-email-input"
               type="email"
@@ -161,13 +161,13 @@ export function AuthCredentialsForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-full flex-1 border-0 bg-transparent text-[16px] text-zinc-900 outline-none placeholder:text-zinc-400"
+              className="h-full flex-1 border-0 bg-transparent text-[16px] text-[var(--hero-ink)] outline-none placeholder:text-zinc-400"
             />
             <button
               type="submit"
               disabled={loading}
               aria-label={t("auth.continueWithEmailAriaLabel")}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#F0F1F3] text-[#3A3D42] transition-colors hover:bg-[#E4E6E9] disabled:pointer-events-none disabled:opacity-50"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-[var(--hero-surface)] text-[var(--hero-ink-muted)] transition-[filter] hover:brightness-95 disabled:pointer-events-none disabled:opacity-50"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -231,7 +231,7 @@ export function AuthCredentialsForm() {
         </form>
       )}
 
-      <p className="mt-3 text-[12px] text-zinc-400">{t("auth.googleMockNotice")}</p>
+      <p className="mt-3 text-[13px] leading-[1.5] text-[var(--hero-ink-subtle)]">{t("auth.googleMockNotice")}</p>
     </div>
   );
 }

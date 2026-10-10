@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         showDivider={false}
         showMarketingCta
       />
-      <div className="min-h-[calc(100vh-60px)] mx-4 rounded-[24px] bg-[#F3F1EA] md:mx-6">{children}</div>
+      <div className="min-h-[calc(100vh-60px)] mx-4 rounded-[24px] bg-[var(--hero-surface)] md:mx-6">{children}</div>
     </div>
   );
 }
