@@ -12,8 +12,7 @@ export function PageHeader({
   title: string;
   context?: string;
   actions?: ReactNode;
-  // Opt-in heavier title weight (700 — the heaviest weight the display
-  // font loads; see globals.css) for pages asking for it, without
+  // Opt-in heavier title weight (800) for pages asking for it, without
   // changing the default (600) every other page sharing this component
   // already uses.
   bold?: boolean;
@@ -23,7 +22,7 @@ export function PageHeader({
       <div className="flex min-w-0 items-baseline gap-3">
         <h1
           className={`truncate text-[24px] tracking-[-0.02em] text-[var(--ink-primary)] ${
-            bold ? "font-bold" : "font-semibold"
+            bold ? "font-extrabold" : "font-semibold"
           }`}
         >
           {title}

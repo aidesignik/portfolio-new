@@ -8,10 +8,8 @@ import { NewRideShowcase } from "./NewRideShowcase";
 // audience while the client marketplace is hidden) floats as its own
 // square media panel to the right — a Calendly-style panel standing in
 // for a screen recording, a looping abstract video behind the animated
-// showcase card. The header above is full-width (logo flush to the true
-// page edge), while this hero content is capped at 1120px/40px(20px) —
-// deliberately narrower than the header. Vertically centers the row in
-// the remaining viewport
+// showcase card. Shares Navbar's 1024px/40px(20px) container so the two
+// line up, and vertically centers the row in the remaining viewport
 // height below the 60px header. Below ~900px the columns wrap: form
 // first, square panel full-width underneath.
 //
@@ -25,8 +23,8 @@ import { NewRideShowcase } from "./NewRideShowcase";
 // one height to match across every entry point.
 export async function AuthSplitScreen({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-60px)] max-w-[1120px] items-center px-5 pb-11 pt-[96px] md:px-10">
-      <div className="flex w-full flex-wrap justify-between gap-[64px]">
+    <main className="mx-auto flex min-h-[calc(100vh-60px)] max-w-[1024px] items-center px-5 py-11 md:px-10">
+      <div className="flex w-full flex-wrap justify-between gap-12">
         <div className="min-w-0 flex-[1_1_300px] max-w-[380px]">{children}</div>
 
         <div className="flex min-w-0 flex-[1_1_340px] max-w-[500px] items-center justify-center">
