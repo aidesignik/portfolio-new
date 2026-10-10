@@ -52,7 +52,7 @@ export async function Navbar({
         <nav className="flex items-center gap-4">
           {showMarketingCta && !session?.user ? (
             <>
-              <LocaleSwitcher variant="flag" />
+              <LocaleSwitcher variant="menu" />
               <a
                 href="mailto:sales@travia.example"
                 className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
