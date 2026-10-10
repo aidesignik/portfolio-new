@@ -50,7 +50,10 @@ export async function NewRideShowcase({ className = "" }: { className?: string }
               className="absolute inset-0 flex flex-col"
               style={{ animation: "showcase-scene-a 12s ease-in-out infinite" }}
             >
-              <div className="flex flex-col gap-[6px]">
+              {/* ml-[6px]: centers the marker column (16px wide) under the
+                  28px bus-icon badge above — (28-16)/2 = 6px — without
+                  moving the badge itself. */}
+              <div className="ml-[6px] flex flex-col gap-[6px]">
                 <div className="flex items-center gap-[10px]">
                   <div className="flex h-5 w-4 shrink-0 items-center justify-center">
                     <RingMarker />
