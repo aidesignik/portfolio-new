@@ -119,11 +119,19 @@
 
   /* The gated carrier shell's single edge gutter: used by TopBar (its own
      top/left/right padding) and PageContent (its bottom padding) so the
-     shell panel's inner edge is the same distance on all four sides, and
-     by CarrierSidebar's logo row (as its top offset) so the logo lines up
-     with the top bar inside that same gutter. One value, three call sites
-     — change it here and all three move together instead of drifting. */
+     shell panel's inner edge is the same distance on all four sides. Two
+     call sites — change it here and both move together instead of
+     drifting. (CarrierSidebar's own top/horizontal padding is a separate
+     token, --sidebar-padding below — the sidebar isn't inside this same
+     panel, so tying its spacing to the panel's gutter was coincidental,
+     not structural.) */
   --content-padding: 24px;
+
+  /* CarrierSidebar's edge gutter: top padding (above the logo) and
+     horizontal padding (both sides of the logo/nav column) share this one
+     value, matching the gated layout's own p-2 (8px) wrapper around the
+     main content card — the outer gap from the window edge to that card. */
+  --sidebar-padding: 8px;
 }
 
 @theme inline {
