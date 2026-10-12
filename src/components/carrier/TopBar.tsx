@@ -1,8 +1,9 @@
-import { Search, Bell } from "lucide-react";
+import { Bell } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { TopBarSearch } from "./TopBarSearch";
 
 // Persistent, page-agnostic — search, notifications, avatar only. Never a
 // page title or a primary action; those live in each page's own title row.
@@ -21,22 +22,7 @@ export async function TopBar() {
           logo row (which uses the same token as its top offset) lines up
           with this row. */}
       <div className="flex w-full items-center justify-between gap-4 pt-[var(--content-padding)] pr-[var(--content-padding)] pl-[var(--content-padding)]">
-        <div className="relative w-full max-w-[420px]">
-          <Search
-            size={16}
-            strokeWidth={1.9}
-            color="#A1A1AA"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-          />
-          <input
-            type="search"
-            placeholder={t("search")}
-            className="h-9 w-full rounded-[9px] border-0 bg-[var(--surface-card-bg)] pl-9 pr-14 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] shadow-[var(--shadow-search)] outline-none transition-shadow duration-[.12s] ease-out focus:shadow-[var(--focus-ring)]"
-          />
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-[6px] bg-white px-[6px] py-[2px] text-[11px] font-medium text-[var(--ink-muted)] shadow-[var(--shadow-pill)]">
-            ⌘K
-          </span>
-        </div>
+        <TopBarSearch />
         <div className="flex shrink-0 items-center gap-3">
           <button
             type="button"
