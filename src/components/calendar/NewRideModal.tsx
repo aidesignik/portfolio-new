@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { SidePanel } from "@/components/ui/SidePanel";
@@ -82,6 +82,7 @@ export function NewRideModal({
 }) {
   const t = useTranslations();
   const tn = useTranslations("carrier.newRide");
+  const uid = useId();
   const tType = useTranslations("vehicleType");
   const { clientPhone: initialClientPhone, ...restInitialValues } = initialValues ?? {};
   const initialPhone = splitPhone(initialClientPhone ?? "");
@@ -362,7 +363,7 @@ export function NewRideModal({
   const legKm = (km: number | null) => (calculatingDistance || distanceError || km === null ? "—" : `${Math.round(km)} km`);
 
   return (
-    <SidePanel onClose={onClose}>
+    <SidePanel onClose={onClose} label={tn("title")}>
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#F0F0F2] py-0 pl-6 pr-5">
         <h2 className="text-[18px] font-semibold tracking-[-0.015em] text-[#18181B]">{tn("title")}</h2>
         <button
@@ -381,9 +382,10 @@ export function NewRideModal({
             <h3 className="mb-4 text-[13.5px] font-semibold text-[#18181B]">{tn("klijent")}</h3>
             <div className="grid grid-cols-2 gap-x-3 gap-y-4">
               <div>
-                <label className={SHEET_LABEL_CLASS}>{tn("firma")}</label>
+                <label htmlFor={`${uid}-firma`} className={SHEET_LABEL_CLASS}>{tn("firma")}</label>
                 <div className="mt-[6px]">
                   <ClientCombobox
+                    id={`${uid}-firma`}
                     variant="sheet"
                     placeholder={tn("firmaPlaceholder")}
                     value={form.clientCompanyName}
@@ -407,25 +409,26 @@ export function NewRideModal({
                 </div>
               </div>
               <div>
-                <label className={SHEET_LABEL_CLASS}>{tn("kontaktOsoba")}</label>
+                <label htmlFor={`${uid}-kontakt`} className={SHEET_LABEL_CLASS}>{tn("kontaktOsoba")}</label>
                 <input
+                  id={`${uid}-kontakt`}
                   className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
                   placeholder={tn("kontaktOsobaPlaceholder")}
                   value={form.clientName}
                   onChange={(e) => setForm({ ...form, clientName: e.target.value })}
                 />
                 {submitAttempted && !form.clientName ? (
-                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                  <p className="mt-[4px] text-[12.5px] text-[var(--ink-destructive)]">{tn("required")}</p>
                 ) : null}
               </div>
               <div>
-                <label className={SHEET_LABEL_CLASS}>{tn("telefon")}</label>
-                <div className="mt-[6px] flex h-10 items-stretch rounded-[8px] border border-[#E4E4E7] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_#DBEAFE]">
-                  <div className="flex shrink-0 items-center gap-[2px] rounded-l-[7px] bg-[#FAFAFA] pl-3 pr-2">
-                    <span className="text-[14px] text-[#71717A]">+</span>
+                <label htmlFor={`${uid}-telefon`} className={SHEET_LABEL_CLASS}>{tn("telefon")}</label>
+                <div className="mt-[6px] flex h-10 items-stretch rounded-[8px] border border-[var(--border-control)] focus-within:border-[var(--action-bg)] focus-within:shadow-[0_0_0_3px_var(--action-100)]">
+                  <div className="flex shrink-0 items-center gap-[2px] rounded-l-[7px] bg-[var(--bg-subtle)] pl-3 pr-2">
+                    <span className="text-[14px] text-[var(--ink-secondary)]">+</span>
                     <input
                       aria-label={tn("phoneCountryCode")}
-                      className="w-[30px] bg-transparent text-[14px] text-[#71717A] focus:outline-none"
+                      className="w-[30px] bg-transparent text-[14px] text-[var(--ink-secondary)] focus:outline-none"
                       value={form.clientPhoneCc}
                       onChange={(e) => setForm({ ...form, clientPhoneCc: e.target.value.replace(/\D/g, "").slice(0, 3) })}
                     />
@@ -435,28 +438,30 @@ export function NewRideModal({
                       spanning the whole 40px height touches the outer
                       focus ring's own border/shadow right at the corners,
                       visibly notching it. */}
-                  <span className="my-2 w-px shrink-0 bg-[#EEEEF0]" />
+                  <span className="my-2 w-px shrink-0 bg-[var(--border-soft)]" />
                   <input
-                    className="min-w-0 flex-1 px-3 text-[14px] text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none"
+                    id={`${uid}-telefon`}
+                    className="min-w-0 flex-1 px-3 text-[14px] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] focus:outline-none"
                     value={form.clientPhoneNumber}
                     onChange={(e) => setForm({ ...form, clientPhoneNumber: e.target.value.replace(/[^\d\s]/g, "") })}
                     onBlur={() => setPhoneTouched(true)}
                   />
                 </div>
                 {phoneTouched && form.clientPhoneNumber && !isValidPhoneNumber(form.clientPhoneNumber) ? (
-                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("invalidPhone")}</p>
+                  <p className="mt-[4px] text-[12.5px] text-[var(--ink-destructive)]">{tn("invalidPhone")}</p>
                 ) : null}
               </div>
               <div>
-                <label className={SHEET_LABEL_CLASS}>{t("common.email")}</label>
+                <label htmlFor={`${uid}-email`} className={SHEET_LABEL_CLASS}>{t("common.email")}</label>
                 <input
+                  id={`${uid}-email`}
                   type="email"
                   className={`mt-[6px] truncate ${SHEET_INPUT_CLASS}`}
                   value={form.clientEmail}
                   onChange={(e) => setForm({ ...form, clientEmail: e.target.value })}
                 />
                 {submitAttempted && !form.clientEmail ? (
-                  <p className="mt-[4px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                  <p className="mt-[4px] text-[12.5px] text-[var(--ink-destructive)]">{tn("required")}</p>
                 ) : null}
               </div>
             </div>
@@ -509,7 +514,7 @@ export function NewRideModal({
                   dateError={submitAttempted && !form.departureAt}
                 />
                 {submitAttempted && !form.departureAt ? (
-                  <p className="pl-[28px] text-[12.5px] text-[#DC2626]">{tn("required")}</p>
+                  <p className="pl-[28px] text-[12.5px] text-[var(--ink-destructive)]">{tn("required")}</p>
                 ) : null}
               </LegCard>
 
@@ -558,7 +563,7 @@ export function NewRideModal({
             <h3 className="mb-4 text-[13.5px] font-semibold text-[#18181B]">{tn("detalji")}</h3>
             <div className="flex flex-col gap-4">
               <div>
-                <label className={SHEET_LABEL_CLASS}>{tn("brojPutnika")}</label>
+                <span className={SHEET_LABEL_CLASS}>{tn("brojPutnika")}</span>
                 <div className="mt-[6px]">
                   <Stepper
                     value={Number(form.passengerCount) || 1}
@@ -569,10 +574,11 @@ export function NewRideModal({
               </div>
               <div>
                 <div className="mb-[6px] flex items-baseline gap-2">
-                  <label className={SHEET_LABEL_CLASS}>{tn("posebniZahtevi")}</label>
-                  <span className="text-[12.5px] text-[#A1A1AA]">{tn("opciono")}</span>
+                  <label htmlFor={`${uid}-zahtevi`} className={SHEET_LABEL_CLASS}>{tn("posebniZahtevi")}</label>
+                  <span className="text-[12.5px] text-[var(--ink-muted)]">{tn("opciono")}</span>
                 </div>
                 <textarea
+                  id={`${uid}-zahtevi`}
                   className={SHEET_TEXTAREA_CLASS}
                   placeholder={tn("posebniZahteviPlaceholder")}
                   value={form.specialRequests}
@@ -614,7 +620,7 @@ export function NewRideModal({
                     <option
                       key={v.id}
                       value={v.id}
-                      style={v.seats < (Number(form.passengerCount) || 0) ? { color: "#DC2626" } : undefined}
+                      style={v.seats < (Number(form.passengerCount) || 0) ? { color: "var(--ink-destructive)" } : undefined}
                     >
                       {tType(v.type)} {v.model} · {v.seats} {tn("mesta")}
                     </option>
@@ -642,7 +648,7 @@ export function NewRideModal({
             </div>
           </section>
 
-          {error ? <p className="px-6 pb-4 text-[13.5px] text-[#DC2626]">{error}</p> : null}
+          {error ? <p className="px-6 pb-4 text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
         </div>
 
         <div className="flex h-[72px] shrink-0 items-center gap-3 bg-white py-0 pl-6 pr-5 shadow-[0_-1px_0_#F0F0F2,0_-8px_16px_-8px_rgba(24,24,27,.06)]">

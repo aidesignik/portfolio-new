@@ -17,7 +17,7 @@ export function AddDriverPanel({
   const t = useTranslations();
 
   return (
-    <SidePanel onClose={onClose}>
+    <SidePanel onClose={onClose} label={t("carrier.addDriver")}>
       <PanelHeader title={t("carrier.addDriver")} onClose={onClose} closeLabel={t("common.close")} />
       <div className="flex-1 overflow-y-auto px-5 py-[18px]">
         <DriverForm vehicles={vehicles} onSaved={onCreated} />

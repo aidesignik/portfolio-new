@@ -228,7 +228,7 @@ export function CarrierProfileForm({ carrier, email }: Props) {
               <button
                 type="button"
                 onClick={() => set("logoUrl", "")}
-                className="text-xs font-medium text-red-600 hover:underline"
+                className="text-xs font-medium text-[var(--ink-destructive)] hover:underline"
               >
                 {t("common.remove")}
               </button>
@@ -245,12 +245,12 @@ export function CarrierProfileForm({ carrier, email }: Props) {
             <p className="text-xs text-zinc-500">
               {logoUploading ? t("common.loading") : t("auth.logoUploadHint")}
             </p>
-            {logoError ? <p className="text-xs text-red-600">{logoError}</p> : null}
+            {logoError ? <p className="text-xs text-[var(--ink-destructive)]">{logoError}</p> : null}
           </div>
         </div>
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={loading}>
           {loading

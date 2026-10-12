@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 
 // A small centered confirmation modal for a destructive action that needs
@@ -28,6 +28,9 @@ export function ConfirmDialog({
   onConfirm: () => void;
   confirming?: boolean;
 }) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     // Capture phase + stopPropagation: a SidePanel also closes itself on a
     // bubble-phase Escape listener on `document`. Without this, Escape
@@ -36,13 +39,27 @@ export function ConfirmDialog({
     // run. Capturing on `document` fires before any bubble-phase listener
     // regardless of registration order.
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      event.stopPropagation();
-      onCancel();
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onCancel();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      // Only two focusable elements (Cancel/Confirm) — trap by bouncing
+      // between them instead of a generic focusable-element query.
+      event.preventDefault();
+      const next = document.activeElement === cancelRef.current ? confirmRef.current : cancelRef.current;
+      next?.focus();
     }
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
   }, [onCancel]);
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    cancelRef.current?.focus();
+    return () => previouslyFocused?.focus();
+  }, []);
 
   return (
     <div
@@ -55,18 +72,26 @@ export function ConfirmDialog({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
-        className="w-full max-w-[380px] rounded-[14px] bg-[var(--bg-panel)] p-5 shadow-[var(--shadow-panel)]"
+        className="w-full max-w-[380px] rounded-panel bg-[var(--bg-panel)] p-5 shadow-[var(--shadow-panel)]"
       >
         <h2 id="confirm-dialog-title" className="text-[16px] font-semibold text-[var(--ink-primary)]">
           {title}
         </h2>
         {body ? <p className="mt-[6px] text-[13.5px] text-[var(--ink-secondary)]">{body}</p> : null}
         <div className="mt-5 flex justify-end gap-2">
-          <Button type="button" variant="secondary" compact onClick={onCancel}>
+          <Button ref={cancelRef} type="button" variant="secondary" compact onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button type="button" variant="danger" compact disabled={confirming} onClick={onConfirm}>
-            {confirming ? "…" : confirmLabel}
+          <Button
+            ref={confirmRef}
+            type="button"
+            variant="danger"
+            compact
+            disabled={confirming}
+            aria-busy={confirming || undefined}
+            onClick={onConfirm}
+          >
+            {confirmLabel}
           </Button>
         </div>
       </div>

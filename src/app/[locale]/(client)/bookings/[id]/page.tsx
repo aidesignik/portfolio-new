@@ -23,24 +23,24 @@ export default async function ClientBookingDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">{formatRoute(booking)}</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{formatRoute(booking)}</h1>
+        <p className="mt-1 text-sm text-[var(--ink-secondary)]">
           {new Date(booking.departureAt).toLocaleString()} · {booking.passengerCount} pax
         </p>
       </div>
 
       <Card className="space-y-2">
-        <p className="text-sm text-zinc-600">{booking.carrier.companyName}</p>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-[var(--ink-secondary)]">{booking.carrier.companyName}</p>
+        <p className="text-sm text-[var(--ink-secondary)]">
           {t(`vehicleType.${booking.vehicle.type}`)} {booking.vehicle.model} · {booking.driver.name}
         </p>
-        <p className="text-lg font-semibold text-zinc-900">
+        <p className="text-lg font-semibold text-[var(--ink-primary)]">
           {Number(booking.price ?? 0).toLocaleString()} {booking.currency}
         </p>
       </Card>
 
       <Card>
-        <h2 className="mb-4 text-lg font-medium text-zinc-900">{t("documents.generateAll")}</h2>
+        <h2 className="mb-4 text-lg font-medium text-[var(--ink-primary)]">{t("documents.title")}</h2>
         <DocumentDownloads bookingId={booking.id} initialDocuments={booking.documents} />
       </Card>
     </div>

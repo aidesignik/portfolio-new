@@ -86,11 +86,11 @@ export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "m
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           onKeyDown={onTriggerKeyDown}
-          className="locale-switcher-trigger flex h-9 items-center gap-2 rounded-[8px] bg-white px-[10px] transition-colors hover:bg-zinc-50"
+          className="locale-switcher-trigger flex h-9 items-center gap-2 rounded-[8px] bg-white px-[10px] transition-colors hover:bg-[var(--bg-subtle)]"
         >
-          <Globe size={16} strokeWidth={1.8} className="text-zinc-500" />
-          <span className="text-[14px] font-medium text-zinc-800">{current.toUpperCase()}</span>
-          <ChevronDown size={14} strokeWidth={1.8} className="locale-switcher-chevron text-zinc-500" />
+          <Globe size={16} strokeWidth={1.8} className="text-[var(--ink-secondary)]" />
+          <span className="text-[14px] font-medium text-[var(--ink-2)]">{current.toUpperCase()}</span>
+          <ChevronDown size={14} strokeWidth={1.8} className="locale-switcher-chevron text-[var(--ink-secondary)]" />
         </button>
 
         {open ? (
@@ -109,10 +109,10 @@ export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "m
                 type="button"
                 onClick={() => selectLocale(locale)}
                 onKeyDown={(event) => onItemKeyDown(event, index)}
-                className="flex h-9 w-full items-center justify-between gap-2 rounded-[6px] px-2 text-left text-[14px] font-medium text-zinc-800 hover:bg-zinc-50"
+                className="flex h-9 w-full items-center justify-between gap-2 rounded-[6px] px-2 text-left text-[14px] font-medium text-[var(--ink-2)] hover:bg-[var(--bg-subtle)]"
               >
                 {LOCALE_NAMES[locale] ?? locale}
-                {locale === current ? <Check size={16} strokeWidth={2} className="text-blue-600" /> : null}
+                {locale === current ? <Check size={16} strokeWidth={2} className="text-[var(--action-bg)]" /> : null}
               </button>
             ))}
           </div>
@@ -124,7 +124,7 @@ export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "m
   return (
     <select
       aria-label="Language"
-      className="rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm"
+      className="rounded-md border border-[var(--border-control)] bg-white px-2 py-1 text-sm"
       value={current}
       onChange={(event) => {
         router.replace(pathname, { locale: event.target.value });

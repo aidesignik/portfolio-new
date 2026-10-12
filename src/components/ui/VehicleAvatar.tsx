@@ -48,7 +48,7 @@ export function VehicleAvatar({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={photoUrl}
-        alt=""
+        alt={typeLabel ?? ""}
         title={typeLabel}
         className={`${dims.box} shrink-0 ${dims.radius} object-cover`}
       />
@@ -61,7 +61,7 @@ export function VehicleAvatar({
       title={typeLabel}
       className={`flex ${dims.box} shrink-0 items-center justify-center ${dims.radius} border border-[var(--border-hairline)]`}
     >
-      <Glyph size={dims.icon} strokeWidth={1.9} color="#3F3F46" />
+      <Glyph size={dims.icon} strokeWidth={1.9} color="var(--ink-2)" />
     </div>
   );
 }

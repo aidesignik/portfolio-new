@@ -152,7 +152,7 @@ export function AuthCredentialsForm() {
           >
             {t("auth.workEmailLabel")}
           </label>
-          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-[3px] focus-within:border-[#3563E9] focus-within:shadow-[0_0_0_3px_rgba(53,99,233,0.25)]">
+          <div className="flex h-[52px] items-center rounded-[12px] border border-[#D0D3D8] bg-white pl-4 pr-[3px] focus-within:border-[var(--ink)] focus-within:shadow-[0_0_0_3px_rgba(11,27,51,0.25)]">
             <input
               id="auth-email-input"
               type="email"
@@ -183,7 +183,7 @@ export function AuthCredentialsForm() {
               </svg>
             </button>
           </div>
-          {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+          {error ? <p className="mt-2 text-sm text-[var(--ink-destructive)]">{error}</p> : null}
         </form>
       ) : (
         <form onSubmit={onSubmitPassword} className="flex flex-col gap-3">
@@ -198,10 +198,11 @@ export function AuthCredentialsForm() {
             </button>
           </div>
           <div>
-            <label className="mb-1.5 block text-[12px] font-semibold text-[var(--ink-2)]">
+            <label htmlFor="auth-password-input" className="mb-1.5 block text-[12px] font-semibold text-[var(--ink-2)]">
               {t("common.password")}
             </label>
             <Input
+              id="auth-password-input"
               type="password"
               required
               autoFocus
@@ -215,7 +216,7 @@ export function AuthCredentialsForm() {
           {!accountExists ? (
             <p className="text-sm text-zinc-600">{t("auth.registerCarrierSubtitle")}</p>
           ) : null}
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
           <Button
             type="submit"
             disabled={loading}
@@ -233,7 +234,7 @@ export function AuthCredentialsForm() {
 
       <p className="mt-3 text-[12px] text-zinc-400">
         {t("auth.needHelpPrefix")}{" "}
-        <a href="mailto:support@atlas.example" className="text-[#3563E9] hover:underline">
+        <a href="mailto:support@travia.example" className="text-[var(--ink)] hover:underline">
           {t("auth.contactSupportLink")}
         </a>
       </p>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Input } from "@/components/ui/Input";
 import { CityCombobox } from "@/components/forms/CityCombobox";
 
@@ -26,12 +27,18 @@ export function CityLocationFields({
   onCityChange: (value: string) => void;
   onLocationChange: (value: string) => void;
 }) {
+  const uid = useId();
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-3 sm:gap-y-[5px]">
-      <span className={`order-1 ${LABEL_CLASS}`}>{cityLabel}</span>
-      <CityCombobox className="order-2 sm:order-3" required value={city} onChange={onCityChange} />
-      <span className={`order-3 sm:order-2 ${LABEL_CLASS}`}>{locationLabel}</span>
+      <label htmlFor={`${uid}-city`} className={`order-1 ${LABEL_CLASS}`}>
+        {cityLabel}
+      </label>
+      <CityCombobox id={`${uid}-city`} className="order-2 sm:order-3" required value={city} onChange={onCityChange} />
+      <label htmlFor={`${uid}-location`} className={`order-3 sm:order-2 ${LABEL_CLASS}`}>
+        {locationLabel}
+      </label>
       <Input
+        id={`${uid}-location`}
         className="order-4"
         required
         value={location}

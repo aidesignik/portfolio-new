@@ -23,16 +23,22 @@ export function CarrierApprovalActions({ carrierId }: { carrierId: string }) {
 
   return (
     <div className="flex gap-2">
-      <Button type="button" disabled={loading !== null} onClick={() => act(true, "approve")}>
-        {loading === "approve" ? "…" : t("approve")}
+      <Button
+        type="button"
+        disabled={loading !== null}
+        aria-busy={loading === "approve" || undefined}
+        onClick={() => act(true, "approve")}
+      >
+        {t("approve")}
       </Button>
       <Button
         type="button"
         variant="danger"
         disabled={loading !== null}
+        aria-busy={loading === "reject" || undefined}
         onClick={() => act(false, "reject")}
       >
-        {loading === "reject" ? "…" : t("reject")}
+        {t("reject")}
       </Button>
     </div>
   );

@@ -39,26 +39,26 @@ export default async function ClientRequestDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">
+        <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">
           {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
         </h1>
         {ride.stops.length > 0 ? (
           <div className="mt-1 space-y-0.5">
             {ride.stops.map((stop) => (
-              <p key={stop.id} className="text-sm text-zinc-500">
+              <p key={stop.id} className="text-sm text-[var(--ink-muted)]">
                 ↓ {formatLocation(stop)}
               </p>
             ))}
           </div>
         ) : null}
-        <p className="mt-1 text-lg font-semibold text-zinc-900">
+        <p className="mt-1 text-lg font-semibold text-[var(--ink-primary)]">
           → {formatLocation({ city: ride.destinationCity, location: ride.destinationLocation })}
         </p>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-[var(--ink-secondary)]">
           {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} pax
         </p>
         {ride.isRoundTrip && ride.returnAt ? (
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-[var(--ink-secondary)]">
             {t("client.requestForm.returnAt")}: {new Date(ride.returnAt).toLocaleString()}
           </p>
         ) : null}
@@ -70,11 +70,11 @@ export default async function ClientRequestDetailPage({
       {showAvailableOptions ? (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-medium text-zinc-900">{t("client.availableOptions.title")}</h2>
-            <p className="text-sm text-zinc-600">{t("client.availableOptions.disclaimer")}</p>
+            <h2 className="text-lg font-medium text-[var(--ink-primary)]">{t("client.availableOptions.title")}</h2>
+            <p className="text-sm text-[var(--ink-secondary)]">{t("client.availableOptions.disclaimer")}</p>
           </div>
           {availableOptions.length === 0 ? (
-            <p className="text-sm text-zinc-600">{t("client.availableOptions.none")}</p>
+            <p className="text-sm text-[var(--ink-secondary)]">{t("client.availableOptions.none")}</p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {availableOptions.map((option) => {
@@ -84,15 +84,15 @@ export default async function ClientRequestDetailPage({
                 );
                 return (
                   <Card key={option.vehicleId}>
-                    <p className="font-medium text-zinc-900">{option.carrierName}</p>
-                    <p className="text-sm text-zinc-600">{option.carrierCity}</p>
-                    <p className="mt-2 text-sm text-zinc-700">
+                    <p className="font-medium text-[var(--ink-primary)]">{option.carrierName}</p>
+                    <p className="text-sm text-[var(--ink-secondary)]">{option.carrierCity}</p>
+                    <p className="mt-2 text-sm text-[var(--ink-2)]">
                       {t(`vehicleType.${option.type}`)} {option.model} · {option.seats}{" "}
                       {t("client.availableOptions.seats")}
                     </p>
-                    {amenitiesLabel ? <p className="mt-1 text-xs text-zinc-500">{amenitiesLabel}</p> : null}
+                    {amenitiesLabel ? <p className="mt-1 text-xs text-[var(--ink-muted)]">{amenitiesLabel}</p> : null}
                     {option.estimatedPrice !== null ? (
-                      <p className="mt-3 text-lg font-semibold text-zinc-900">
+                      <p className="mt-3 text-lg font-semibold text-[var(--ink-primary)]">
                         ~{option.estimatedPrice.toLocaleString()} RSD
                       </p>
                     ) : null}
@@ -106,18 +106,18 @@ export default async function ClientRequestDetailPage({
 
       {ride.vehicle && ride.driver && ride.carrier ? (
         <div className="space-y-2">
-          <h2 className="text-lg font-medium text-zinc-900">{t("client.assignmentTitle")}</h2>
+          <h2 className="text-lg font-medium text-[var(--ink-primary)]">{t("client.assignmentTitle")}</h2>
           <Card className="space-y-1">
-            <p className="font-medium text-zinc-900">{ride.carrier.companyName}</p>
-            <p className="text-sm text-zinc-600">
+            <p className="font-medium text-[var(--ink-primary)]">{ride.carrier.companyName}</p>
+            <p className="text-sm text-[var(--ink-secondary)]">
               {t(`vehicleType.${ride.vehicle.type}`)} {ride.vehicle.model} · {ride.driver.name}
             </p>
             {ride.price !== null ? (
-              <p className="text-xl font-semibold text-zinc-900">
+              <p className="text-xl font-semibold text-[var(--ink-primary)]">
                 {Number(ride.price).toLocaleString()} {ride.currency}
               </p>
             ) : null}
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-[var(--ink-secondary)]">
               {ride.status === "CONFIRMED" ? t("client.assignmentConfirmed") : t("client.assignmentPending")}
             </p>
           </Card>

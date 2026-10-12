@@ -124,7 +124,7 @@ export function EmailDocumentsPopover({
               ))}
             </div>
 
-            {error ? <p className="text-[13px] text-[#7F1D1D]">{error}</p> : null}
+            {error ? <p className="text-[13px] text-[var(--ink-destructive)]">{error}</p> : null}
 
             <Button type="button" onClick={onSubmit} disabled={sending} className="w-full">
               {sending ? t("carrier.emailDocuments.sending") : t("carrier.emailDocuments.send")}

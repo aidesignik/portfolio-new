@@ -13,6 +13,7 @@ import { RouteTimeline } from "./RouteTimeline";
 import { GroupedRouteField } from "./GroupedRouteField";
 import { RingMarker, PinMarker, DotConnector } from "./timelineMarkers";
 import { SHEET_TEXT_BUTTON_CLASS } from "./sheetFieldClasses";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type ReturnMode = "mirror" | "stops" | "custom";
 
@@ -64,7 +65,9 @@ export function ReturnLegCard({
   returnDateError?: string;
 }) {
   const t = useTranslations("carrier.newRide");
+  const tc = useTranslations("common");
   const [mode, setMode] = useState<ReturnMode>(() => deriveMode(value));
+  const [confirmingBackToMirror, setConfirmingBackToMirror] = useState(false);
   const stopRefs = useRef<Array<CityComboboxHandle | null>>([]);
   const prevStopCount = useRef(value.returnStops.length);
 
@@ -115,8 +118,8 @@ export function ReturnLegCard({
     );
   }
 
-  function backToMirror() {
-    if (!isUnchangedFromSeed(value) && !window.confirm(t("confirmBackToSameRoute"))) return;
+  function applyBackToMirror() {
+    setConfirmingBackToMirror(false);
     setMode("mirror");
     onChange({
       differentReturnRoute: false,
@@ -126,6 +129,14 @@ export function ReturnLegCard({
       returnDestinationCity: "",
       returnDestinationLocation: "",
     });
+  }
+
+  function backToMirror() {
+    if (!isUnchangedFromSeed(value)) {
+      setConfirmingBackToMirror(true);
+      return;
+    }
+    applyBackToMirror();
   }
 
   function addCustomStop() {
@@ -144,6 +155,7 @@ export function ReturnLegCard({
   const departureDateOnly = departureAt ? departureAt.split("T")[0] : undefined;
 
   return (
+    <>
     <LegCard direction="return" title={t("povratak")} km={kmText}>
       {mode === "mirror" ? (
         <div className="truncate rounded-[8px] bg-[#FAFAFA] px-3 py-[10px] text-[14px]">
@@ -252,7 +264,7 @@ export function ReturnLegCard({
         timePlaceholder={timePlaceholder}
         dateError={Boolean(returnDateError)}
       />
-      {returnDateError ? <p className="pl-[28px] text-[12.5px] text-[#DC2626]">{returnDateError}</p> : null}
+      {returnDateError ? <p className="pl-[28px] text-[12.5px] text-[var(--ink-destructive)]">{returnDateError}</p> : null}
 
       <div className="flex items-center gap-1">
         <button type="button" onClick={mode === "mirror" ? goToStopsMode : addCustomStop} className={SHEET_TEXT_BUTTON_CLASS}>
@@ -276,5 +288,16 @@ export function ReturnLegCard({
         )}
       </div>
     </LegCard>
+    {confirmingBackToMirror ? (
+      <ConfirmDialog
+        title={t("backToSameRoute")}
+        body={t("confirmBackToSameRoute")}
+        cancelLabel={tc("cancel")}
+        confirmLabel={tc("continue")}
+        onCancel={() => setConfirmingBackToMirror(false)}
+        onConfirm={applyBackToMirror}
+      />
+    ) : null}
+    </>
   );
 }

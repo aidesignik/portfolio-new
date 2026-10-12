@@ -41,7 +41,14 @@
     "all": "All",
     "clear": "Clear",
     "only": "Only",
-    "clearStatusFilter": "Clear status filter"
+    "clearStatusFilter": "Clear status filter",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "deleteConfirmTitle": "Delete this item?",
+    "deleteConfirmBody": "This can't be undone.",
+    "continue": "Continue"
   },
   "nav": {
     "home": "Home",
@@ -263,6 +270,7 @@
     "driversTitle": "Drivers",
     "addDriver": "Add driver",
     "noDrivers": "No drivers yet.",
+    "noBookings": "No bookings yet.",
     "fleetTable": {
       "vehicle": "Vehicle",
       "details": "Year · seats",
@@ -469,7 +477,9 @@
       "docUnsupportedType": "That file type isn't supported — please use PDF, PNG, JPG or WEBP.",
       "docUploadFailed": "Couldn't upload one of the documents — please try again.",
       "saveFailed": "Couldn't save — please check the fields and try again.",
-      "deleteVehicle": "Delete vehicle"
+      "deleteVehicle": "Delete vehicle",
+      "deleteConfirmTitle": "Delete this vehicle?",
+      "deleteConfirmBody": "This can't be undone. The vehicle will be removed from the fleet and any future assignments."
     },
     "driverForm": {
       "name": "Driver name",
@@ -491,7 +501,9 @@
       "docUnsupportedType": "That file type isn't supported — please use PNG, JPG or WEBP.",
       "docUploadFailed": "Couldn't upload the image — please try again.",
       "expirySuggested": "Date read from the document — please double-check it.",
-      "deleteDriver": "Delete driver"
+      "deleteDriver": "Delete driver",
+      "deleteConfirmTitle": "Delete this driver?",
+      "deleteConfirmBody": "This can't be undone. The driver will be removed and unassigned from any vehicles."
     },
     "offerForm": {
       "title": "Send an offer",
@@ -534,12 +546,19 @@
     "CONFIRMATION": "Confirmation",
     "INVOICE": "Invoice",
     "generateAll": "Generate documents",
-    "notGenerated": "Not generated yet"
+    "notGenerated": "Not generated yet",
+    "title": "Documents"
   },
   "admin": {
     "carriersTitle": "Carrier approvals",
     "noPending": "No carriers awaiting review.",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "carrierStatus": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    }
   }
 }

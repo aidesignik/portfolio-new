@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DriverForm } from "@/components/forms/DriverForm";
 import { isDriverColorKey } from "@/lib/driver-colors";
 
@@ -45,6 +46,7 @@ export function EditDriverPanel({
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,7 +73,6 @@ export function EditDriverPanel({
   }, [driverId]);
 
   async function onDelete() {
-    if (!confirm(`${t("common.delete")}?`)) return;
     setDeleting(true);
     await fetch(`/api/carrier/drivers/${driverId}`, { method: "DELETE" });
     setDeleting(false);
@@ -79,13 +80,14 @@ export function EditDriverPanel({
   }
 
   return (
-    <SidePanel onClose={onClose}>
+    <>
+    <SidePanel onClose={onClose} label={driver ? driver.name : t("common.loading")}>
       <PanelHeader title={driver ? driver.name : t("common.loading")} onClose={onClose} closeLabel={t("common.close")} />
       <div className="flex-1 overflow-y-auto px-5 py-[18px]">
         {loading ? (
           <p className="text-[13.5px] text-[var(--ink-disabled)]">{t("common.loading")}</p>
         ) : loadFailed || !driver ? (
-          <p className="text-[13.5px] text-[#7F1D1D]">{t("common.loadFailed")}</p>
+          <p className="text-[13.5px] text-[var(--ink-destructive)]">{t("common.loadFailed")}</p>
         ) : (
           <DriverForm
             driverId={driver.id}
@@ -111,11 +113,23 @@ export function EditDriverPanel({
               medicalCertBackUrl: driver.medicalCertBackUrl ?? "",
             }}
             onSaved={onSaved}
-            onDelete={onDelete}
+            onDelete={() => setConfirmingDelete(true)}
             deleting={deleting}
           />
         )}
       </div>
     </SidePanel>
+    {confirmingDelete ? (
+      <ConfirmDialog
+        title={t("carrier.driverForm.deleteConfirmTitle")}
+        body={t("carrier.driverForm.deleteConfirmBody")}
+        cancelLabel={t("common.cancel")}
+        confirmLabel={t("carrier.driverForm.deleteDriver")}
+        confirming={deleting}
+        onCancel={() => setConfirmingDelete(false)}
+        onConfirm={onDelete}
+      />
+    ) : null}
+    </>
   );
 }

@@ -7,7 +7,7 @@ export function PlateChip({ plate, className }: { plate: string; className?: str
   return (
     <span
       className={`inline-block whitespace-nowrap rounded-[5px] px-[6px] py-[1px] font-mono text-[11.5px] ${className ?? ""}`}
-      style={{ background: "#F4F4F1", color: "#4A4A46" }}
+      style={{ background: "var(--plate-bg)", color: "var(--plate-ink)" }}
     >
       {formatPlate(plate)}
     </span>

@@ -48,8 +48,8 @@ export function DocumentDownloads({
         const doc = documents.find((d) => d.type === type);
         const isGenerated = doc?.status === "GENERATED";
         return (
-          <div key={type} className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-2">
-            <span className="text-sm font-medium text-zinc-900">{t(`documents.${type}`)}</span>
+          <div key={type} className="flex items-center justify-between rounded-md border border-[var(--border-hairline)] px-3 py-2">
+            <span className="text-sm font-medium text-[var(--ink-primary)]">{t(`documents.${type}`)}</span>
             {isGenerated ? (
               <div className="flex items-center gap-3">
                 {clientEmail ? (
@@ -57,7 +57,7 @@ export function DocumentDownloads({
                     <button
                       type="button"
                       onClick={() => setEmailOpenType((prev) => (prev === type ? null : type))}
-                      className="flex items-center gap-1 text-sm font-medium text-zinc-900 underline"
+                      className="flex items-center gap-1 text-sm font-medium text-[var(--ink-primary)] underline"
                     >
                       <Mail size={14} strokeWidth={1.9} />
                       {t("carrier.emailDocuments.trigger")}
@@ -74,7 +74,7 @@ export function DocumentDownloads({
                     ) : null}
                   </div>
                 ) : null}
-                <a href={`/api/documents/${doc.id}/download`} className="text-sm font-medium text-zinc-900 underline">
+                <a href={`/api/documents/${doc.id}/download`} className="text-sm font-medium text-[var(--ink-primary)] underline">
                   {t("common.download")}
                 </a>
               </div>

@@ -33,45 +33,45 @@ export default async function CarrierRequestDetailPage({
   return (
     <div className="h-full space-y-6 overflow-y-auto bg-[var(--bg-canvas)] px-5 py-4">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">
+        <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">
           {formatLocation({ city: ride.pickupCity, location: ride.pickupLocation })}
         </h1>
         {ride.stops.length > 0 ? (
           <div className="mt-1 space-y-0.5">
             {ride.stops.map((stop) => (
-              <p key={stop.id} className="text-sm text-zinc-500">
+              <p key={stop.id} className="text-sm text-[var(--ink-muted)]">
                 ↓ {formatLocation(stop)}
               </p>
             ))}
           </div>
         ) : null}
-        <p className="mt-1 text-lg font-semibold text-zinc-900">
+        <p className="mt-1 text-lg font-semibold text-[var(--ink-primary)]">
           →{" "}
           {formatLocation({
             city: ride.destinationCity,
             location: ride.destinationLocation,
           })}
         </p>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-[var(--ink-secondary)]">
           {new Date(ride.departureAt).toLocaleString()} · {ride.passengerCount} pax
         </p>
         {ride.isRoundTrip && ride.returnAt ? (
-          <p className="text-sm font-medium text-amber-700">
+          <p className="text-sm font-medium text-[var(--status-pending-text)]">
             {t("client.requestForm.isRoundTrip")} — {t("client.requestForm.returnAt")}:{" "}
             {new Date(ride.returnAt).toLocaleString()}
           </p>
         ) : null}
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-[var(--ink-secondary)]">
           {clientDisplayName(ride.client)}
           {ride.client.companyName ? ` (${ride.client.name ?? "—"})` : ""} · {ride.client.phone}
         </p>
         {ride.specialRequests ? (
-          <p className="mt-2 text-sm text-zinc-700">{ride.specialRequests}</p>
+          <p className="mt-2 text-sm text-[var(--ink-2)]">{ride.specialRequests}</p>
         ) : null}
       </div>
 
       <Card>
-        <h2 className="mb-4 text-lg font-medium text-zinc-900">{t("carrier.offerForm.title")}</h2>
+        <h2 className="mb-4 text-lg font-medium text-[var(--ink-primary)]">{t("carrier.offerForm.title")}</h2>
         <AssignRideForm
           rideId={ride.id}
           vehicles={vehicles}

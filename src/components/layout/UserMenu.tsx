@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SignOutButton } from "./SignOutButton";
 
-const MENU_ITEM_CLASS = "block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50";
+const MENU_ITEM_CLASS =
+  "block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--ink-2)] hover:bg-[var(--bg-subtle)]";
 
 function initialsFor(name: string) {
   const initials = name
@@ -38,6 +39,14 @@ export function UserMenu({
   const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const profileRef = useRef<HTMLAnchorElement>(null);
+  const signOutRef = useRef<HTMLButtonElement>(null);
+
+  function closeAndRefocus() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -46,8 +55,8 @@ export function UserMenu({
         setOpen(false);
       }
     }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") closeAndRefocus();
     }
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -57,16 +66,45 @@ export function UserMenu({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => (profileRef.current ?? signOutRef.current)?.focus());
+    return () => cancelAnimationFrame(raf);
+  }, [open]);
+
+  function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setOpen(true);
+    }
+  }
+
+  // Only two real menu items (Profile link, Sign out button) sit either
+  // side of the embedded language <select>, which has its own native
+  // keyboard handling — Down/Up just moves between the two buttons.
+  function onItemKeyDown(event: KeyboardEvent, isProfile: boolean) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      (isProfile ? signOutRef.current : profileRef.current)?.focus();
+    } else if (event.key === "Tab" && !event.shiftKey && !isProfile) {
+      setOpen(false);
+    } else if (event.key === "Tab" && event.shiftKey && isProfile) {
+      setOpen(false);
+    }
+  }
+
   return (
     <div ref={containerRef} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((prev) => !prev)}
+        onKeyDown={onTriggerKeyDown}
         aria-label={t("accountMenu")}
         aria-expanded={open}
         aria-haspopup="menu"
         style={{ height: size, width: size }}
-        className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-xs font-medium text-white transition-opacity duration-[.12s] ease-out hover:opacity-80"
+        className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--ink-strong)] text-xs font-medium text-white transition-opacity duration-[.12s] ease-out hover:opacity-80"
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -79,23 +117,39 @@ export function UserMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 top-full z-30 mt-2 w-64 rounded-lg border border-zinc-200 bg-white p-2 shadow-lg"
+          aria-label={t("accountMenu")}
+          className="absolute right-0 top-full z-30 mt-2 w-64 rounded-lg border border-[var(--border-control)] bg-white p-2 shadow-lg"
         >
-          <div className="border-b border-zinc-100 px-3 py-2">
-            <p className="truncate text-sm font-medium text-zinc-900">{name}</p>
-            {email ? <p className="truncate text-xs text-zinc-500">{email}</p> : null}
+          <div className="border-b border-[var(--border-soft)] px-3 py-2">
+            <p className="truncate text-sm font-medium text-[var(--ink-primary)]">{name}</p>
+            {email ? <p className="truncate text-xs text-[var(--ink-muted)]">{email}</p> : null}
           </div>
           <div className="flex flex-col gap-0.5 py-1">
             {profileHref ? (
-              <Link href={profileHref} onClick={() => setOpen(false)} className={MENU_ITEM_CLASS}>
+              <Link
+                ref={profileRef}
+                href={profileHref}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                onKeyDown={(event) => onItemKeyDown(event, true)}
+                className={MENU_ITEM_CLASS}
+              >
                 {t("profile")}
               </Link>
             ) : null}
             <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-sm font-medium text-zinc-700">{tCommon("language")}</span>
+              <span className="text-sm font-medium text-[var(--ink-2)]">{tCommon("language")}</span>
               <LocaleSwitcher />
             </div>
-            <SignOutButton label={t("logout")} className={MENU_ITEM_CLASS} />
+            <SignOutButton
+              itemRef={(el) => {
+                signOutRef.current = el;
+              }}
+              role="menuitem"
+              onKeyDown={(event) => onItemKeyDown(event, false)}
+              label={t("logout")}
+              className={MENU_ITEM_CLASS}
+            />
           </div>
         </div>
       ) : null}

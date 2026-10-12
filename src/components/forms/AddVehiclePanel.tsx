@@ -9,7 +9,7 @@ export function AddVehiclePanel({ onClose, onCreated }: { onClose: () => void; o
   const t = useTranslations();
 
   return (
-    <SidePanel onClose={onClose}>
+    <SidePanel onClose={onClose} label={t("carrier.addVehicle")}>
       <PanelHeader title={t("carrier.addVehicle")} onClose={onClose} closeLabel={t("common.close")} />
       <div className="flex-1 overflow-y-auto px-5 py-[18px]">
         <VehicleForm onSaved={onCreated} />

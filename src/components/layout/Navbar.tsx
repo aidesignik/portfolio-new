@@ -51,7 +51,7 @@ export async function Navbar({
   const profileHref = session?.user.role === "CARRIER" ? "/carrier/onboarding" : null;
 
   return (
-    <header className={`bg-white ${showDivider ? "border-b border-zinc-200" : ""}`}>
+    <header className={`bg-white ${showDivider ? "border-b border-[var(--border-control)]" : ""}`}>
       <div className={containerClassName}>
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -63,7 +63,7 @@ export async function Navbar({
               <LocaleSwitcher variant="menu" />
               <a
                 href="mailto:sales@travia.example"
-                className={`flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium leading-5 text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900 ${
+                className={`flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium leading-5 text-[var(--ink-2)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--ink-primary)] ${
                   showCta ? "ml-1" : "ml-2"
                 }`}
               >
@@ -86,7 +86,7 @@ export async function Navbar({
                       user straight to this same page (see src/proxy.ts) — the
                       logo link covers it, so this would just be a duplicate. */}
                   {MARKETPLACE_ENABLED ? (
-                    <Link href={dashboardHref} className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                    <Link href={dashboardHref} className="text-sm font-medium text-[var(--ink-2)] hover:text-[var(--ink-primary)]">
                       {tNav("dashboard")}
                     </Link>
                   ) : null}
@@ -94,12 +94,12 @@ export async function Navbar({
               ) : (
                 <>
                   {!hideLoginLink ? (
-                    <Link href="/login" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                    <Link href="/login" className="text-sm font-medium text-[var(--ink-2)] hover:text-[var(--ink-primary)]">
                       {tNav("login")}
                     </Link>
                   ) : null}
                   {MARKETPLACE_ENABLED ? (
-                    <Link href="/register" className="text-sm font-medium text-zinc-700 hover:text-zinc-900">
+                    <Link href="/register" className="text-sm font-medium text-[var(--ink-2)] hover:text-[var(--ink-primary)]">
                       {tNav("register")}
                     </Link>
                   ) : null}
@@ -111,7 +111,7 @@ export async function Navbar({
               {MARKETPLACE_ENABLED && session?.user.role !== "CARRIER" ? (
                 <Link
                   href="/register/carrier"
-                  className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
+                  className="rounded-md bg-[var(--bg-subtle)] px-3 py-1.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--border-soft)]"
                 >
                   {tNav("forCarriers")}
                 </Link>

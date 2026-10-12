@@ -41,7 +41,14 @@
     "all": "Sve",
     "clear": "Očisti",
     "only": "Samo",
-    "clearStatusFilter": "Očisti filter statusa"
+    "clearStatusFilter": "Očisti filter statusa",
+    "previousMonth": "Prethodni mesec",
+    "nextMonth": "Sledeći mesec",
+    "decrease": "Smanji",
+    "increase": "Povećaj",
+    "deleteConfirmTitle": "Obrisati ovu stavku?",
+    "deleteConfirmBody": "Ova radnja se ne može poništiti.",
+    "continue": "Nastavi"
   },
   "nav": {
     "home": "Početna",
@@ -263,6 +270,7 @@
     "driversTitle": "Vozači",
     "addDriver": "Dodaj vozača",
     "noDrivers": "Još nema vozača.",
+    "noBookings": "Još nema rezervacija.",
     "fleetTable": {
       "vehicle": "Vozilo",
       "details": "Godište · mesta",
@@ -469,7 +477,9 @@
       "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PDF, PNG, JPG ili WEBP.",
       "docUploadFailed": "Nije uspelo otpremanje jednog od dokumenata — pokušajte ponovo.",
       "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
-      "deleteVehicle": "Obriši vozilo"
+      "deleteVehicle": "Obriši vozilo",
+      "deleteConfirmTitle": "Obrisati ovo vozilo?",
+      "deleteConfirmBody": "Ova radnja se ne može poništiti. Vozilo će biti uklonjeno iz voznog parka i iz budućih vožnji."
     },
     "driverForm": {
       "name": "Ime vozača",
@@ -491,7 +501,9 @@
       "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
       "docUploadFailed": "Nije uspelo otpremanje slike — pokušajte ponovo.",
       "expirySuggested": "Datum pročitan sa dokumenta — proverite da li je tačan.",
-      "deleteDriver": "Obriši vozača"
+      "deleteDriver": "Obriši vozača",
+      "deleteConfirmTitle": "Obrisati ovog vozača?",
+      "deleteConfirmBody": "Ova radnja se ne može poništiti. Vozač će biti uklonjen i razdvojen od svih vozila."
     },
     "offerForm": {
       "title": "Pošalji ponudu",
@@ -534,12 +546,19 @@
     "CONFIRMATION": "Potvrda",
     "INVOICE": "Faktura",
     "generateAll": "Generiši dokumentaciju",
-    "notGenerated": "Još nije generisano"
+    "notGenerated": "Još nije generisano",
+    "title": "Dokumentacija"
   },
   "admin": {
     "carriersTitle": "Odobravanje prevoznika",
     "noPending": "Nema prevoznika na čekanju.",
     "approve": "Odobri",
-    "reject": "Odbij"
+    "reject": "Odbij",
+    "carrierStatus": {
+      "PENDING": "Na čekanju",
+      "APPROVED": "Odobreno",
+      "REJECTED": "Odbijeno",
+      "SUSPENDED": "Suspendovano"
+    }
   }
 }

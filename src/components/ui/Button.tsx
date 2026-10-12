@@ -17,7 +17,7 @@ export const Button = forwardRef<
   return (
     <button
       ref={ref}
-      className={`inline-flex items-center justify-center gap-2 rounded-[10px] px-4 text-[14px] font-semibold transition-[background-color,border-color,box-shadow] duration-[.12s] ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:border-[#2563EB] focus-visible:shadow-[var(--focus-ring)] ${
+      className={`inline-flex items-center justify-center gap-2 rounded-control px-4 text-[14px] font-semibold transition-[background-color,border-color,box-shadow] duration-[.12s] ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:border-[var(--action-bg)] focus-visible:shadow-[var(--focus-ring)] ${
         compact ? "h-10" : "h-11"
       } ${variantClasses[variant]} ${className}`}
       {...props}

@@ -16,22 +16,22 @@ export default async function ClientBookingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">{t("myBookings")}</h1>
+      <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{t("myBookings")}</h1>
 
       {bookings.length === 0 ? (
-        <p className="text-sm text-zinc-600">{t("noBookings")}</p>
+        <p className="text-sm text-[var(--ink-secondary)]">{t("noBookings")}</p>
       ) : (
         <div className="space-y-3">
           {bookings.map((booking) => (
             <Link key={booking.id} href={`/bookings/${booking.id}`}>
               <Card className="flex items-center justify-between transition-shadow hover:shadow-md">
                 <div>
-                  <p className="font-medium text-zinc-900">{formatRoute(booking)}</p>
-                  <p className="text-sm text-zinc-600">
+                  <p className="font-medium text-[var(--ink-primary)]">{formatRoute(booking)}</p>
+                  <p className="text-sm text-[var(--ink-secondary)]">
                     {new Date(booking.departureAt).toLocaleString()} · {booking.carrier?.companyName}
                   </p>
                 </div>
-                <Badge tone="positive">{booking.status}</Badge>
+                <Badge tone="positive">{t(`requestStatus.${booking.status}`)}</Badge>
               </Card>
             </Link>
           ))}

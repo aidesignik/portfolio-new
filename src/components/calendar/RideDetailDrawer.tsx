@@ -43,14 +43,14 @@ const FOOTER_ICON_GHOST_BTN_CLASS =
 // Cancel ride's icon only turns danger-red on hover/focus, not at rest —
 // it's a muted ghost button like Duplicate until actively engaged.
 const FOOTER_ICON_GHOST_DANGER_BTN_CLASS =
-  "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[#DC2626] focus-visible:bg-[#FEF2F2] focus-visible:text-[#DC2626] focus-visible:outline-none";
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[var(--ink-destructive)] focus-visible:bg-[#FEF2F2] focus-visible:text-[var(--ink-destructive)] focus-visible:outline-none";
 const FOOTER_EDIT_BTN_CLASS =
   "flex h-9 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-[14px] text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 // The status-conditional primary action (Remove from calendar) — filled
 // like a primary button, but danger-red rather than the app's blue
 // action color since it's a permanent delete, not a routine confirm.
 const FOOTER_PRIMARY_DANGER_BTN_CLASS =
-  "flex h-9 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[#DC2626] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[#B91C1C] disabled:opacity-50";
+  "flex h-9 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--ink-destructive)] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--ink-destructive-hover)] disabled:opacity-50";
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -472,7 +472,7 @@ export function RideDetailDrawer({
 
   return (
     <>
-      <SidePanel onClose={onClose}>
+      <SidePanel onClose={onClose} label={routeTitle}>
         <div className="shrink-0 border-b border-[var(--border-hairline)] px-6 py-5">
           <div className="flex items-start justify-between gap-3">
             <h2 className="min-w-0 truncate text-[19px] font-semibold tracking-[-0.015em] text-[var(--ink-primary)]">
@@ -500,7 +500,7 @@ export function RideDetailDrawer({
             {blocking ? (
               <>
                 <span className="text-[#D4D4D8]">·</span>
-                <span className="flex items-center gap-[4px] text-[#DC2626]">
+                <span className="flex items-center gap-[4px] text-[var(--ink-destructive)]">
                   <CircleAlert size={14} strokeWidth={1.9} />
                   {blockingText}
                 </span>
@@ -644,7 +644,7 @@ export function RideDetailDrawer({
                       <button
                         type="button"
                         onClick={() => removeStop(index)}
-                        className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
+                        className="text-[12.5px] font-semibold text-[var(--ink-destructive)] hover:underline"
                       >
                         {t("client.requestForm.removeStop")}
                       </button>
@@ -722,7 +722,7 @@ export function RideDetailDrawer({
                     {t("carrier.rideForm.estimatedDistance", { km: Math.round(editDistanceKm) })}
                   </p>
                 ) : distanceError ? (
-                  <p className="text-[13px] text-[#DC2626]">{t("carrier.rideForm.distanceUnavailableShort")}</p>
+                  <p className="text-[13px] text-[var(--ink-destructive)]">{t("carrier.rideForm.distanceUnavailableShort")}</p>
                 ) : null}
 
                 <Field label={t("client.requestForm.passengerCount")}>
@@ -742,7 +742,7 @@ export function RideDetailDrawer({
                   />
                 </Field>
 
-                {editError ? <p className="text-[13.5px] text-[#7F1D1D]">{editError}</p> : null}
+                {editError ? <p className="text-[13.5px] text-[var(--ink-destructive)]">{editError}</p> : null}
 
                 <div className="flex gap-2">
                   <Button type="button" disabled={busy === "edit"} onClick={saveEdit}>
@@ -868,7 +868,7 @@ export function RideDetailDrawer({
             <h3 className="mb-3 text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("detailsSection")}</h3>
             <div className="grid gap-y-[10px] text-[14px]" style={{ gridTemplateColumns: "120px 1fr" }}>
               <span className="text-[var(--ink-secondary)]">{tDetail("passengers")}</span>
-              <span className={`font-medium ${overCapacity ? "text-[#DC2626]" : "text-[var(--ink-primary)]"}`}>
+              <span className={`font-medium ${overCapacity ? "text-[var(--ink-destructive)]" : "text-[var(--ink-primary)]"}`}>
                 {ride.passengerCount}
                 {vehicle ? <span className="text-[var(--ink-muted)]">/{vehicle.seats}</span> : null}
               </span>
@@ -894,7 +894,7 @@ export function RideDetailDrawer({
             <RideDocumentsSection rideId={ride.id} clientEmail={ride.client.email} />
           ) : null}
 
-          {error ? <p className="border-b border-[var(--border-hairline)] px-6 py-3 text-[13.5px] text-[#DC2626]">{error}</p> : null}
+          {error ? <p className="border-b border-[var(--border-hairline)] px-6 py-3 text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
         </div>
 
         <div

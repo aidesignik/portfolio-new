@@ -8,7 +8,7 @@ export function Card({
 }: ComponentPropsWithoutRef<"div"> & { bordered?: boolean }) {
   return (
     <div
-      className={`rounded-[12px] bg-[var(--bg-panel)] p-6 ${bordered ? "border border-[var(--border-hairline)]" : ""} ${className}`}
+      className={`rounded-panel bg-[var(--bg-panel)] p-6 ${bordered ? "border border-[var(--border-hairline)]" : ""} ${className}`}
       {...rest}
     >
       {children}

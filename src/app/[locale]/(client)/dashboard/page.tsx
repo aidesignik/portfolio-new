@@ -20,7 +20,7 @@ export default async function ClientDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">{t("dashboardTitle")}</h1>
+        <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{t("dashboardTitle")}</h1>
         <Link href="/requests/new">
           <Button>{t("newRequest")}</Button>
         </Link>
@@ -28,14 +28,14 @@ export default async function ClientDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Link href="/requests">
           <Card className="transition-shadow hover:shadow-md">
-            <p className="text-sm text-zinc-600">{tNav("requests")}</p>
-            <p className="mt-1 text-3xl font-semibold text-zinc-900">{requestCount}</p>
+            <p className="text-sm text-[var(--ink-secondary)]">{tNav("requests")}</p>
+            <p className="mt-1 text-3xl font-semibold text-[var(--ink-primary)]">{requestCount}</p>
           </Card>
         </Link>
         <Link href="/bookings">
           <Card className="transition-shadow hover:shadow-md">
-            <p className="text-sm text-zinc-600">{tNav("bookings")}</p>
-            <p className="mt-1 text-3xl font-semibold text-zinc-900">{bookingCount}</p>
+            <p className="text-sm text-[var(--ink-secondary)]">{tNav("bookings")}</p>
+            <p className="mt-1 text-3xl font-semibold text-[var(--ink-primary)]">{bookingCount}</p>
           </Card>
         </Link>
       </div>

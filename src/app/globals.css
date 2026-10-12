@@ -37,6 +37,8 @@
   --ink-eyebrow: #6e6e76;
   --ink-disabled: #a9a9b2;
   --ink-destructive: #dc2626;
+  --ink-destructive-hover: #b91c1c;
+  --ink-destructive-ring: #fca5a5;
 
   /* --action-bg is the in-app primary-action color (the carrier dashboard
      and its own forms/modals) — stays blue everywhere inside the app.
@@ -59,6 +61,8 @@
   --chip-info: #c9c2f7;
   --chip-neutral: #e6e6ea;
   --chip-ink: #27272b;
+  --plate-bg: #f4f4f1;
+  --plate-ink: #4a4a46;
 
   --accent-scheduled: #2563eb;
   --accent-completed: #16a34a;
@@ -148,6 +152,58 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-ui);
   --font-mono: var(--font-data);
+
+  /* Promote the design tokens above into real Tailwind utilities (bg-panel,
+     text-ink-primary, border-hairline, …) so a consumer can reach for one
+     with autocomplete instead of hand-typing bg-[var(--token)] — the gap
+     that let literal hex values drift in alongside the token system. */
+  --color-canvas: var(--bg-canvas);
+  --color-panel: var(--bg-panel);
+  --color-subtle: var(--bg-subtle);
+  --color-sidebar: var(--bg-sidebar);
+  --color-content: var(--bg-content);
+  --color-nav-active: var(--bg-nav-active);
+  --color-day-cell: var(--bg-day-cell);
+  --color-today: var(--bg-today);
+
+  --color-hairline: var(--border-hairline);
+  --color-border-soft: var(--border-soft);
+  --color-border-strong: var(--border-strong);
+  --color-control: var(--border-control);
+  --color-container: var(--border-container);
+
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-2: var(--ink-2);
+  --color-ink-body: var(--ink-body);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-eyebrow: var(--ink-eyebrow);
+  --color-ink-disabled: var(--ink-disabled);
+  --color-ink-destructive: var(--ink-destructive);
+
+  --color-action: var(--action-bg);
+  --color-action-hover: var(--action-bg-hover);
+  --color-action-100: var(--action-100);
+  --color-action-800: var(--action-800);
+  --color-select-tint: var(--select-tint);
+  --color-marketing: var(--ink);
+  --color-marketing-hover: var(--ink-hover);
+
+  --color-chip-positive: var(--chip-positive);
+  --color-chip-warning: var(--chip-warning);
+  --color-chip-critical: var(--chip-critical);
+  --color-chip-info: var(--chip-info);
+  --color-chip-neutral: var(--chip-neutral);
+  --color-chip-ink: var(--chip-ink);
+
+  /* A small, named radius scale replacing the 11 one-off rounded-[Npx]
+     values previously scattered across components — control for inputs/
+     buttons/chips, panel for cards/dialogs/side panels, pill for fully
+     rounded pills/avatars. */
+  --radius-control: 10px;
+  --radius-panel: 12px;
+  --radius-pill: 999px;
 }
 
 body {

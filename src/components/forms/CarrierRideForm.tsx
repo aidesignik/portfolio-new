@@ -228,7 +228,7 @@ export function CarrierRideForm({
               <button
                 type="button"
                 onClick={() => removeStop(index)}
-                className="text-xs font-medium text-red-600 hover:underline"
+                className="text-xs font-medium text-[var(--ink-destructive)] hover:underline"
               >
                 {t("client.requestForm.removeStop")}
               </button>
@@ -411,7 +411,7 @@ export function CarrierRideForm({
         </Field>
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("carrier.rideForm.submit")}

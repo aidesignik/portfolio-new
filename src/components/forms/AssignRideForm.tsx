@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Field } from "@/components/ui/Field";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { suggestPrice } from "@/lib/pricing";
@@ -81,37 +82,29 @@ export function AssignRideForm({
   }
 
   if (vehicles.length === 0 || drivers.length === 0) {
-    return <p className="text-sm text-zinc-600">{t("carrier.noVehicles")} / {t("carrier.noDrivers")}</p>;
+    return <p className="text-sm text-[var(--ink-secondary)]">{t("carrier.noVehicles")} / {t("carrier.noDrivers")}</p>;
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("carrier.offerForm.vehicle")}>
-          <select
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-            value={vehicleId}
-            onChange={(e) => setVehicleId(e.target.value)}
-          >
+          <Select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
             {vehicles.map((v) => (
               <option key={v.id} value={v.id}>
                 {t(`vehicleType.${v.type}`)} {v.model} ({v.seats} seats)
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Field label={t("carrier.offerForm.driver")}>
-          <select
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-            value={driverId}
-            onChange={(e) => setDriverId(e.target.value)}
-          >
+          <Select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
             {drivers.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
       </div>
 
@@ -136,8 +129,8 @@ export function AssignRideForm({
       </Field>
 
       {suggested !== null ? (
-        <p className="text-sm text-zinc-600">
-          {t("carrier.offerForm.suggestedPrice")}: <span className="font-medium text-zinc-900">{suggested} RSD</span>
+        <p className="text-sm text-[var(--ink-secondary)]">
+          {t("carrier.offerForm.suggestedPrice")}: <span className="font-medium text-[var(--ink-primary)]">{suggested} RSD</span>
         </p>
       ) : null}
 
@@ -152,7 +145,7 @@ export function AssignRideForm({
         />
       </Field>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("carrier.offerForm.submit")}

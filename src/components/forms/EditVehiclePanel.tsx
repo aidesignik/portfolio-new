@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { VehicleForm } from "@/components/forms/VehicleForm";
 
 interface VehicleRecord {
@@ -37,6 +38,7 @@ export function EditVehiclePanel({
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +65,6 @@ export function EditVehiclePanel({
   }, [vehicleId]);
 
   async function onDelete() {
-    if (!confirm(`${t("common.delete")}?`)) return;
     setDeleting(true);
     await fetch(`/api/carrier/vehicles/${vehicleId}`, { method: "DELETE" });
     setDeleting(false);
@@ -71,7 +72,8 @@ export function EditVehiclePanel({
   }
 
   return (
-    <SidePanel onClose={onClose}>
+    <>
+    <SidePanel onClose={onClose} label={vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("common.loading")}>
       <PanelHeader
         title={vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("common.loading")}
         onClose={onClose}
@@ -81,7 +83,7 @@ export function EditVehiclePanel({
         {loading ? (
           <p className="text-[13.5px] text-[var(--ink-disabled)]">{t("common.loading")}</p>
         ) : loadFailed || !vehicle ? (
-          <p className="text-[13.5px] text-[#7F1D1D]">{t("common.loadFailed")}</p>
+          <p className="text-[13.5px] text-[var(--ink-destructive)]">{t("common.loadFailed")}</p>
         ) : (
           <VehicleForm
             vehicleId={vehicle.id}
@@ -100,11 +102,23 @@ export function EditVehiclePanel({
               documentUrls: vehicle.documentUrls,
             }}
             onSaved={onSaved}
-            onDelete={onDelete}
+            onDelete={() => setConfirmingDelete(true)}
             deleting={deleting}
           />
         )}
       </div>
     </SidePanel>
+    {confirmingDelete ? (
+      <ConfirmDialog
+        title={t("carrier.vehicleForm.deleteConfirmTitle")}
+        body={t("carrier.vehicleForm.deleteConfirmBody")}
+        cancelLabel={t("common.cancel")}
+        confirmLabel={t("carrier.vehicleForm.deleteVehicle")}
+        confirming={deleting}
+        onCancel={() => setConfirmingDelete(false)}
+        onConfirm={onDelete}
+      />
+    ) : null}
+    </>
   );
 }

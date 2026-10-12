@@ -14,7 +14,7 @@ export default async function ClientLayout({
   return (
     <>
       <Navbar />
-      <div className="mx-auto max-w-5xl px-4 py-10">{children}</div>
+      <main className="mx-auto max-w-5xl px-4 py-10">{children}</main>
     </>
   );
 }

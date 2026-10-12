@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -64,6 +64,7 @@ export function VehicleForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const uid = useId();
   const [form, setForm] = useState<VehicleFormValues>(
     initial
       ? {
@@ -218,9 +219,9 @@ export function VehicleForm({
     <form onSubmit={onSubmit} className="space-y-[18px]">
       <div className="grid gap-[10px] sm:grid-cols-2">
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.type")}</label>
+          <label htmlFor={`${uid}-type`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.type")}</label>
           <div className="relative mt-[6px]">
-            <Select unstyled className={SHEET_SELECT_CLASS} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+            <Select id={`${uid}-type`} unstyled className={SHEET_SELECT_CLASS} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
               {vehicleTypes.map((type) => (
                 <option key={type} value={type}>
                   {t(`vehicleType.${type}`)}
@@ -231,8 +232,9 @@ export function VehicleForm({
           </div>
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.model")}</label>
+          <label htmlFor={`${uid}-model`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.model")}</label>
           <Input
+            id={`${uid}-model`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             required
@@ -241,8 +243,9 @@ export function VehicleForm({
           />
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.licensePlate")}</label>
+          <label htmlFor={`${uid}-plate`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.licensePlate")}</label>
           <Input
+            id={`${uid}-plate`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             value={form.licensePlate ?? ""}
@@ -250,8 +253,9 @@ export function VehicleForm({
           />
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.year")}</label>
+          <label htmlFor={`${uid}-year`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.year")}</label>
           <Input
+            id={`${uid}-year`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="number"
@@ -260,8 +264,9 @@ export function VehicleForm({
           />
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.seats")}</label>
+          <label htmlFor={`${uid}-seats`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.seats")}</label>
           <Input
+            id={`${uid}-seats`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="number"
@@ -271,8 +276,9 @@ export function VehicleForm({
           />
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastRegistrationDate")}</label>
+          <label htmlFor={`${uid}-reg-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastRegistrationDate")}</label>
           <Input
+            id={`${uid}-reg-date`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="date"
@@ -281,8 +287,9 @@ export function VehicleForm({
           />
         </div>
         <div>
-          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastInspectionDate")}</label>
+          <label htmlFor={`${uid}-insp-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastInspectionDate")}</label>
           <Input
+            id={`${uid}-insp-date`}
             unstyled
             className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="date"
@@ -293,7 +300,7 @@ export function VehicleForm({
       </div>
 
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.amenities")}</label>
+        <span className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.amenities")}</span>
         <div className="mt-[6px] flex flex-wrap gap-3">
           {vehicleAmenities.map((amenity) => (
             <label key={amenity} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
@@ -308,6 +315,7 @@ export function VehicleForm({
         </div>
         <Input
           unstyled
+          aria-label={t("carrier.vehicleForm.otherAmenitiesPlaceholder")}
           className={`mt-2 ${SHEET_INPUT_CLASS}`}
           placeholder={t("carrier.vehicleForm.otherAmenitiesPlaceholder")}
           value={form.otherAmenities ?? ""}
@@ -316,9 +324,9 @@ export function VehicleForm({
       </div>
 
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.status")}</label>
+        <label htmlFor={`${uid}-status`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.status")}</label>
         <div className="relative mt-[6px]">
-          <Select unstyled className={SHEET_SELECT_CLASS} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+          <Select id={`${uid}-status`} unstyled className={SHEET_SELECT_CLASS} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
             {vehicleStatuses.map((status) => (
               <option key={status} value={status}>
                 {t(`vehicleStatus.${status}`)}
@@ -348,7 +356,7 @@ export function VehicleForm({
                 <button
                   type="button"
                   onClick={() => removePhoto(url)}
-                  className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
+                  className="text-[12.5px] font-semibold text-[var(--ink-destructive)] hover:underline"
                 >
                   {t("common.remove")}
                 </button>
@@ -372,7 +380,7 @@ export function VehicleForm({
         <p className="text-[12.5px] text-[var(--ink-muted)]">
           {photoUploading ? t("common.loading") : t("carrier.vehicleForm.photosUploadHint")}
         </p>
-        {photoError ? <p className="text-[12.5px] text-[#7F1D1D]">{photoError}</p> : null}
+        {photoError ? <p className="text-[12.5px] text-[var(--ink-destructive)]">{photoError}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -390,7 +398,7 @@ export function VehicleForm({
                 <button
                   type="button"
                   onClick={() => removeDocument(url)}
-                  className="shrink-0 text-[12.5px] font-semibold text-[#7F1D1D] hover:underline"
+                  className="shrink-0 text-[12.5px] font-semibold text-[var(--ink-destructive)] hover:underline"
                 >
                   {t("common.remove")}
                 </button>
@@ -414,10 +422,10 @@ export function VehicleForm({
         <p className="text-[12.5px] text-[var(--ink-muted)]">
           {docUploading ? t("common.loading") : t("carrier.vehicleForm.documentsUploadHint")}
         </p>
-        {docError ? <p className="text-[12.5px] text-[#7F1D1D]">{docError}</p> : null}
+        {docError ? <p className="text-[12.5px] text-[var(--ink-destructive)]">{docError}</p> : null}
       </div>
 
-      {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
+      {error ? <p className="text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}
@@ -429,7 +437,7 @@ export function VehicleForm({
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="text-[13.5px] font-medium text-[#DC2626] hover:underline disabled:opacity-50"
+            className="text-[13.5px] font-medium text-[var(--ink-destructive)] hover:underline disabled:opacity-50"
           >
             {deleting ? t("common.loading") : t("carrier.vehicleForm.deleteVehicle")}
           </button>

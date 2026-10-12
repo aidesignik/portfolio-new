@@ -161,7 +161,7 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
             <button
               type="button"
               onClick={() => removeStop(index)}
-              className="text-xs font-medium text-red-600 hover:underline"
+              className="text-xs font-medium text-[var(--ink-destructive)] hover:underline"
             >
               {t("removeStop")}
             </button>
@@ -227,7 +227,7 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
       ) : distanceKm !== null ? (
         <p className="text-xs text-zinc-500">{tRideForm("estimatedDistance", { km: Math.round(distanceKm) })}</p>
       ) : distanceError ? (
-        <p className="text-xs text-red-600">{tRideForm("distanceUnavailableShort")}</p>
+        <p className="text-xs text-[var(--ink-destructive)]">{tRideForm("distanceUnavailableShort")}</p>
       ) : null}
 
       <Field label={t("passengerCount")}>
@@ -247,7 +247,7 @@ export function RequestForm({ initial }: { initial?: RequestFormInitial }) {
         />
       </Field>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? "…" : t("submit")}

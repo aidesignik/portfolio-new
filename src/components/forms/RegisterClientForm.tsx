@@ -79,7 +79,7 @@ export function RegisterClientForm() {
       <Field label={t("common.password")}>
         <Input type="password" required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
       </Field>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--ink-destructive)]">{error}</p> : null}
       <Button type="submit" disabled={loading} className="w-full">
         {loading ? t("common.loading") : t("auth.registerTitle")}
       </Button>

@@ -1,4 +1,4 @@
-# Atlas — digital dispatcher for coach transport
+# Travia — digital dispatcher for coach transport
 
 MVP for a platform that lets a single bus/coach carrier run their booking pipeline end to end — client request → carrier offer → confirmed booking → generated documents — without phone calls and email back-and-forth.
 

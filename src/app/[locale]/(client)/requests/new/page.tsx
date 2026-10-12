@@ -27,7 +27,7 @@ export default async function NewRequestPage({
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">{t("title")}</h1>
+      <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{t("title")}</h1>
       <Card>
         <RequestForm initial={initial} />
       </Card>

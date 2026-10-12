@@ -132,7 +132,7 @@ export function ReturnTripFields({
               <button
                 type="button"
                 onClick={() => removeStop(index)}
-                className="text-xs font-medium text-red-600 hover:underline"
+                className="text-xs font-medium text-[var(--ink-destructive)] hover:underline"
               >
                 {t("removeStop")}
               </button>

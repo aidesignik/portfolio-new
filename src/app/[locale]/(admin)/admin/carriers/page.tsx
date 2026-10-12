@@ -13,17 +13,17 @@ export default async function AdminCarriersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">{t("carriersTitle")}</h1>
+      <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{t("carriersTitle")}</h1>
 
       {carriers.length === 0 ? (
-        <p className="text-sm text-zinc-600">{t("noPending")}</p>
+        <p className="text-sm text-[var(--ink-secondary)]">{t("noPending")}</p>
       ) : (
         <div className="space-y-3">
           {carriers.map((carrier) => (
             <Card key={carrier.id} className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-zinc-900">{carrier.companyName}</p>
-                <p className="text-sm text-zinc-600">
+                <p className="font-medium text-[var(--ink-primary)]">{carrier.companyName}</p>
+                <p className="text-sm text-[var(--ink-secondary)]">
                   {carrier.city} · {carrier.taxId} · {carrier.user.email}
                 </p>
               </div>
@@ -37,7 +37,7 @@ export default async function AdminCarriersPage() {
                         : "warning"
                   }
                 >
-                  {carrier.status}
+                  {t(`carrierStatus.${carrier.status}`)}
                 </Badge>
                 {carrier.status === "PENDING" ? (
                   <CarrierApprovalActions carrierId={carrier.id} />

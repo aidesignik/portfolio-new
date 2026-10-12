@@ -53,11 +53,21 @@ export function Popover({
     };
   }, [onClose]);
 
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusable = ref.current?.querySelector<HTMLElement>(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.focus();
+    return () => previouslyFocused?.focus();
+  }, []);
+
   return (
     <div
       ref={ref}
+      role="dialog"
       style={{ width }}
-      className={`absolute z-[70] overflow-hidden rounded-[14px] bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] ${
+      className={`absolute z-[70] overflow-hidden rounded-panel bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] ${
         placement === "top" ? "bottom-full mb-2" : "top-full mt-2"
       } ${align === "end" ? "right-0" : "left-0"}`}
     >

@@ -170,7 +170,7 @@ export function CarrierSidebar({
       >
         <Link
           href="/carrier/dashboard"
-          aria-label="Travia home"
+          aria-label={tNav("home")}
           className="mb-[12px] flex h-9 shrink-0 items-center gap-[8px] px-[10px]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -229,7 +229,7 @@ export function CarrierSidebar({
         </div>
 
         <div className="mt-auto flex shrink-0 flex-col gap-[2px] border-t border-[#E6E6E6] pt-[10px]">
-          <a href="mailto:support@atlas.example" className={`${NAV_ITEM_CLASS} font-medium text-[#3F3F46] hover:bg-[#EBEBEB]`}>
+          <a href="mailto:support@travia.example" className={`${NAV_ITEM_CLASS} font-medium text-[#3F3F46] hover:bg-[#EBEBEB]`}>
             <CircleHelp size={17} strokeWidth={1.9} color="#6E6E76" className="shrink-0" />
             <span className="min-w-0 flex-1 truncate">{tNav("help")}</span>
           </a>

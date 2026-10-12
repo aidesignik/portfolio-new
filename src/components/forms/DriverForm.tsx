@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -71,7 +71,7 @@ function DocSideUpload({
         <div className="space-y-1 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={url} alt="" className="h-24 w-full rounded-[10px] border border-[var(--border-hairline)] object-cover" />
-          <button type="button" onClick={onRemove} className="text-[12.5px] font-semibold text-[#7F1D1D] hover:underline">
+          <button type="button" onClick={onRemove} className="text-[12.5px] font-semibold text-[var(--ink-destructive)] hover:underline">
             {t("common.remove")}
           </button>
         </div>
@@ -111,6 +111,7 @@ function DriverDocumentSection({
   docType: string;
 }) {
   const t = useTranslations();
+  const uid = useId();
   const [uploadingSide, setUploadingSide] = useState<"front" | "back" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [suggested, setSuggested] = useState(false);
@@ -152,8 +153,9 @@ function DriverDocumentSection({
     <div className="space-y-3 rounded-[10px] border border-[var(--border-hairline)] p-3">
       <p className="text-[14px] font-bold text-[var(--ink-primary)]">{title}</p>
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.expiryDate")}</label>
+        <label htmlFor={`${uid}-expiry`} className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.expiryDate")}</label>
         <Input
+          id={`${uid}-expiry`}
           unstyled
           className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
           type="date"
@@ -182,7 +184,7 @@ function DriverDocumentSection({
         />
       </div>
       {uploadingSide ? <p className="text-[12.5px] text-[var(--ink-muted)]">{t("common.loading")}</p> : null}
-      {error ? <p className="text-[12.5px] text-[#7F1D1D]">{error}</p> : null}
+      {error ? <p className="text-[12.5px] text-[var(--ink-destructive)]">{error}</p> : null}
     </div>
   );
 }
@@ -261,6 +263,7 @@ export function DriverForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const uid = useId();
   const [form, setForm] = useState<DriverFormValues>(
     initial
       ? {
@@ -324,8 +327,9 @@ export function DriverForm({
   return (
     <form onSubmit={onSubmit} className="space-y-[18px]">
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.name")}</label>
+        <label htmlFor={`${uid}-name`} className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.name")}</label>
         <Input
+          id={`${uid}-name`}
           unstyled
           className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
           required
@@ -334,8 +338,9 @@ export function DriverForm({
         />
       </div>
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.phone")}</label>
+        <label htmlFor={`${uid}-phone`} className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.phone")}</label>
         <Input
+          id={`${uid}-phone`}
           unstyled
           className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
           required
@@ -344,8 +349,9 @@ export function DriverForm({
         />
       </div>
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.licenseNumber")}</label>
+        <label htmlFor={`${uid}-license`} className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.licenseNumber")}</label>
         <Input
+          id={`${uid}-license`}
           unstyled
           className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
           value={form.licenseNumber}
@@ -353,7 +359,7 @@ export function DriverForm({
         />
       </div>
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.avatarColor")}</label>
+        <span className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.avatarColor")}</span>
         <div className="mt-[6px]">
           <ColorPicker value={form.avatarColor} onChange={(key) => set("avatarColor", key)} />
         </div>
@@ -368,7 +374,7 @@ export function DriverForm({
       </label>
 
       <div>
-        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.assignedVehicles")}</label>
+        <span className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.assignedVehicles")}</span>
         {vehicles.length === 0 ? (
           <p className="mt-[6px] text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noVehicles")}</p>
         ) : (
@@ -433,7 +439,7 @@ export function DriverForm({
         />
       </div>
 
-      {error ? <p className="text-[13.5px] text-[#7F1D1D]">{error}</p> : null}
+      {error ? <p className="text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
 
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}
@@ -445,7 +451,7 @@ export function DriverForm({
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="text-[13.5px] font-medium text-[#DC2626] hover:underline disabled:opacity-50"
+            className="text-[13.5px] font-medium text-[var(--ink-destructive)] hover:underline disabled:opacity-50"
           >
             {deleting ? t("common.loading") : t("carrier.driverForm.deleteDriver")}
           </button>
