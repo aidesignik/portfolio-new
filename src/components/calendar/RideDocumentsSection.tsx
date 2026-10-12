@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FileText, FileCheck, Download, Mail } from "lucide-react";
 import type { Document, DocumentType } from "@prisma/client";
-import { formatShortDate, formatTime24 } from "@/lib/rideDateFormat";
 import { EmailDocumentsPopover } from "@/components/forms/EmailDocumentsPopover";
 
 const TYPES: DocumentType[] = ["CONFIRMATION", "CONTRACT", "INVOICE"];
@@ -51,7 +50,6 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
 
   const readyDocs = documents.filter((d) => d.status === "GENERATED" && d.fileUrl);
   const readyTypes = readyDocs.map((d) => d.type);
-  const lastUpdated = readyDocs.map((d) => new Date(d.updatedAt)).sort((a, b) => b.getTime() - a.getTime())[0];
 
   function markEmailed(sentTypes: DocumentType[], to: string) {
     const now = new Date().toISOString();
@@ -73,13 +71,6 @@ export function RideDocumentsSection({ rideId, clientEmail }: { rideId: string; 
           {t("carrier.calendar.detail.documents")}
         </h3>
         <div className="flex items-center gap-3">
-          {lastUpdated ? (
-            <span className="text-[12.5px] text-[var(--ink-muted)]">
-              {t("carrier.calendar.detail.autoUpdated", {
-                date: `${formatShortDate(lastUpdated)}, ${formatTime24(lastUpdated)}`,
-              })}
-            </span>
-          ) : null}
           {readyTypes.length > 0 ? (
             <div className="relative">
               <button

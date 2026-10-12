@@ -328,7 +328,6 @@
         "price": "Price",
         "distanceLabel": "Distance",
         "documents": "Documents",
-        "autoUpdated": "Auto-updated {date}",
         "updating": "Updating…",
         "inProgress": "In progress",
         "returnsToday": "returns today {time}",

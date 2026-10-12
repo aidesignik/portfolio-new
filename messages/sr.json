@@ -328,7 +328,6 @@
         "price": "Cena",
         "distanceLabel": "Kilometraža",
         "documents": "Dokumenti",
-        "autoUpdated": "Automatski ažurirano {date}",
         "updating": "Ažuriranje…",
         "inProgress": "U toku",
         "returnsToday": "povratak danas {time}",
