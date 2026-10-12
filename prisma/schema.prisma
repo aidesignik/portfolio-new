@@ -283,6 +283,16 @@ model Ride {
   @@index([vehicleId])
   @@index([driverId])
   @@index([status])
+  // Matches the carrier calendar's per-week query (carrierId + status IN +
+  // departureAt range) — without it, Postgres falls back to the lone
+  // carrierId index and filters/sorts the rest in memory, which gets
+  // slower as a carrier's ride history grows.
+  @@index([carrierId, status, departureAt])
+  // Matches the unassigned-queue query (status + vehicleId IS NULL +
+  // driverId IS NULL) — that query is marketplace-wide, not scoped to one
+  // carrier, so it's the one request on this page that grows with total
+  // site activity rather than just one carrier's own data.
+  @@index([status, vehicleId, driverId])
 }
 
 enum RideLeg {

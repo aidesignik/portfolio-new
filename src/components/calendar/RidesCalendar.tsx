@@ -77,8 +77,18 @@ export function RidesCalendar() {
   const [dragOverTarget, setDragOverTarget] = useState<DragOverTarget | null>(null);
 
   const load = useCallback(async () => {
+    setLoading(true);
+    // Plain fetch() has no built-in timeout — if the server hangs (a slow
+    // query, an exhausted DB connection pool) the request would otherwise
+    // sit forever with no error and no feedback, leaving the page stuck on
+    // "Loading…" indefinitely. Aborting after a bound turns that into a
+    // visible, retryable error instead.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
     try {
-      const res = await fetch(`/api/carrier/calendar?weekStart=${weekStart.toISOString()}`);
+      const res = await fetch(`/api/carrier/calendar?weekStart=${weekStart.toISOString()}`, {
+        signal: controller.signal,
+      });
       if (res.ok) {
         setData(await res.json());
       } else {
@@ -87,6 +97,7 @@ export function RidesCalendar() {
     } catch (err) {
       console.error("Failed to load calendar", err);
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   }, [weekStart]);
@@ -188,7 +199,14 @@ export function RidesCalendar() {
     return <p className="text-[13.5px] text-[var(--ink-secondary)]">{t("loading")}</p>;
   }
   if (!data) {
-    return <p className="text-[13.5px] text-[var(--ink-destructive)]">{t("loadError")}</p>;
+    return (
+      <p className="flex items-center gap-2 text-[13.5px] text-[var(--ink-destructive)]">
+        {t("loadError")}
+        <button type="button" onClick={load} className="font-semibold underline underline-offset-2">
+          {tCommon("retry")}
+        </button>
+      </p>
+    );
   }
 
   const weekEnd = new Date(weekStart.getTime() + 6 * DAY_MS);
