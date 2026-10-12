@@ -5,9 +5,14 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validation/vehicle.schema";
+import {
+  SHEET_INPUT_CLASS,
+  SHEET_SELECT_CLASS,
+  SHEET_LABEL_CLASS,
+  SheetChevronIcon,
+} from "@/components/calendar/newRide/sheetFieldClasses";
 
 function toDateInputValue(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -43,6 +48,8 @@ export function VehicleForm({
   vehicleId,
   initial,
   onSaved,
+  onDelete,
+  deleting,
 }: {
   vehicleId?: string;
   initial?: InitialVehicleValues;
@@ -50,6 +57,10 @@ export function VehicleForm({
   // and refreshes the list instead of navigating to the standalone fleet
   // page — the panel is already on that page.
   onSaved?: () => void;
+  // Only passed in edit mode — renders a "Delete vehicle" action at the
+  // bottom of the form, below Save, instead of in the panel header.
+  onDelete?: () => void;
+  deleting?: boolean;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -206,57 +217,84 @@ export function VehicleForm({
   return (
     <form onSubmit={onSubmit} className="space-y-[18px]">
       <div className="grid gap-[10px] sm:grid-cols-2">
-        <Field label={t("carrier.vehicleForm.type")}>
-          <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-            {vehicleTypes.map((type) => (
-              <option key={type} value={type}>
-                {t(`vehicleType.${type}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label={t("carrier.vehicleForm.model")}>
-          <Input required value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
-        </Field>
-        <Field label={t("carrier.vehicleForm.licensePlate")}>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.type")}</label>
+          <div className="relative mt-[6px]">
+            <Select unstyled className={SHEET_SELECT_CLASS} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+              {vehicleTypes.map((type) => (
+                <option key={type} value={type}>
+                  {t(`vehicleType.${type}`)}
+                </option>
+              ))}
+            </Select>
+            <SheetChevronIcon />
+          </div>
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.model")}</label>
           <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+            required
+            value={form.model}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.licensePlate")}</label>
+          <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             value={form.licensePlate ?? ""}
             onChange={(e) => setForm({ ...form, licensePlate: e.target.value })}
           />
-        </Field>
-        <Field label={t("carrier.vehicleForm.year")}>
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.year")}</label>
           <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="number"
             value={form.year ?? ""}
             onChange={(e) => setForm({ ...form, year: e.target.value ? Number(e.target.value) : null })}
           />
-        </Field>
-        <Field label={t("carrier.vehicleForm.seats")}>
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.seats")}</label>
           <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="number"
             required
             value={form.seats}
             onChange={(e) => setForm({ ...form, seats: Number(e.target.value) })}
           />
-        </Field>
-        <Field label={t("carrier.vehicleForm.lastRegistrationDate")}>
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastRegistrationDate")}</label>
           <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="date"
             value={form.lastRegistrationDate}
             onChange={(e) => setForm({ ...form, lastRegistrationDate: e.target.value })}
           />
-        </Field>
-        <Field label={t("carrier.vehicleForm.lastInspectionDate")}>
+        </div>
+        <div>
+          <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastInspectionDate")}</label>
           <Input
+            unstyled
+            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
             type="date"
             value={form.lastInspectionDate}
             onChange={(e) => setForm({ ...form, lastInspectionDate: e.target.value })}
           />
-        </Field>
+        </div>
       </div>
 
-      <Field label={t("carrier.vehicleForm.amenities")}>
-        <div className="flex flex-wrap gap-3">
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.amenities")}</label>
+        <div className="mt-[6px] flex flex-wrap gap-3">
           {vehicleAmenities.map((amenity) => (
             <label key={amenity} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
               <input
@@ -269,29 +307,34 @@ export function VehicleForm({
           ))}
         </div>
         <Input
-          className="mt-2"
+          unstyled
+          className={`mt-2 ${SHEET_INPUT_CLASS}`}
           placeholder={t("carrier.vehicleForm.otherAmenitiesPlaceholder")}
           value={form.otherAmenities ?? ""}
           onChange={(e) => setForm({ ...form, otherAmenities: e.target.value })}
         />
-      </Field>
+      </div>
 
-      <Field label={t("carrier.vehicleForm.status")}>
-        <Select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-          {vehicleStatuses.map((status) => (
-            <option key={status} value={status}>
-              {t(`vehicleStatus.${status}`)}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.status")}</label>
+        <div className="relative mt-[6px]">
+          <Select unstyled className={SHEET_SELECT_CLASS} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+            {vehicleStatuses.map((status) => (
+              <option key={status} value={status}>
+                {t(`vehicleStatus.${status}`)}
+              </option>
+            ))}
+          </Select>
+          <SheetChevronIcon />
+        </div>
+      </div>
 
       <div className="space-y-2">
         {/* Not a <Field>/<label> here on purpose — the per-photo Remove
             buttons need to be normal, independently clickable controls,
             and a <button> nested inside a <label> is invalid HTML that
             browsers handle inconsistently. */}
-        <span className="block text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.vehicleForm.photos")}</span>
+        <span className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.photos")}</span>
         {form.photos.length > 0 ? (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {form.photos.map((url) => (
@@ -333,7 +376,7 @@ export function VehicleForm({
       </div>
 
       <div className="space-y-2">
-        <span className="block text-[13px] font-semibold text-[var(--ink-2)]">{t("carrier.vehicleForm.documents")}</span>
+        <span className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.documents")}</span>
         {form.documentUrls.length > 0 ? (
           <ul className="space-y-1">
             {form.documentUrls.map((url) => (
@@ -379,6 +422,19 @@ export function VehicleForm({
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}
       </Button>
+
+      {onDelete ? (
+        <div className="border-t border-[var(--border-soft)] pt-[18px]">
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={deleting}
+            className="text-[13.5px] font-medium text-[#DC2626] hover:underline disabled:opacity-50"
+          >
+            {deleting ? t("common.loading") : t("carrier.vehicleForm.deleteVehicle")}
+          </button>
+        </div>
+      ) : null}
     </form>
   );
 }

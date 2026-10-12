@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Field } from "@/components/ui/Field";
 import { DRIVER_COLORS, DRIVER_COLOR_KEYS, type DriverColorKey } from "@/lib/driver-colors";
+import { SHEET_INPUT_CLASS, SHEET_LABEL_CLASS } from "@/components/calendar/newRide/sheetFieldClasses";
 
 function ColorPicker({ value, onChange }: { value: DriverColorKey | undefined; onChange: (key: DriverColorKey) => void }) {
   const t = useTranslations();
@@ -151,8 +151,11 @@ function DriverDocumentSection({
   return (
     <div className="space-y-3 rounded-[10px] border border-[var(--border-hairline)] p-3">
       <p className="text-[14px] font-bold text-[var(--ink-primary)]">{title}</p>
-      <Field label={t("carrier.driverForm.expiryDate")}>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.expiryDate")}</label>
         <Input
+          unstyled
+          className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
           type="date"
           value={expiry}
           onChange={(e) => {
@@ -160,7 +163,7 @@ function DriverDocumentSection({
             setSuggested(false);
           }}
         />
-      </Field>
+      </div>
       {suggested ? <p className="text-[12.5px] text-[#9A3412]">{t("carrier.driverForm.expirySuggested")}</p> : null}
       <div className="grid grid-cols-2 gap-3">
         <DocSideUpload
@@ -241,6 +244,8 @@ export function DriverForm({
   initial,
   vehicles,
   onSaved,
+  onDelete,
+  deleting,
 }: {
   driverId?: string;
   initial?: InitialDriverValues;
@@ -249,6 +254,10 @@ export function DriverForm({
   // refreshes the list instead of navigating to the standalone drivers
   // page — the panel is already on that page.
   onSaved?: () => void;
+  // Only passed in edit mode — renders a "Delete driver" action at the
+  // bottom of the form, below Save, instead of in the panel header.
+  onDelete?: () => void;
+  deleting?: boolean;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -314,18 +323,41 @@ export function DriverForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-[18px]">
-      <Field label={t("carrier.driverForm.name")}>
-        <Input required value={form.name} onChange={(e) => set("name", e.target.value)} />
-      </Field>
-      <Field label={t("carrier.driverForm.phone")}>
-        <Input required value={form.phone} onChange={(e) => set("phone", e.target.value)} />
-      </Field>
-      <Field label={t("carrier.driverForm.licenseNumber")}>
-        <Input value={form.licenseNumber} onChange={(e) => set("licenseNumber", e.target.value)} />
-      </Field>
-      <Field label={t("carrier.driverForm.avatarColor")}>
-        <ColorPicker value={form.avatarColor} onChange={(key) => set("avatarColor", key)} />
-      </Field>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.name")}</label>
+        <Input
+          unstyled
+          className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+          required
+          value={form.name}
+          onChange={(e) => set("name", e.target.value)}
+        />
+      </div>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.phone")}</label>
+        <Input
+          unstyled
+          className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+          required
+          value={form.phone}
+          onChange={(e) => set("phone", e.target.value)}
+        />
+      </div>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.licenseNumber")}</label>
+        <Input
+          unstyled
+          className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+          value={form.licenseNumber}
+          onChange={(e) => set("licenseNumber", e.target.value)}
+        />
+      </div>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.avatarColor")}</label>
+        <div className="mt-[6px]">
+          <ColorPicker value={form.avatarColor} onChange={(key) => set("avatarColor", key)} />
+        </div>
+      </div>
       <label className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
         <input
           type="checkbox"
@@ -335,11 +367,12 @@ export function DriverForm({
         {t("carrier.driverForm.isAvailable")}
       </label>
 
-      <Field label={t("carrier.driverForm.assignedVehicles")}>
+      <div>
+        <label className={SHEET_LABEL_CLASS}>{t("carrier.driverForm.assignedVehicles")}</label>
         {vehicles.length === 0 ? (
-          <p className="text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noVehicles")}</p>
+          <p className="mt-[6px] text-[13.5px] text-[var(--ink-muted)]">{t("carrier.noVehicles")}</p>
         ) : (
-          <div className="flex flex-wrap gap-3">
+          <div className="mt-[6px] flex flex-wrap gap-3">
             {vehicles.map((vehicle) => (
               <label key={vehicle.id} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
                 <input
@@ -352,7 +385,7 @@ export function DriverForm({
             ))}
           </div>
         )}
-      </Field>
+      </div>
 
       <div className="space-y-3 border-t border-[var(--border-soft)] pt-4">
         <p className="text-[11px] font-bold uppercase tracking-[0.065em] text-[var(--ink-eyebrow)]">
@@ -405,6 +438,19 @@ export function DriverForm({
       <Button type="submit" disabled={loading}>
         {loading ? t("common.loading") : t("common.save")}
       </Button>
+
+      {onDelete ? (
+        <div className="border-t border-[var(--border-soft)] pt-[18px]">
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={deleting}
+            className="text-[13.5px] font-medium text-[#DC2626] hover:underline disabled:opacity-50"
+          >
+            {deleting ? t("common.loading") : t("carrier.driverForm.deleteDriver")}
+          </button>
+        </div>
+      ) : null}
     </form>
   );
 }

@@ -461,7 +461,8 @@
       "docTooLarge": "Fajl je prevelik — koristite fajl manji od 5MB.",
       "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PDF, PNG, JPG ili WEBP.",
       "docUploadFailed": "Nije uspelo otpremanje jednog od dokumenata — pokušajte ponovo.",
-      "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo."
+      "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
+      "deleteVehicle": "Obriši vozilo"
     },
     "driverForm": {
       "name": "Ime vozača",
@@ -482,7 +483,8 @@
       "docTooLarge": "Slika je prevelika — koristite fajl manji od 3MB.",
       "docUnsupportedType": "Ovaj tip fajla nije podržan — koristite PNG, JPG ili WEBP.",
       "docUploadFailed": "Nije uspelo otpremanje slike — pokušajte ponovo.",
-      "expirySuggested": "Datum pročitan sa dokumenta — proverite da li je tačan."
+      "expirySuggested": "Datum pročitan sa dokumenta — proverite da li je tačan.",
+      "deleteDriver": "Obriši vozača"
     },
     "offerForm": {
       "title": "Pošalji ponudu",

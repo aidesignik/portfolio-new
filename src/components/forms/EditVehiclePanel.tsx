@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2 } from "lucide-react";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
 import { VehicleForm } from "@/components/forms/VehicleForm";
@@ -77,20 +76,6 @@ export function EditVehiclePanel({
         title={vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("common.loading")}
         onClose={onClose}
         closeLabel={t("common.close")}
-        actions={
-          vehicle ? (
-            <button
-              type="button"
-              onClick={onDelete}
-              disabled={deleting}
-              aria-label={t("common.delete")}
-              title={t("common.delete")}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] text-[var(--ink-disabled)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)] hover:text-[#7F1D1D] disabled:opacity-50"
-            >
-              <Trash2 size={16} strokeWidth={1.9} />
-            </button>
-          ) : null
-        }
       />
       <div className="flex-1 overflow-y-auto px-5 py-[18px]">
         {loading ? (
@@ -115,6 +100,8 @@ export function EditVehiclePanel({
               documentUrls: vehicle.documentUrls,
             }}
             onSaved={onSaved}
+            onDelete={onDelete}
+            deleting={deleting}
           />
         )}
       </div>

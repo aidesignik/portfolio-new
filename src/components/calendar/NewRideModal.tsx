@@ -14,7 +14,13 @@ import { LegCard, DateTimeRow } from "./newRide/RouteLegCard";
 import { RouteTimeline } from "./newRide/RouteTimeline";
 import { ReturnLegCard } from "./newRide/ReturnLegCard";
 import { DistanceCard } from "./newRide/DistanceCard";
-import { SHEET_INPUT_CLASS, SHEET_TEXTAREA_CLASS, SHEET_SELECT_CLASS, SHEET_LABEL_CLASS } from "./newRide/sheetFieldClasses";
+import {
+  SHEET_INPUT_CLASS,
+  SHEET_TEXTAREA_CLASS,
+  SHEET_SELECT_CLASS,
+  SHEET_LABEL_CLASS,
+  SheetChevronIcon,
+} from "./newRide/sheetFieldClasses";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
 import { resolveReturnLeg } from "@/lib/rideReturnLeg";
 import { combineDateTimeLocal, splitDateTimeLocal } from "@/lib/pickerDateFormat";
@@ -614,7 +620,7 @@ export function NewRideModal({
                     </option>
                   ))}
                 </Select>
-                <ChevronDownIcon />
+                <SheetChevronIcon />
               </div>
               <div className="relative">
                 <Select
@@ -631,7 +637,7 @@ export function NewRideModal({
                     </option>
                   ))}
                 </Select>
-                <ChevronDownIcon />
+                <SheetChevronIcon />
               </div>
             </div>
           </section>
@@ -665,19 +671,5 @@ export function NewRideModal({
         </div>
       </form>
     </SidePanel>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      width={14}
-      height={14}
-      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA]"
-      fill="none"
-    >
-      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

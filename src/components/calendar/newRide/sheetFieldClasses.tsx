@@ -16,3 +16,22 @@ export const SHEET_LABEL_CLASS = "block text-[13px] font-medium text-[#3F3F46]";
 
 export const SHEET_TEXT_BUTTON_CLASS =
   "-ml-2 flex h-7 items-center gap-[6px] rounded-[7px] px-2 text-[13px] font-medium text-[#2563EB] transition-colors duration-[.12s] ease-out hover:bg-[#EFF6FF]";
+
+// The custom chevron paired with SHEET_SELECT_CLASS's `appearance-none` —
+// a native <select>'s own arrow renders inconsistently across browsers and
+// doesn't line up with this sheet's input height/padding, so every select
+// in this design hides it and draws this one instead. Must sit inside a
+// `relative` wrapper around the <select>.
+export function SheetChevronIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width={14}
+      height={14}
+      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA]"
+      fill="none"
+    >
+      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

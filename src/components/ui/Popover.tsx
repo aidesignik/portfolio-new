@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 // An anchored floating panel for a short, focused task — unlike Modal, it
 // doesn't dim or block the page behind it, just rests near its trigger
@@ -21,6 +21,22 @@ export function Popover({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Starts below the trigger and flips above it when there isn't enough
+  // room below in the viewport (and there's more room above) — measured
+  // after the first paint since it depends on the popover's own rendered
+  // height, which varies with its content (e.g. the sent/error states).
+  const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const anchor = el?.offsetParent as HTMLElement | null;
+    if (!el || !anchor) return;
+    const anchorRect = anchor.getBoundingClientRect();
+    const margin = 8;
+    const spaceBelow = window.innerHeight - anchorRect.bottom;
+    const spaceAbove = anchorRect.top;
+    setPlacement(el.offsetHeight + margin > spaceBelow && spaceAbove > spaceBelow ? "top" : "bottom");
+  }, []);
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -41,9 +57,9 @@ export function Popover({
     <div
       ref={ref}
       style={{ width }}
-      className={`absolute top-full z-[70] mt-2 overflow-hidden rounded-[14px] bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] ${
-        align === "end" ? "right-0" : "left-0"
-      }`}
+      className={`absolute z-[70] overflow-hidden rounded-[14px] bg-[var(--bg-panel)] shadow-[var(--shadow-panel)] ${
+        placement === "top" ? "bottom-full mb-2" : "top-full mt-2"
+      } ${align === "end" ? "right-0" : "left-0"}`}
     >
       {children}
     </div>
