@@ -339,7 +339,7 @@
         "returnsOn": "returns {date} {time}",
         "removeFromCalendar": "Remove from calendar",
         "editRide": "Edit ride",
-        "duplicate": "Duplicate",
+        "duplicateRide": "Duplicate ride",
         "daysChip": "{days} days",
         "addDistance": "Add distance",
         "editDistance": "Edit distance",

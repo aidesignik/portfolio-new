@@ -2,13 +2,14 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Trash2 } from "lucide-react";
+import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { PlateChip } from "@/components/ui/PlateChip";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
@@ -33,15 +34,23 @@ const SECONDARY_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 const PRIMARY_SM_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
-// Footer actions (§3): a muted ghost text button for a destructive-but-
-// reversible-via-confirm action (Cancel ride / Remove from calendar) — no
-// border/background at rest, only turning danger-red on hover/focus.
-const FOOTER_GHOST_DANGER_BTN_CLASS =
-  "flex h-10 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] px-[10px] text-[14px] font-medium text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[#DC2626] focus-visible:bg-[#FEF2F2] focus-visible:text-[#DC2626] focus-visible:outline-none disabled:opacity-50";
-// Footer secondary action (Duplicate) — white bg, bordered, 40px, matching
-// Cancel/Remove's height so the row's buttons align.
-const FOOTER_SECONDARY_BTN_CLASS =
-  "flex h-10 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] bg-white px-3 text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
+// Footer actions (§3): icon-only ghost buttons for Duplicate/Cancel —
+// no border/background at rest, 36×36 so their hit target matches a
+// normal button despite having no visible label (a Tooltip + aria-label
+// carry that instead).
+const FOOTER_ICON_GHOST_BTN_CLASS =
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)] focus-visible:bg-[var(--border-soft)] focus-visible:outline-none";
+// Cancel ride's icon only turns danger-red on hover/focus, not at rest —
+// it's a muted ghost button like Duplicate until actively engaged.
+const FOOTER_ICON_GHOST_DANGER_BTN_CLASS =
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[#DC2626] focus-visible:bg-[#FEF2F2] focus-visible:text-[#DC2626] focus-visible:outline-none";
+const FOOTER_EDIT_BTN_CLASS =
+  "flex h-9 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-[14px] text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
+// The status-conditional primary action (Remove from calendar) — filled
+// like a primary button, but danger-red rather than the app's blue
+// action color since it's a permanent delete, not a routine confirm.
+const FOOTER_PRIMARY_DANGER_BTN_CLASS =
+  "flex h-9 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[#DC2626] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[#B91C1C] disabled:opacity-50";
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -888,32 +897,35 @@ export function RideDetailDrawer({
           {error ? <p className="border-b border-[var(--border-hairline)] px-6 py-3 text-[13.5px] text-[#DC2626]">{error}</p> : null}
         </div>
 
-        <div className="mt-auto flex h-16 shrink-0 items-center justify-between border-t border-[var(--border-hairline)] px-6">
-          <div className="flex items-center gap-2">
+        <div
+          className="mt-auto flex shrink-0 items-center justify-between border-t border-[var(--border-hairline)]"
+          style={{ padding: "16px 24px" }}
+        >
+          <div className="flex items-center gap-1">
+            <Tooltip label={tDetail("duplicateRide")}>
+              <button
+                type="button"
+                onClick={() => setDuplicating(true)}
+                aria-label={tDetail("duplicateRide")}
+                className={FOOTER_ICON_GHOST_BTN_CLASS}
+              >
+                <Copy size={18} strokeWidth={1.9} />
+              </button>
+            </Tooltip>
             {cancellable ? (
-              <button type="button" onClick={() => setConfirmingCancel(true)} className={FOOTER_GHOST_DANGER_BTN_CLASS}>
-                <X size={16} strokeWidth={1.9} />
-                {t("carrier.calendar.cancelRide")}
-              </button>
-            ) : null}
-            {canRemoveFromCalendar ? (
-              <button type="button" onClick={() => setConfirmingRemove(true)} className={FOOTER_GHOST_DANGER_BTN_CLASS}>
-                <Trash2 size={16} strokeWidth={1.9} />
-                {tDetail("removeFromCalendar")}
-              </button>
+              <Tooltip label={t("carrier.calendar.cancelRide")}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmingCancel(true)}
+                  aria-label={t("carrier.calendar.cancelRide")}
+                  className={FOOTER_ICON_GHOST_DANGER_BTN_CLASS}
+                >
+                  <Ban size={18} strokeWidth={1.9} />
+                </button>
+              </Tooltip>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setDuplicating(true)}
-              aria-label={tDetail("duplicate")}
-              title={tDetail("duplicate")}
-              className={FOOTER_SECONDARY_BTN_CLASS}
-            >
-              <Copy size={16} strokeWidth={1.9} />
-              <span className="hidden sm:inline">{tDetail("duplicate")}</span>
-            </button>
             {editable && !editing ? (
               <button
                 type="button"
@@ -923,10 +935,19 @@ export function RideDetailDrawer({
                   setEditDistanceKm(ride.estimatedDistanceKm ?? null);
                   setEditing(true);
                 }}
-                className="flex h-9 items-center gap-[6px] rounded-[9px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]"
+                className={FOOTER_EDIT_BTN_CLASS}
               >
-                <Pencil size={15} strokeWidth={1.9} />
+                <Pencil size={16} strokeWidth={1.9} />
                 {tDetail("editRide")}
+              </button>
+            ) : null}
+            {canRemoveFromCalendar ? (
+              <button
+                type="button"
+                onClick={() => setConfirmingRemove(true)}
+                className={FOOTER_PRIMARY_DANGER_BTN_CLASS}
+              >
+                {tDetail("removeFromCalendar")}
               </button>
             ) : null}
           </div>

@@ -339,7 +339,7 @@
         "returnsOn": "povratak {date} {time}",
         "removeFromCalendar": "Ukloni iz kalendara",
         "editRide": "Izmeni vožnju",
-        "duplicate": "Dupliraj",
+        "duplicateRide": "Dupliraj vožnju",
         "daysChip": "{days} dana",
         "addDistance": "Dodaj udaljenost",
         "editDistance": "Izmeni udaljenost",
