@@ -2,12 +2,13 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft } from "lucide-react";
+import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { PlateChip } from "@/components/ui/PlateChip";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
@@ -32,6 +33,15 @@ const SECONDARY_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 const PRIMARY_SM_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
+// Footer actions (§3): a muted ghost text button for a destructive-but-
+// reversible-via-confirm action (Cancel ride / Remove from calendar) — no
+// border/background at rest, only turning danger-red on hover/focus.
+const FOOTER_GHOST_DANGER_BTN_CLASS =
+  "flex h-10 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] px-[10px] text-[14px] font-medium text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[#DC2626] focus-visible:bg-[#FEF2F2] focus-visible:text-[#DC2626] focus-visible:outline-none disabled:opacity-50";
+// Footer secondary action (Duplicate) — white bg, bordered, 40px, matching
+// Cancel/Remove's height so the row's buttons align.
+const FOOTER_SECONDARY_BTN_CLASS =
+  "flex h-10 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] bg-white px-3 text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -81,10 +91,21 @@ interface RouteLeg {
   label: string;
   date: Date;
   rows: RouteLegRow[];
-  // True when the return leg is the unmodified reverse of the outbound leg
-  // (no stored override, no return stops) — shown as a note instead of
-  // repeating the obviously-identical stop list.
+  // True only when the return leg's stops are exactly the outbound leg's
+  // stops in reverse order (same city + location at each matching
+  // position) — shown as a note instead of repeating an identical stop
+  // list. A return with fewer/different/no stops describes a genuinely
+  // different route, even with no custom pickup/destination override, so
+  // it isn't flagged here — the stop rows below already say what it is.
   sameRouteReversed?: boolean;
+}
+
+function stopsAreReverseOf(outboundStops: CityLocation[], returnStops: CityLocation[]): boolean {
+  if (outboundStops.length !== returnStops.length) return false;
+  return outboundStops.every((stop, i) => {
+    const mirrored = returnStops[returnStops.length - 1 - i];
+    return mirrored.city === stop.city && mirrored.location === stop.location;
+  });
 }
 
 export function RideDetailDrawer({
@@ -120,6 +141,8 @@ export function RideDetailDrawer({
   const [distanceError, setDistanceError] = useState(false);
 
   const [duplicating, setDuplicating] = useState(false);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
 
   // Quick standalone override for the Trip section's computed total — lets
   // a carrier who disagrees with the maps estimate correct it on its own,
@@ -283,7 +306,8 @@ export function RideDetailDrawer({
   const legs: RouteLeg[] = [outboundLeg];
   if (resolvedReturn) {
     const returnEstimatedArrival = returnAt ? new Date(returnAt.getTime() + AVERAGE_TRIP_DURATION_MS) : null;
-    const sameRouteReversed = !ride.returnPickupCity && !ride.returnDestinationCity && resolvedReturn.stops.length === 0;
+    const sameRouteReversed =
+      !ride.returnPickupCity && !ride.returnDestinationCity && stopsAreReverseOf(ride.stops, resolvedReturn.stops);
     legs.push({
       key: "return",
       label: tDetail("returnLabel"),
@@ -307,12 +331,6 @@ export function RideDetailDrawer({
   }
 
   const totalKm = ride.estimatedDistanceKm ?? null;
-  const tripTotalText =
-    totalKm !== null
-      ? ride.isRoundTrip
-        ? tDetail("tripTotal", { km: Math.round(totalKm) })
-        : tDetail("tripTotalOneWay", { km: Math.round(totalKm) })
-      : null;
 
   const DAY_MS = 24 * 60 * 60 * 1000;
   const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -404,7 +422,7 @@ export function RideDetailDrawer({
   }
 
   async function cancelRide() {
-    if (!confirm(t("carrier.calendar.cancelConfirm"))) return;
+    setConfirmingCancel(false);
     setBusy("cancel");
     setError(null);
     const res = await fetch(`/api/carrier/rides/${ride.id}/cancel`, { method: "POST" });
@@ -417,7 +435,7 @@ export function RideDetailDrawer({
   }
 
   async function removeFromCalendar() {
-    if (!confirm(t("carrier.calendar.removeConfirm"))) return;
+    setConfirmingRemove(false);
     setBusy("remove");
     setError(null);
     const res = await fetch(`/api/carrier/rides/${ride.id}`, { method: "DELETE" });
@@ -496,20 +514,16 @@ export function RideDetailDrawer({
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
             <div className="mb-3 flex items-baseline justify-between gap-2">
               <h3 className="text-[13.5px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
-              {!editable ? (
-                tripTotalText ? (
-                  <span className="text-[12.5px] tabular-nums text-[#71717A]">{tripTotalText}</span>
-                ) : null
-              ) : !editingDistanceOnly ? (
+              {!editable ? null : !editingDistanceOnly ? (
                 <button
                   type="button"
                   onClick={() => {
                     setDistanceOverrideInput(ride.estimatedDistanceKm ? String(Math.round(ride.estimatedDistanceKm)) : "");
                     setEditingDistanceOnly(true);
                   }}
-                  className="text-[12.5px] tabular-nums text-[#71717A] underline-offset-2 hover:text-[var(--ink-secondary)] hover:underline"
+                  className="text-[12.5px] text-[#71717A] underline-offset-2 hover:text-[var(--ink-secondary)] hover:underline"
                 >
-                  {tripTotalText ?? tDetail("addDistance")}
+                  {totalKm !== null ? tDetail("editDistance") : tDetail("addDistance")}
                 </button>
               ) : (
                 <div className="flex items-center gap-[6px]">
@@ -875,29 +889,31 @@ export function RideDetailDrawer({
         </div>
 
         <div className="mt-auto flex h-16 shrink-0 items-center justify-between border-t border-[var(--border-hairline)] px-6">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setDuplicating(true)}
-              className="text-[13.5px] font-medium text-[var(--ink-secondary)] transition-opacity hover:underline"
-            >
-              {tDetail("duplicate")}
-            </button>
+          <div className="flex items-center gap-2">
             {cancellable ? (
-              <>
-                <span className="text-[#D4D4D8]">·</span>
-                <button
-                  type="button"
-                  onClick={cancelRide}
-                  disabled={busy === "cancel"}
-                  className="text-[13.5px] font-medium text-[#DC2626] transition-opacity hover:underline disabled:opacity-50"
-                >
-                  {busy === "cancel" ? t("common.loading") : t("carrier.calendar.cancelRide")}
-                </button>
-              </>
+              <button type="button" onClick={() => setConfirmingCancel(true)} className={FOOTER_GHOST_DANGER_BTN_CLASS}>
+                <X size={16} strokeWidth={1.9} />
+                {t("carrier.calendar.cancelRide")}
+              </button>
+            ) : null}
+            {canRemoveFromCalendar ? (
+              <button type="button" onClick={() => setConfirmingRemove(true)} className={FOOTER_GHOST_DANGER_BTN_CLASS}>
+                <Trash2 size={16} strokeWidth={1.9} />
+                {tDetail("removeFromCalendar")}
+              </button>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDuplicating(true)}
+              aria-label={tDetail("duplicate")}
+              title={tDetail("duplicate")}
+              className={FOOTER_SECONDARY_BTN_CLASS}
+            >
+              <Copy size={16} strokeWidth={1.9} />
+              <span className="hidden sm:inline">{tDetail("duplicate")}</span>
+            </button>
             {editable && !editing ? (
               <button
                 type="button"
@@ -913,19 +929,33 @@ export function RideDetailDrawer({
                 {tDetail("editRide")}
               </button>
             ) : null}
-            {canRemoveFromCalendar ? (
-              <button
-                type="button"
-                onClick={removeFromCalendar}
-                disabled={busy === "remove"}
-                className="flex h-9 items-center rounded-[9px] border border-[#FCA5A5] px-3 text-[13.5px] font-medium text-[#DC2626] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] disabled:opacity-50"
-              >
-                {busy === "remove" ? t("common.loading") : tDetail("removeFromCalendar")}
-              </button>
-            ) : null}
           </div>
         </div>
       </SidePanel>
+
+      {confirmingCancel ? (
+        <ConfirmDialog
+          title={t("carrier.calendar.cancelConfirmTitle")}
+          body={t("carrier.calendar.cancelConfirmBody")}
+          cancelLabel={t("common.back")}
+          confirmLabel={t("carrier.calendar.cancelRide")}
+          confirming={busy === "cancel"}
+          onCancel={() => setConfirmingCancel(false)}
+          onConfirm={cancelRide}
+        />
+      ) : null}
+
+      {confirmingRemove ? (
+        <ConfirmDialog
+          title={t("carrier.calendar.removeConfirmTitle")}
+          body={t("carrier.calendar.removeConfirmBody")}
+          cancelLabel={t("common.back")}
+          confirmLabel={tDetail("removeFromCalendar")}
+          confirming={busy === "remove"}
+          onCancel={() => setConfirmingRemove(false)}
+          onConfirm={removeFromCalendar}
+        />
+      ) : null}
 
       {duplicating ? (
         <NewRideModal
