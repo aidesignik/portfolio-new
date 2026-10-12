@@ -129,7 +129,8 @@
     "continueWithGoogle": "Nastavi sa Google nalogom",
     "orDivider": "ili",
     "googleAccountTypeMismatch": "Ovaj email je već registrovan kao klijentski nalog. Prijavite se email adresom i lozinkom.",
-    "needHelp": "Treba vam pomoć? Kontaktirajte podršku",
+    "needHelpPrefix": "Treba vam pomoć?",
+    "contactSupportLink": "Kontaktirajte podršku",
     "workEmailLabel": "Poslovni email",
     "workEmailPlaceholder": "ti@kompanija.com",
     "continueWithEmailAriaLabel": "Nastavi sa email adresom"

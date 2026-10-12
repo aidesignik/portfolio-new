@@ -231,12 +231,12 @@ export function AuthCredentialsForm() {
         </form>
       )}
 
-      <a
-        href="mailto:support@atlas.example"
-        className="mt-3 text-[12px] text-zinc-400 hover:text-zinc-600 hover:underline"
-      >
-        {t("auth.needHelp")}
-      </a>
+      <p className="mt-3 text-[12px] text-zinc-400">
+        {t("auth.needHelpPrefix")}{" "}
+        <a href="mailto:support@atlas.example" className="text-[#3563E9] hover:underline">
+          {t("auth.contactSupportLink")}
+        </a>
+      </p>
     </div>
   );
 }
