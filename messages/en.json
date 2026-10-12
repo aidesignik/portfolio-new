@@ -73,6 +73,7 @@
   },
   "auth": {
     "loginTitle": "Log in",
+    "continuePageTitle": "Travia: Continue",
     "loginHeadline": "Plan rides, not spreadsheets.",
     "loginSubtitle": "Every vehicle, driver and booking on one calendar.",
     "registerTitle": "Create a client account",

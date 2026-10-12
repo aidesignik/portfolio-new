@@ -11,11 +11,19 @@ export async function Navbar({
   hideLoginLink = false,
   showDivider = true,
   showMarketingCta = false,
+  // The "Get started for free" CTA within the marketing-CTA row — kept
+  // separate from showMarketingCta itself so a page can still show the
+  // language switcher + "Talk to sales" (e.g. the combined sign-in/sign-up
+  // screen, where "Get started" doesn't fit: Google already covers both
+  // new and returning users, and the email flow below is the same either
+  // way) without losing those two.
+  showCta = true,
 }: {
   containerClassName?: string;
   hideLoginLink?: boolean;
   showDivider?: boolean;
   showMarketingCta?: boolean;
+  showCta?: boolean;
 } = {}) {
   const [session, t, tNav] = await Promise.all([
     auth(),
@@ -55,16 +63,20 @@ export async function Navbar({
               <LocaleSwitcher variant="menu" />
               <a
                 href="mailto:sales@travia.example"
-                className="ml-1 flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium leading-5 text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+                className={`flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium leading-5 text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900 ${
+                  showCta ? "ml-1" : "ml-2"
+                }`}
               >
                 {tNav("talkToSales")}
               </a>
-              <Link
-                href="/register/carrier"
-                className="ml-2 flex h-9 items-center rounded-[8px] bg-[var(--ink)] px-[14px] text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[var(--ink-hover)]"
-              >
-                {tNav("getStartedFree")}
-              </Link>
+              {showCta ? (
+                <Link
+                  href="/register/carrier"
+                  className="ml-2 flex h-9 items-center rounded-[8px] bg-[var(--ink)] px-[14px] text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[var(--ink-hover)]"
+                >
+                  {tNav("getStartedFree")}
+                </Link>
+              ) : null}
             </div>
           ) : (
             <>

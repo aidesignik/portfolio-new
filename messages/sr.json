@@ -73,6 +73,7 @@
   },
   "auth": {
     "loginTitle": "Prijava",
+    "continuePageTitle": "Travia: Nastavi",
     "loginHeadline": "Planirajte vožnje, ne tabele.",
     "loginSubtitle": "Sva vozila, vozači i rezervacije na jednom kalendaru.",
     "registerTitle": "Kreiraj klijentski nalog",
