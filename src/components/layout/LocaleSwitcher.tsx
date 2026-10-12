@@ -86,10 +86,10 @@ export function LocaleSwitcher({ variant = "select" }: { variant?: "select" | "m
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           onKeyDown={onTriggerKeyDown}
-          className="locale-switcher-trigger flex h-10 items-center gap-2 rounded-[8px] bg-white pl-3 pr-[10px] transition-colors hover:bg-zinc-50"
+          className="locale-switcher-trigger flex h-9 items-center gap-2 rounded-[8px] bg-white px-[10px] transition-colors hover:bg-zinc-50"
         >
           <Globe size={16} strokeWidth={1.8} className="text-zinc-500" />
-          <span className="text-[15px] font-medium text-zinc-800">{current.toUpperCase()}</span>
+          <span className="text-[14px] font-medium text-zinc-800">{current.toUpperCase()}</span>
           <ChevronDown size={14} strokeWidth={1.8} className="locale-switcher-chevron text-zinc-500" />
         </button>
 

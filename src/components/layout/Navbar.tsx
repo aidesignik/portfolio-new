@@ -51,21 +51,21 @@ export async function Navbar({
         </Link>
         <nav className="flex items-center gap-4">
           {showMarketingCta && !session?.user ? (
-            <>
+            <div className="flex items-center">
               <LocaleSwitcher variant="menu" />
               <a
                 href="mailto:sales@travia.example"
-                className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
+                className="ml-1 flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
               >
                 {tNav("talkToSales")}
               </a>
               <Link
                 href="/register/carrier"
-                className="rounded-[10px] bg-[#131314] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2A2A2C]"
+                className="ml-2 flex h-9 items-center rounded-[8px] bg-[var(--ink)] px-[14px] text-[14px] font-semibold text-white transition-colors hover:bg-[var(--ink-hover)]"
               >
                 {tNav("getStartedFree")}
               </Link>
-            </>
+            </div>
           ) : (
             <>
               {session?.user ? (

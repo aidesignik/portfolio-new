@@ -38,11 +38,20 @@
   --ink-disabled: #a9a9b2;
   --ink-destructive: #dc2626;
 
+  /* --action-bg is the in-app primary-action color (the carrier dashboard
+     and its own forms/modals) — stays blue everywhere inside the app.
+     --ink is the marketing/auth-page primary-button color (landing page,
+     login/register, the header CTA, "Continue with Google") — a dark navy
+     rather than pure black. Don't cross the two: a marketing/auth page
+     never uses --action-bg for its primary button, and in-app UI never
+     uses --ink. */
   --action-bg: #2563eb;
   --action-bg-hover: #1d4ed8;
   --action-100: #dbe6fe;
   --action-800: #1e40af;
   --select-tint: #eff4ff;
+  --ink: #0b1b33;
+  --ink-hover: #142a4d;
 
   --chip-positive: #c8f5b0;
   --chip-warning: #fbe3a8;
