@@ -23,7 +23,13 @@ import { NewRideShowcase } from "./NewRideShowcase";
 // one height to match across every entry point.
 export async function AuthSplitScreen({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-60px)] max-w-[1024px] items-center px-5 py-11 md:px-10">
+    // min-h here must stay in sync with the beige container's own min-h in
+    // (auth)/layout.tsx (both subtract the 60px header plus that
+    // container's bottom margin) — this is what centers the row within
+    // the container's actual height; if this were taller than the
+    // container's min-h, the container would grow to fit it and swallow
+    // the container's own bottom margin.
+    <main className="mx-auto flex min-h-[calc(100vh-76px)] max-w-[1024px] items-center px-5 py-11 md:min-h-[calc(100vh-84px)] md:px-10">
       <div className="flex w-full flex-wrap justify-between gap-12">
         <div className="min-w-0 flex-[1_1_300px] max-w-[380px]">{children}</div>
 

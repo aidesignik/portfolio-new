@@ -231,7 +231,12 @@ export function AuthCredentialsForm() {
         </form>
       )}
 
-      <p className="mt-3 text-[12px] text-zinc-400">{t("auth.googleMockNotice")}</p>
+      <a
+        href="mailto:support@atlas.example"
+        className="mt-3 text-[12px] text-zinc-400 hover:text-zinc-600 hover:underline"
+      >
+        {t("auth.needHelp")}
+      </a>
     </div>
   );
 }
