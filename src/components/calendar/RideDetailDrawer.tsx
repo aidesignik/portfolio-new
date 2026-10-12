@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Pencil, X, Ellipsis, CircleAlert, Bus, Copy, Link2, ArrowRight, ArrowLeft } from "lucide-react";
+import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
@@ -105,10 +105,6 @@ export function RideDetailDrawer({
   const tDetail = useTranslations("carrier.calendar.detail");
   const locale = useLocale();
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
   const [changingField, setChangingField] = useState<"vehicle" | "driver" | null>(null);
   const [pendingValue, setPendingValue] = useState("");
   const [freeCount, setFreeCount] = useState<{ vehicles: number; drivers: number } | null>(null);
@@ -206,15 +202,6 @@ export function RideDetailDrawer({
   const driver = drivers.find((d) => d.id === ride.driverId);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    function onClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(false);
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, [menuOpen]);
-
-  useEffect(() => {
     if (ride.vehicleId && ride.driverId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFreeCount(null);
@@ -242,7 +229,11 @@ export function RideDetailDrawer({
   const blocking = ride.status === "PENDING" && (!ride.vehicleId || !ride.driverId);
   const blockingText = !ride.vehicleId ? tDetail("vehicleMissing") : t("carrier.assignment.noDriverAssigned");
 
-  const canMarkCompleted = ride.status === "CONFIRMED" && now >= departure;
+  // A confirmed ride whose trip window has already passed but was never
+  // explicitly closed out — rather than force a "mark completed" step, the
+  // carrier can just remove it, since at this point it either happened (and
+  // needs no further action) or never did (and shouldn't linger).
+  const canRemoveFromCalendar = ride.status === "CONFIRMED" && now >= departure;
   const overCapacity = Boolean(vehicle) && ride.passengerCount > vehicle!.seats;
 
   const resolvedReturn = ride.isRoundTrip
@@ -414,7 +405,6 @@ export function RideDetailDrawer({
 
   async function cancelRide() {
     if (!confirm(t("carrier.calendar.cancelConfirm"))) return;
-    setMenuOpen(false);
     setBusy("cancel");
     setError(null);
     const res = await fetch(`/api/carrier/rides/${ride.id}/cancel`, { method: "POST" });
@@ -426,30 +416,18 @@ export function RideDetailDrawer({
     onChanged();
   }
 
-  async function markCompleted() {
-    setBusy("complete");
+  async function removeFromCalendar() {
+    if (!confirm(t("carrier.calendar.removeConfirm"))) return;
+    setBusy("remove");
     setError(null);
-    const res = await fetch(`/api/carrier/rides/${ride.id}/complete`, { method: "POST" });
+    const res = await fetch(`/api/carrier/rides/${ride.id}`, { method: "DELETE" });
     setBusy(null);
     if (!res.ok) {
       setError(t("common.saveFailed"));
       return;
     }
     onChanged();
-  }
-
-  function copyLink() {
-    try {
-      const locale = window.location.pathname.split("/")[1] || "en";
-      const url = `${window.location.origin}/${locale}/carrier/bookings?scope=all&edit=${ride.id}`;
-      navigator.clipboard.writeText(url).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      });
-    } catch {
-      // Clipboard unavailable — silently no-op rather than error out a
-      // secondary, non-critical action.
-    }
+    onClose();
   }
 
   const duplicateInitialValues: NewRideInitialValues = {
@@ -474,49 +452,6 @@ export function RideDetailDrawer({
               {routeTitle}
             </h2>
             <div className="flex shrink-0 items-center gap-1">
-              <div ref={menuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((v) => !v)}
-                  aria-label={t("common.actions")}
-                  className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
-                >
-                  <Ellipsis size={17} strokeWidth={1.9} />
-                </button>
-                {menuOpen ? (
-                  <div className="absolute right-0 z-[60] mt-1 w-[180px] rounded-[12px] border border-[var(--border-hairline)] bg-white py-1 shadow-[var(--shadow-card)]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setDuplicating(true);
-                      }}
-                      className="flex h-9 w-full items-center gap-2 px-3 text-left text-[14px] text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
-                    >
-                      <Copy size={15} strokeWidth={1.9} />
-                      {tDetail("duplicate")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={copyLink}
-                      className="flex h-9 w-full items-center gap-2 px-3 text-left text-[14px] text-[var(--ink-body)] hover:bg-[var(--border-soft)]"
-                    >
-                      <Link2 size={15} strokeWidth={1.9} />
-                      {copied ? tDetail("linkCopied") : tDetail("copyLink")}
-                    </button>
-                    {cancellable ? (
-                      <button
-                        type="button"
-                        onClick={cancelRide}
-                        className="flex h-9 w-full items-center gap-2 px-3 text-left text-[14px] text-[#DC2626] hover:bg-[var(--border-soft)]"
-                      >
-                        <X size={15} strokeWidth={1.9} />
-                        {t("carrier.calendar.cancelRide")}
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
               <button
                 type="button"
                 onClick={onClose}
@@ -940,19 +875,27 @@ export function RideDetailDrawer({
         </div>
 
         <div className="mt-auto flex h-16 shrink-0 items-center justify-between border-t border-[var(--border-hairline)] px-6">
-          <div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setDuplicating(true)}
+              className="text-[13.5px] font-medium text-[var(--ink-secondary)] transition-opacity hover:underline"
+            >
+              {tDetail("duplicate")}
+            </button>
             {cancellable ? (
-              <button
-                type="button"
-                onClick={cancelRide}
-                disabled={busy === "cancel"}
-                className="text-[13.5px] font-medium text-[#DC2626] transition-opacity hover:underline disabled:opacity-50"
-              >
-                {busy === "cancel" ? t("common.loading") : t("carrier.calendar.cancelRide")}
-              </button>
-            ) : (
-              <span />
-            )}
+              <>
+                <span className="text-[#D4D4D8]">·</span>
+                <button
+                  type="button"
+                  onClick={cancelRide}
+                  disabled={busy === "cancel"}
+                  className="text-[13.5px] font-medium text-[#DC2626] transition-opacity hover:underline disabled:opacity-50"
+                >
+                  {busy === "cancel" ? t("common.loading") : t("carrier.calendar.cancelRide")}
+                </button>
+              </>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             {editable && !editing ? (
@@ -970,14 +913,14 @@ export function RideDetailDrawer({
                 {tDetail("editRide")}
               </button>
             ) : null}
-            {canMarkCompleted ? (
+            {canRemoveFromCalendar ? (
               <button
                 type="button"
-                onClick={markCompleted}
-                disabled={busy === "complete"}
-                className="flex h-9 items-center rounded-[9px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)] disabled:opacity-50"
+                onClick={removeFromCalendar}
+                disabled={busy === "remove"}
+                className="flex h-9 items-center rounded-[9px] border border-[#FCA5A5] px-3 text-[13.5px] font-medium text-[#DC2626] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] disabled:opacity-50"
               >
-                {busy === "complete" ? t("common.loading") : tDetail("markCompleted")}
+                {busy === "remove" ? t("common.loading") : tDetail("removeFromCalendar")}
               </button>
             ) : null}
           </div>

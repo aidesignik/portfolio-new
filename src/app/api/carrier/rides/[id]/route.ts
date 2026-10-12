@@ -5,6 +5,7 @@ import { createRideSchema } from "@/lib/validation/request.schema";
 import { checkAvailability, effectiveRideEnd } from "@/lib/availability";
 import { buildStopsCreate, returnLegScalars } from "@/lib/rideReturnLeg";
 import { regenerateRideDocuments } from "@/lib/documents/regenerate";
+import { displayRideStatus } from "@/lib/rideStatus";
 
 // Editing a ride's own trip details (pickup/destination/stops, date/time,
 // round trip, passenger count, special requests) — separate from
@@ -72,4 +73,39 @@ export async function PATCH(
   await regenerateRideDocuments(updated.id);
 
   return NextResponse.json({ ride: updated });
+}
+
+// Permanently removes a ride whose trip window has passed without ever
+// being explicitly completed — the "remove from calendar" action in
+// RideDetailDrawer, offered instead of a manual "mark completed" step.
+// Only allowed in that same window (still CONFIRMED, past departure/return)
+// so an in-progress or future ride can't be deleted this way.
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { session, error } = await requireApiRole("CARRIER");
+  if (error) return error;
+  const { id } = await params;
+
+  const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session.user.id } });
+  const ride = await prisma.ride.findFirst({ where: { id, carrierId: carrier.id } });
+  if (!ride) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+
+  const status = displayRideStatus({
+    status: ride.status,
+    departureAt: ride.departureAt.toISOString(),
+    returnAt: ride.returnAt?.toISOString() ?? null,
+  });
+  if (ride.status !== "CONFIRMED" || status !== "COMPLETED") {
+    return NextResponse.json({ error: "RIDE_NOT_REMOVABLE" }, { status: 409 });
+  }
+
+  await prisma.$transaction([
+    prisma.document.deleteMany({ where: { rideId: id } }),
+    prisma.rideStop.deleteMany({ where: { rideId: id } }),
+    prisma.ride.delete({ where: { id } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
 }
