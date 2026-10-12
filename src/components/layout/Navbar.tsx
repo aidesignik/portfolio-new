@@ -47,7 +47,7 @@ export async function Navbar({
       <div className={containerClassName}>
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/travia-logo.svg" alt={t("appName")} className="h-7 w-auto" />
+          <img src="/travia-logo.svg" alt={t("appName")} className="h-6 w-auto" />
         </Link>
         <nav className="flex items-center gap-4">
           {showMarketingCta && !session?.user ? (
@@ -55,13 +55,13 @@ export async function Navbar({
               <LocaleSwitcher variant="menu" />
               <a
                 href="mailto:sales@travia.example"
-                className="ml-1 flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+                className="ml-1 flex h-9 items-center rounded-[8px] px-[10px] text-[14px] font-medium leading-5 text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
               >
                 {tNav("talkToSales")}
               </a>
               <Link
                 href="/register/carrier"
-                className="ml-2 flex h-9 items-center rounded-[8px] bg-[var(--ink)] px-[14px] text-[14px] font-semibold text-white transition-colors hover:bg-[var(--ink-hover)]"
+                className="ml-2 flex h-9 items-center rounded-[8px] bg-[var(--ink)] px-[14px] text-[14px] font-semibold leading-5 text-white transition-colors hover:bg-[var(--ink-hover)]"
               >
                 {tNav("getStartedFree")}
               </Link>
