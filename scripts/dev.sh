@@ -8,4 +8,9 @@ BRANCH="claude/app-requirements-discussion-vw8vj4"
 
 git checkout -- package-lock.json
 git pull origin "$BRANCH"
+# Route files sometimes move between folders (e.g. a page moving to a
+# different route group) — Next's incremental build cache doesn't always
+# pick that up cleanly, so clear it on every pull rather than risk a
+# stale page showing up.
+rm -rf .next
 npm run dev
