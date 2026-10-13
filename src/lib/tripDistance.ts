@@ -2,6 +2,7 @@ import { geocodeAddress } from "./geocoding";
 import { osrmRouteDistanceKm, haversineRouteDistanceKm, haversineKm, type Coordinates } from "./distance";
 import { formatLocation, type CityLocation } from "./location";
 import { resolveReturnLeg } from "./rideReturnLeg";
+import { findCityCoordinates } from "./citySearch";
 
 // A generic/ambiguous location name (e.g. "Hotel") can geocode to an
 // unrelated place of the same name elsewhere in the (Nominatim-scoped)
@@ -19,6 +20,27 @@ export interface RouteEstimate {
 }
 
 /**
+ * The city coordinate: looked up in the same bundled, Europe-scoped
+ * dataset CityCombobox's suggestions come from (exact match on the same
+ * `display` string that gets stored), falling back to a live Nominatim
+ * geocode only for a city that isn't in that dataset (free-typed, or a
+ * settlement too small to be included).
+ *
+ * This matters because a BARE city name alone is often ambiguous across
+ * Nominatim's full index even scoped to Europe — several Serbian town
+ * names (e.g. "Bor", "Sopot", "Rudnik", "Belgrade" the English exonym)
+ * also name places in other European countries this app's scope
+ * includes, and a location-less free-text query has no context at all to
+ * disambiguate, unlike geocodeWaypoint's own location-vs-city drift check
+ * below (which needs a correct city coordinate to compare against in the
+ * first place — a live geocode wrong in the same way as the "specific"
+ * query would pass that check without ever being caught).
+ */
+async function geocodeCity(city: string): Promise<Coordinates | null> {
+  return findCityCoordinates(city) ?? geocodeAddress(city);
+}
+
+/**
  * Nominatim indexes places/addresses, not arbitrary business names — a
  * specific hotel or stop name often won't resolve on its own. Try the full
  * "location, city" string first, then fall back to the city alone so a
@@ -30,10 +52,10 @@ export interface RouteEstimate {
  * "successful" geocode isn't on its own proof the match is correct.
  */
 async function geocodeWaypoint(waypoint: CityLocation): Promise<Coordinates | null> {
-  if (!waypoint.location) return geocodeAddress(waypoint.city);
+  if (!waypoint.location) return geocodeCity(waypoint.city);
 
   const specific = await geocodeAddress(formatLocation(waypoint));
-  const cityOnly = await geocodeAddress(waypoint.city);
+  const cityOnly = await geocodeCity(waypoint.city);
   if (!specific) return cityOnly;
   if (!cityOnly) return specific;
 

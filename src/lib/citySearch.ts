@@ -1,5 +1,6 @@
 import cities from "cities.json";
 import { EUROPEAN_COUNTRY_CODES as EUROPEAN_COUNTRY_CODE_LIST } from "./europeanCountryCodes";
+import type { Coordinates } from "./distance";
 
 export interface CitySuggestion {
   /** What to show in the dropdown and store as the city value if picked. */
@@ -78,6 +79,8 @@ interface IndexedCity {
   name: string;
   country: string;
   key: string;
+  lat: number;
+  lng: number;
 }
 
 // Built once per server process from the bundled ~171k-city dataset
@@ -92,10 +95,49 @@ function getIndex(): IndexedCity[] {
       .filter((c) => EUROPEAN_COUNTRY_CODES.has(c.country))
       .map((c) => {
         const name = NAME_OVERRIDES[`${c.country}:${c.name}`] ?? c.name;
-        return { name, country: c.country, key: searchKey(name) };
+        return { name, country: c.country, key: searchKey(name), lat: Number(c.lat), lng: Number(c.lng) };
       });
   }
   return index;
+}
+
+function displayFor(city: IndexedCity): string {
+  return city.country === "RS" ? city.name : `${city.name}, ${regionNames.of(city.country) ?? city.country}`;
+}
+
+// Reverse lookup from exactly the string this module hands back as a
+// suggestion's `display` (and what CityCombobox then stores verbatim as
+// the ride's city) to that city's own coordinate — built once, alongside
+// the search index, over the same filtered/deduplicated dataset.
+let coordinateIndex: Map<string, Coordinates> | null = null;
+
+function getCoordinateIndex(): Map<string, Coordinates> {
+  if (!coordinateIndex) {
+    coordinateIndex = new Map();
+    for (const city of getIndex()) {
+      coordinateIndex.set(displayFor(city), { lat: city.lat, lng: city.lng });
+    }
+  }
+  return coordinateIndex;
+}
+
+/**
+ * Exact coordinate for a city exactly as stored on a ride (the same
+ * `display` string CityCombobox writes when a suggestion is picked) —
+ * authoritative, no network call, no ambiguity, since it's a direct lookup
+ * into the very dataset the dropdown offered it from. Distance calculation
+ * (tripDistance.ts) prefers this over re-geocoding the bare city name
+ * live: several Serbian town names (e.g. "Bor", "Sopot", "Rudnik") also
+ * name places in other European countries this app's geocoding scope
+ * includes, and a bare, location-less free-text query for one of those
+ * names has no context to disambiguate — Nominatim can and does return
+ * the wrong country's match, which previously had no cross-check at all.
+ * Returns null for a city not in the bundled dataset (free-typed, or a
+ * settlement too small to be included) — callers fall back to live
+ * geocoding in that case.
+ */
+export function findCityCoordinates(display: string): Coordinates | null {
+  return getCoordinateIndex().get(display.trim()) ?? null;
 }
 
 const MAX_RESULTS = 8;
@@ -142,8 +184,7 @@ export function searchCities(query: string): CitySuggestion[] {
   const seen = new Set<string>();
   const suggestions: CitySuggestion[] = [];
   for (const city of [...exact, ...starts, ...contains]) {
-    const display =
-      city.country === "RS" ? city.name : `${city.name}, ${regionNames.of(city.country) ?? city.country}`;
+    const display = displayFor(city);
     if (seen.has(display)) continue;
     seen.add(display);
     suggestions.push({ display });
