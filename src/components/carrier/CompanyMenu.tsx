@@ -5,16 +5,7 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, Settings } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SignOutButton } from "@/components/layout/SignOutButton";
-
-function companyInitials(name: string) {
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-  return initials || "?";
-}
+import { CompanyMark } from "@/components/carrier/CompanyMark";
 
 // The avatar in the carrier top bar — previously a generic account menu
 // (name/email + profile + language + logout), now a company-branded
@@ -89,24 +80,6 @@ export function CompanyMenu({
     }
   }
 
-  const initials = companyInitials(companyName);
-
-  const mark = (
-    <span
-      className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[8px]"
-      style={logoUrl ? undefined : { background: "var(--company-mark-bg)" }}
-    >
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt="" className="h-full w-full object-cover" />
-      ) : (
-        <span className="text-[13px] font-bold" style={{ color: "var(--company-mark-ink)" }}>
-          {initials}
-        </span>
-      )}
-    </span>
-  );
-
   return (
     <div ref={containerRef} className="relative">
       <button
@@ -119,7 +92,7 @@ export function CompanyMenu({
         aria-haspopup="menu"
         className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-white transition-colors duration-[.12s] ease-out hover:bg-[var(--topbar-hover)] xl:w-auto xl:justify-start xl:gap-[10px] xl:pl-1 xl:pr-[10px]"
       >
-        {mark}
+        <CompanyMark companyName={companyName} logoUrl={logoUrl} size={32} />
         <span
           className="hidden truncate text-[14px] font-medium text-[var(--ink)] xl:block"
           style={{ maxWidth: 160 }}
@@ -136,16 +109,7 @@ export function CompanyMenu({
           className="absolute right-0 top-full z-30 mt-2 w-[280px] rounded-[12px] bg-white p-2 shadow-[var(--shadow-panel)]"
         >
           <div className="flex items-center gap-[10px] px-2 py-2">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[8px]" style={logoUrl ? undefined : { background: "var(--company-mark-bg)" }}>
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={logoUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-[13px] font-bold" style={{ color: "var(--company-mark-ink)" }}>
-                  {initials}
-                </span>
-              )}
-            </span>
+            <CompanyMark companyName={companyName} logoUrl={logoUrl} size={36} />
             <div className="min-w-0">
               <p className="truncate text-[14px] font-semibold text-[var(--ink)]">{companyName}</p>
               {email ? <p className="truncate text-[12px]" style={{ color: "var(--ink-subtle)" }}>{email}</p> : null}
