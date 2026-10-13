@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useId, useState } from "react";
+import { ChangeEvent, FormEvent, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -9,10 +9,40 @@ import { Select } from "@/components/ui/Select";
 import { vehicleAmenities, vehicleStatuses, vehicleTypes } from "@/lib/validation/vehicle.schema";
 import {
   SHEET_INPUT_CLASS,
+  SHEET_INPUT_ERROR_CLASS,
   SHEET_SELECT_CLASS,
   SHEET_LABEL_CLASS,
   SheetChevronIcon,
 } from "@/components/calendar/newRide/sheetFieldClasses";
+import { vehicleDocumentChips, type DocumentChipData } from "@/lib/documentChips";
+import { expiredDocMessageKey } from "@/lib/expiryStatus";
+
+// Same visual language as the fleet table's DocumentChipsRow — a vehicle
+// flagged there (e.g. "Inspection expired · 27d ago") shows the identical
+// chip next to the matching field here, so the warning that brought the
+// carrier into this panel is still visible and attached to the exact field
+// that needs fixing, not just a generic page-level banner.
+function FieldExpiryChip({ chip, t }: { chip: DocumentChipData; t: ReturnType<typeof useTranslations> }) {
+  const label = t(`carrier.docChip.${chip.docKind}`);
+  if (chip.status === "expiringSoon") {
+    return (
+      <span
+        className="inline-flex max-w-full items-center rounded-full px-[8px] py-[2px] text-[11px] font-semibold"
+        style={{ background: "#FBEBC2", color: "#5C3B06" }}
+      >
+        {t("carrier.docChip.expiringSoonFull", { label, days: chip.daysLeft })}
+      </span>
+    );
+  }
+  return (
+    <span
+      className="inline-flex max-w-full items-center rounded-full px-[8px] py-[2px] text-[11px] font-semibold"
+      style={{ background: "#FBDADB", color: "#7F1D1D" }}
+    >
+      {t(expiredDocMessageKey(chip.docKind), { label })} · {t("carrier.docChip.daysAgo", { days: chip.daysAgo })}
+    </span>
+  );
+}
 
 function toDateInputValue(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -88,6 +118,21 @@ export function VehicleForm({
         },
   );
   const [loading, setLoading] = useState(false);
+  // Recomputed from the live field values (not the original `initial`) so
+  // fixing the date clears the warning immediately, before saving.
+  const docChips = useMemo(
+    () =>
+      vehicleDocumentChips({
+        lastRegistrationDate: form.lastRegistrationDate ? new Date(form.lastRegistrationDate) : null,
+        lastInspectionDate: form.lastInspectionDate ? new Date(form.lastInspectionDate) : null,
+      }),
+    [form.lastRegistrationDate, form.lastInspectionDate],
+  );
+  // vehicleDocumentChips returns one entry per document that has a date at
+  // all, including "valid" ones — only surface the two problem states here.
+  const registrationChip =
+    docChips.find((c) => c.docKind === "registration" && c.status !== "valid") ?? null;
+  const inspectionChip = docChips.find((c) => c.docKind === "inspection" && c.status !== "valid") ?? null;
   const [error, setError] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -277,10 +322,15 @@ export function VehicleForm({
         </div>
         <div>
           <label htmlFor={`${uid}-reg-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastRegistrationDate")}</label>
+          {registrationChip ? (
+            <div className="mt-[4px]">
+              <FieldExpiryChip chip={registrationChip} t={t} />
+            </div>
+          ) : null}
           <Input
             id={`${uid}-reg-date`}
             unstyled
-            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+            className={`mt-[6px] ${registrationChip?.status === "expired" ? SHEET_INPUT_ERROR_CLASS : SHEET_INPUT_CLASS}`}
             type="date"
             value={form.lastRegistrationDate}
             onChange={(e) => setForm({ ...form, lastRegistrationDate: e.target.value })}
@@ -288,10 +338,15 @@ export function VehicleForm({
         </div>
         <div>
           <label htmlFor={`${uid}-insp-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastInspectionDate")}</label>
+          {inspectionChip ? (
+            <div className="mt-[4px]">
+              <FieldExpiryChip chip={inspectionChip} t={t} />
+            </div>
+          ) : null}
           <Input
             id={`${uid}-insp-date`}
             unstyled
-            className={`mt-[6px] ${SHEET_INPUT_CLASS}`}
+            className={`mt-[6px] ${inspectionChip?.status === "expired" ? SHEET_INPUT_ERROR_CLASS : SHEET_INPUT_CLASS}`}
             type="date"
             value={form.lastInspectionDate}
             onChange={(e) => setForm({ ...form, lastInspectionDate: e.target.value })}
