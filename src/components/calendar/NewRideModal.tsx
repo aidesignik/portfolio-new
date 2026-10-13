@@ -653,12 +653,16 @@ export function NewRideModal({
 
         <div className="flex h-[72px] shrink-0 items-center gap-3 bg-white py-0 pl-6 pr-5 shadow-[0_-1px_0_#F0F0F2,0_-8px_16px_-8px_rgba(24,24,27,.06)]">
           <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold tabular-nums text-[#18181B]">
-              {distanceKm !== null ? `${Math.round(distanceKm)} km` : "—"}
-            </p>
-            <p className="truncate text-[12.5px] text-[#71717A]">
-              {routeCities.length > 1 ? routeCities.join(" → ") : "—"}
-            </p>
+            {routeCities.length > 0 ? (
+              <>
+                <p className="text-[14px] font-semibold tabular-nums text-[#18181B]">
+                  {distanceKm !== null ? `${Math.round(distanceKm)} km` : "—"}
+                </p>
+                <p className="truncate text-[12.5px] text-[#71717A]">
+                  {routeCities.length > 1 ? routeCities.join(" → ") : "—"}
+                </p>
+              </>
+            ) : null}
           </div>
           <button
             type="button"

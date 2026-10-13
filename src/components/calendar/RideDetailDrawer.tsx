@@ -517,7 +517,7 @@ export function RideDetailDrawer({
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
             <div className="mb-3 flex items-baseline justify-between gap-2">
               <h3 className="text-[13.5px] font-semibold text-[var(--ink-primary)]">{tDetail("trip")}</h3>
-              {!editable ? null : !editingDistanceOnly ? (
+              {!editable || !editing ? null : !editingDistanceOnly ? (
                 <button
                   type="button"
                   onClick={() => {

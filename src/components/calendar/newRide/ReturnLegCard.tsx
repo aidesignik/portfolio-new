@@ -158,12 +158,14 @@ export function ReturnLegCard({
     <>
     <LegCard direction="return" title={t("povratak")} km={kmText}>
       {mode === "mirror" ? (
-        <div className="truncate rounded-[8px] bg-[#FAFAFA] px-3 py-[10px] text-[14px]">
-          <span className="font-medium text-[#18181B]">{outboundDestinationCity || "—"}</span>
-          <span className="mx-[6px] text-[#A1A1AA]">→</span>
-          <span className="font-medium text-[#18181B]">{outboundPickupCity || "—"}</span>
-          <span className="text-[#A1A1AA]"> · {t("mirrorSuffix")}</span>
-        </div>
+        outboundPickupCity || outboundDestinationCity ? (
+          <div className="truncate rounded-[8px] bg-[#FAFAFA] px-3 py-[10px] text-[14px]">
+            <span className="font-medium text-[#18181B]">{outboundDestinationCity || "—"}</span>
+            <span className="mx-[6px] text-[#A1A1AA]">→</span>
+            <span className="font-medium text-[#18181B]">{outboundPickupCity || "—"}</span>
+            <span className="text-[#A1A1AA]"> · {t("mirrorSuffix")}</span>
+          </div>
+        ) : null
       ) : mode === "stops" ? (
         <div className="flex flex-col gap-[2px]">
           <div className="flex items-center gap-3">
