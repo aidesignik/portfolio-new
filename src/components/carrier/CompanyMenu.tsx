@@ -5,16 +5,17 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, Settings } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SignOutButton } from "@/components/layout/SignOutButton";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import { CompanyMark } from "@/components/carrier/CompanyMark";
 
 // The avatar in the carrier top bar — previously a generic account menu
 // (name/email + profile + language + logout), now a company-branded
 // switcher: the company's own mark/name instead of the signed-in user's,
-// opening onto company-scoped actions. Deliberately has no language
-// switcher (the old menu's only one) and no "Team"/"My profile" items —
-// neither a multi-user-per-carrier model nor a distinct personal-profile
-// page exists yet, so both would be dead links; flagged to the user
-// rather than added or silently invented.
+// opening onto company-scoped actions, language switcher carried over from
+// the old menu. Deliberately has no "Team"/"My profile" items — neither a
+// multi-user-per-carrier model nor a distinct personal-profile page exists
+// yet, so both would be dead links; flagged to the user rather than added
+// or silently invented.
 export function CompanyMenu({
   companyName,
   logoUrl,
@@ -25,6 +26,7 @@ export function CompanyMenu({
   email: string | null;
 }) {
   const t = useTranslations("carrier.companyMenu");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -67,8 +69,10 @@ export function CompanyMenu({
     }
   }
 
-  // Only two real items (Company settings, Log out) — Down/Up just moves
-  // between them, same roving pattern as UserMenu.
+  // Only two real menu items (Company settings, Log out) sit either side of
+  // the embedded language <select>, which has its own native keyboard
+  // handling — Down/Up just moves between the two buttons, same roving
+  // pattern as UserMenu.
   function onItemKeyDown(event: KeyboardEvent, isSettings: boolean) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
@@ -129,6 +133,11 @@ export function CompanyMenu({
             <Settings size={16} className="shrink-0 text-[var(--ink-muted)]" aria-hidden="true" />
             {t("companySettings")}
           </Link>
+
+          <div className="flex items-center justify-between gap-[10px] px-2 py-2">
+            <span className="text-[14px] font-medium text-[var(--ink-2)]">{tCommon("language")}</span>
+            <LocaleSwitcher />
+          </div>
 
           <div className="my-1 h-px bg-[var(--border-soft)]" />
 
