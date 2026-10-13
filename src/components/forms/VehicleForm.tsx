@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -75,6 +76,29 @@ type InitialVehicleValues = Omit<VehicleFormValues, "lastRegistrationDate" | "la
   lastInspectionDate: Date | string | null;
 };
 
+function buildFormValues(initial: InitialVehicleValues | undefined): VehicleFormValues {
+  return initial
+    ? {
+        ...initial,
+        lastRegistrationDate: toDateInputValue(initial.lastRegistrationDate),
+        lastInspectionDate: toDateInputValue(initial.lastInspectionDate),
+      }
+    : {
+        type: vehicleTypes[0],
+        model: "",
+        licensePlate: "",
+        year: new Date().getFullYear(),
+        seats: 50,
+        amenities: [],
+        otherAmenities: "",
+        status: "ACTIVE",
+        photos: [],
+        lastRegistrationDate: "",
+        lastInspectionDate: "",
+        documentUrls: [],
+      };
+}
+
 export function VehicleForm({
   vehicleId,
   initial,
@@ -101,28 +125,12 @@ export function VehicleForm({
   const t = useTranslations();
   const router = useRouter();
   const uid = useId();
-  const [form, setForm] = useState<VehicleFormValues>(
-    initial
-      ? {
-          ...initial,
-          lastRegistrationDate: toDateInputValue(initial.lastRegistrationDate),
-          lastInspectionDate: toDateInputValue(initial.lastInspectionDate),
-        }
-      : {
-          type: vehicleTypes[0],
-          model: "",
-          licensePlate: "",
-          year: new Date().getFullYear(),
-          seats: 50,
-          amenities: [],
-          otherAmenities: "",
-          status: "ACTIVE",
-          photos: [],
-          lastRegistrationDate: "",
-          lastInspectionDate: "",
-          documentUrls: [],
-        },
-  );
+  const [form, setForm] = useState<VehicleFormValues>(() => buildFormValues(initial));
+  // Snapshot of the values Save would be a no-op against — only set once,
+  // from the same initializer `form` started from, so editing and then
+  // reverting a field back by hand also re-disables Save.
+  const [initialSnapshot] = useState<VehicleFormValues>(() => buildFormValues(initial));
+  const isDirty = !initial || JSON.stringify(form) !== JSON.stringify(initialSnapshot);
   const [loading, setLoading] = useState(false);
   // Recomputed from the live field values (not the original `initial`) so
   // fixing the date clears the warning immediately, before saving.
@@ -484,22 +492,23 @@ export function VehicleForm({
 
       {error ? <p className="text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
 
-      <Button type="submit" disabled={loading}>
-        {loading ? t("common.loading") : t("common.save")}
-      </Button>
-
-      {onDelete ? (
-        <div className="border-t border-[var(--border-soft)] pt-[18px]">
+      <div className="flex items-center gap-[10px]">
+        <Button type="submit" disabled={loading || !isDirty}>
+          {loading ? t("common.loading") : t("common.save")}
+        </Button>
+        {onDelete ? (
           <button
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="text-[13.5px] font-medium text-[var(--ink-destructive)] hover:underline disabled:opacity-50"
+            aria-label={t("carrier.vehicleForm.deleteVehicle")}
+            title={t("carrier.vehicleForm.deleteVehicle")}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control border border-[var(--border-strong)] text-[var(--ink-destructive)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)] hover:border-[var(--ink-destructive)] disabled:opacity-50 disabled:pointer-events-none"
           >
-            {deleting ? t("common.loading") : t("carrier.vehicleForm.deleteVehicle")}
+            <Trash2 size={17} strokeWidth={1.9} />
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </form>
   );
 }
