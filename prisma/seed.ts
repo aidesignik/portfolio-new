@@ -108,6 +108,28 @@ const CARRIERS: CarrierSeed[] = [
   },
 ];
 
+// Wipes everything under a carrier that the demo accounts above routinely
+// pick up from manual testing through the UI (extra vehicles, extra
+// drivers, old test rides with whatever cities were typed in at the time)
+// so a re-seed always lands on exactly the one vehicle + one driver this
+// file specifies — never a mix of fresh demo content alongside leftovers.
+// Deletion order follows the FK chain (children before parents): a Ride's
+// Documents/RideStops, then the Ride itself, then Blocks, then the
+// Driver<->Vehicle links, and finally the vehicles/drivers themselves.
+async function resetCarrierFleet(carrierId: string) {
+  const rides = await prisma.ride.findMany({ where: { carrierId }, select: { id: true } });
+  const rideIds = rides.map((r) => r.id);
+  if (rideIds.length > 0) {
+    await prisma.document.deleteMany({ where: { rideId: { in: rideIds } } });
+    await prisma.rideStop.deleteMany({ where: { rideId: { in: rideIds } } });
+    await prisma.ride.deleteMany({ where: { id: { in: rideIds } } });
+  }
+  await prisma.block.deleteMany({ where: { carrierId } });
+  await prisma.driverVehicle.deleteMany({ where: { driver: { carrierId } } });
+  await prisma.vehicle.deleteMany({ where: { carrierId } });
+  await prisma.driver.deleteMany({ where: { carrierId } });
+}
+
 async function seedCarrier(spec: CarrierSeed) {
   const user = await prisma.user.upsert({
     where: { email: spec.email },
@@ -141,32 +163,31 @@ async function seedCarrier(spec: CarrierSeed) {
     create: { userId: user.id, ...carrierData },
   });
 
-  const vehicleData = {
-    type: spec.vehicle.type,
-    model: spec.vehicle.model,
-    year: spec.vehicle.year,
-    seats: spec.vehicle.seats,
-    amenities: spec.vehicle.amenities,
-    status: "ACTIVE" as const,
-  };
-  const existingVehicle = await prisma.vehicle.findFirst({ where: { carrierId: carrier.id } });
-  const vehicle = existingVehicle
-    ? await prisma.vehicle.update({ where: { id: existingVehicle.id }, data: vehicleData })
-    : await prisma.vehicle.create({ data: { carrierId: carrier.id, ...vehicleData } });
+  await resetCarrierFleet(carrier.id);
 
-  const driverData = { name: spec.driverName, phone: spec.driverPhone, isAvailable: true };
-  const existingDriver = await prisma.driver.findFirst({ where: { carrierId: carrier.id } });
-  const driver = existingDriver
-    ? await prisma.driver.update({ where: { id: existingDriver.id }, data: driverData })
-    : await prisma.driver.create({
-        data: { carrierId: carrier.id, ...driverData, avatarColor: await leastUsedDriverColor(prisma, carrier.id) },
-      });
-
-  await prisma.driverVehicle.upsert({
-    where: { driverId_vehicleId: { driverId: driver.id, vehicleId: vehicle.id } },
-    update: {},
-    create: { driverId: driver.id, vehicleId: vehicle.id },
+  const vehicle = await prisma.vehicle.create({
+    data: {
+      carrierId: carrier.id,
+      type: spec.vehicle.type,
+      model: spec.vehicle.model,
+      year: spec.vehicle.year,
+      seats: spec.vehicle.seats,
+      amenities: spec.vehicle.amenities,
+      status: "ACTIVE",
+    },
   });
+
+  const driver = await prisma.driver.create({
+    data: {
+      carrierId: carrier.id,
+      name: spec.driverName,
+      phone: spec.driverPhone,
+      isAvailable: true,
+      avatarColor: await leastUsedDriverColor(prisma, carrier.id),
+    },
+  });
+
+  await prisma.driverVehicle.create({ data: { driverId: driver.id, vehicleId: vehicle.id } });
 
   console.log(`Carrier ready: ${spec.companyName} — ${spec.email} / ${spec.password}`);
 }
