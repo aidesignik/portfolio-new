@@ -25,69 +25,73 @@ interface CarrierSeed {
   driverPhone: string;
 }
 
+// Fictional throughout: company/owner/driver names, tax IDs and phone
+// numbers are all invented for client demos — phone numbers use Ofcom's
+// reserved "drama" range (07700 900xxx) specifically so none of them can
+// collide with a real subscriber.
 const CARRIERS: CarrierSeed[] = [
   {
     email: "carrier@example.com",
     password: "carrier123",
-    ownerName: "Demo Carrier Owner",
-    companyName: "Atlas Bus d.o.o.",
-    taxId: "123456789",
-    city: "Belgrade",
-    phone: "+381601234567",
-    ratePerKm: 120,
-    fixedFee: 1500,
-    vehicle: { type: "COACH", model: "Tourismo", year: 2019, seats: 50, amenities: ["AC", "WIFI", "USB", "TOILET"] },
-    driverName: "Marko Marković",
-    driverPhone: "+381641234567",
+    ownerName: "James Whitfield",
+    companyName: "Capital Coachlines Ltd",
+    taxId: "GB427193856",
+    city: "London",
+    phone: "+447700900123",
+    ratePerKm: 2.4,
+    fixedFee: 45,
+    vehicle: { type: "COACH", model: "Mercedes-Benz Tourismo", year: 2022, seats: 53, amenities: ["AC", "WIFI", "USB", "TOILET"] },
+    driverName: "Oliver Bennett",
+    driverPhone: "+447700900124",
   },
   {
     email: "carrier2@example.com",
     password: "carrier123",
-    ownerName: "Balkan Express Owner",
-    companyName: "Balkan Express",
-    taxId: "223456789",
-    city: "Novi Sad",
-    phone: "+381602345678",
-    ratePerKm: 110,
-    fixedFee: 1200,
-    vehicle: { type: "COACH", model: "S 415", year: 2021, seats: 55, amenities: ["AC", "WIFI"] },
-    driverName: "Nikola Nikolić",
-    driverPhone: "+381642345678",
+    ownerName: "Charlotte Hughes",
+    companyName: "Northern Star Travel",
+    taxId: "GB593841027",
+    city: "Manchester",
+    phone: "+447700900231",
+    ratePerKm: 2.1,
+    fixedFee: 35,
+    vehicle: { type: "DOUBLE_DECKER", model: "Alexander Dennis Enviro400", year: 2020, seats: 85, amenities: ["AC", "WIFI"] },
+    driverName: "Harry Thompson",
+    driverPhone: "+447700900232",
   },
   {
     email: "carrier3@example.com",
     password: "carrier123",
-    ownerName: "Panorama Tours Owner",
-    companyName: "Panorama Tours",
-    taxId: "323456789",
-    city: "Niš",
-    phone: "+381603456789",
-    ratePerKm: 130,
-    fixedFee: 2000,
-    vehicle: { type: "COACH", model: "Lion's Coach", year: 2018, seats: 48, amenities: ["AC", "USB", "TOILET"] },
-    driverName: "Petar Petrović",
-    driverPhone: "+381643456789",
+    ownerName: "Fraser MacDonald",
+    companyName: "Highland Executive Travel",
+    taxId: "GB384726109",
+    city: "Edinburgh",
+    phone: "+447700900345",
+    ratePerKm: 2.6,
+    fixedFee: 55,
+    vehicle: { type: "COACH", model: "Volvo 9700", year: 2019, seats: 49, amenities: ["AC", "USB", "TOILET"] },
+    driverName: "Callum Stewart",
+    driverPhone: "+447700900346",
   },
   {
     email: "carrier4@example.com",
     password: "carrier123",
-    ownerName: "Via Express Owner",
-    companyName: "Via Express",
-    taxId: "423456789",
-    city: "Kragujevac",
-    phone: "+381604567890",
-    ratePerKm: 90,
-    fixedFee: 1000,
-    vehicle: { type: "MIDIBUS", model: "Sprinter", year: 2022, seats: 20, amenities: ["AC", "WIFI", "USB"] },
-    driverName: "Stefan Stefanović",
-    driverPhone: "+381644567890",
+    ownerName: "Emily Clarke",
+    companyName: "West Country Minibus Hire",
+    taxId: "GB168203947",
+    city: "Bristol",
+    phone: "+447700900458",
+    ratePerKm: 1.7,
+    fixedFee: 25,
+    vehicle: { type: "MINIBUS", model: "Mercedes-Benz Sprinter", year: 2023, seats: 16, amenities: ["AC", "WIFI", "USB"] },
+    driverName: "Jack Parker",
+    driverPhone: "+447700900459",
   },
 ];
 
 async function seedCarrier(spec: CarrierSeed) {
   const user = await prisma.user.upsert({
     where: { email: spec.email },
-    update: {},
+    update: { name: spec.ownerName },
     create: {
       email: spec.email,
       passwordHash: await bcrypt.hash(spec.password, 10),
@@ -96,48 +100,47 @@ async function seedCarrier(spec: CarrierSeed) {
     },
   });
 
+  // update (not {}) so re-running this script against an already-seeded
+  // database refreshes demo content in place — e.g. swapping in new
+  // carrier/vehicle/driver profiles for a client demo — instead of only
+  // taking effect on a fresh database.
+  const carrierData = {
+    companyName: spec.companyName,
+    taxId: spec.taxId,
+    contactEmail: spec.email,
+    contactPhone: spec.phone,
+    city: spec.city,
+    description: `Demo carrier for local development (${spec.companyName}).`,
+    status: "APPROVED" as const,
+    ratePerKm: spec.ratePerKm,
+    fixedFee: spec.fixedFee,
+  };
   const carrier = await prisma.carrier.upsert({
     where: { userId: user.id },
-    update: {},
-    create: {
-      userId: user.id,
-      companyName: spec.companyName,
-      taxId: spec.taxId,
-      contactEmail: spec.email,
-      contactPhone: spec.phone,
-      city: spec.city,
-      description: `Demo carrier for local development (${spec.companyName}).`,
-      status: "APPROVED",
-      ratePerKm: spec.ratePerKm,
-      fixedFee: spec.fixedFee,
-    },
+    update: carrierData,
+    create: { userId: user.id, ...carrierData },
   });
 
-  const vehicle =
-    (await prisma.vehicle.findFirst({ where: { carrierId: carrier.id } })) ??
-    (await prisma.vehicle.create({
-      data: {
-        carrierId: carrier.id,
-        type: spec.vehicle.type,
-        model: spec.vehicle.model,
-        year: spec.vehicle.year,
-        seats: spec.vehicle.seats,
-        amenities: spec.vehicle.amenities,
-        status: "ACTIVE",
-      },
-    }));
+  const vehicleData = {
+    type: spec.vehicle.type,
+    model: spec.vehicle.model,
+    year: spec.vehicle.year,
+    seats: spec.vehicle.seats,
+    amenities: spec.vehicle.amenities,
+    status: "ACTIVE" as const,
+  };
+  const existingVehicle = await prisma.vehicle.findFirst({ where: { carrierId: carrier.id } });
+  const vehicle = existingVehicle
+    ? await prisma.vehicle.update({ where: { id: existingVehicle.id }, data: vehicleData })
+    : await prisma.vehicle.create({ data: { carrierId: carrier.id, ...vehicleData } });
 
-  const driver =
-    (await prisma.driver.findFirst({ where: { carrierId: carrier.id } })) ??
-    (await prisma.driver.create({
-      data: {
-        carrierId: carrier.id,
-        name: spec.driverName,
-        phone: spec.driverPhone,
-        isAvailable: true,
-        avatarColor: await leastUsedDriverColor(prisma, carrier.id),
-      },
-    }));
+  const driverData = { name: spec.driverName, phone: spec.driverPhone, isAvailable: true };
+  const existingDriver = await prisma.driver.findFirst({ where: { carrierId: carrier.id } });
+  const driver = existingDriver
+    ? await prisma.driver.update({ where: { id: existingDriver.id }, data: driverData })
+    : await prisma.driver.create({
+        data: { carrierId: carrier.id, ...driverData, avatarColor: await leastUsedDriverColor(prisma, carrier.id) },
+      });
 
   await prisma.driverVehicle.upsert({
     where: { driverId_vehicleId: { driverId: driver.id, vehicleId: vehicle.id } },
