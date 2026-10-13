@@ -166,7 +166,7 @@ export function CarrierSidebar({
     <aside className="sticky top-0 h-dvh w-[252px] shrink-0">
       <div
         className="flex h-full flex-col pb-[18px]"
-        style={{ paddingTop: "var(--sidebar-padding)", paddingLeft: "var(--sidebar-padding)", paddingRight: "var(--sidebar-padding)" }}
+        style={{ paddingTop: 16, paddingLeft: "var(--sidebar-padding)", paddingRight: "var(--sidebar-padding)" }}
       >
         <Link
           href="/carrier/dashboard"

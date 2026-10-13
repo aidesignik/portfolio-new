@@ -149,10 +149,12 @@
      not structural.) */
   --content-padding: 24px;
 
-  /* CarrierSidebar's edge gutter: top padding (above the logo) and
-     horizontal padding (both sides of the logo/nav column) share this one
-     value, matching the gated layout's own p-2 (8px) wrapper around the
-     main content card — the outer gap from the window edge to that card. */
+  /* CarrierSidebar's edge gutter: horizontal padding (both sides of the
+     logo/nav column) matches the gated layout's own p-2 (8px) wrapper
+     around the main content card — the outer gap from the window edge to
+     that card. Top padding (above the logo) is set separately in the
+     component now, nudged a bit further down than this for visual
+     balance against the top bar's own top padding. */
   --sidebar-padding: 8px;
 }
 
