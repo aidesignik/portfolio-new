@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban, Trash2 } from "lucide-react";
+import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban, Trash2, Phone, User } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
@@ -11,7 +11,7 @@ import { SidePanel } from "@/components/ui/SidePanel";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
-import { PlateChip } from "@/components/ui/PlateChip";
+import { formatPlate } from "@/lib/plateDisplay";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { RideDocumentsSection } from "./RideDocumentsSection";
@@ -30,10 +30,16 @@ import type { CalendarDriver, CalendarRide, CalendarVehicle } from "./types";
 
 const AVERAGE_TRIP_DURATION_MS = 4 * 60 * 60 * 1000;
 
+// Assignment section's "Change" button — 32px tall, white fill, 1px
+// border, --ink-secondary text (not --ink-primary, unlike the rest of
+// this file's buttons — matches the Assignment section's own text-color
+// spec, which deliberately sits a step quieter than form buttons).
 const SECONDARY_BTN_CLASS =
-  "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
+  "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] bg-white px-3 text-[13px] font-medium text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)]";
+// Assignment section's "Assign" button (unassigned state only) — same
+// 32px/13px sizing as Change, filled with the app's primary action color.
 const PRIMARY_SM_BTN_CLASS =
-  "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
+  "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
 // Footer actions (§3): icon-only ghost buttons for Duplicate/Cancel/Remove
 // from calendar — no border/background at rest, 36×36 so their hit target
 // matches a normal button despite having no visible label (a Tooltip +
@@ -47,6 +53,13 @@ const FOOTER_ICON_GHOST_DANGER_BTN_CLASS =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[var(--ink-destructive)] focus-visible:bg-[#FEF2F2] focus-visible:text-[var(--ink-destructive)] focus-visible:outline-none";
 const FOOTER_EDIT_BTN_CLASS =
   "flex h-9 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-[14px] text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
+// Assignment section's unassigned-vehicle/driver placeholder — warm amber
+// "needs attention" treatment, distinct from the app's red destructive
+// color since nothing has gone wrong yet, it's just an open task.
+const UNASSIGNED_TILE_CLASS = "flex h-11 w-11 shrink-0 items-center justify-center border-[1.5px] border-dashed";
+const UNASSIGNED_TILE_STYLE = { borderColor: "#C9B48A", background: "#FFF8EC" };
+const UNASSIGNED_ICON_COLOR = "#8A5A12";
+const UNASSIGNED_TITLE_STYLE = { color: "#9A5B0F" };
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -133,7 +146,6 @@ export function RideDetailDrawer({
 
   const [changingField, setChangingField] = useState<"vehicle" | "driver" | null>(null);
   const [pendingValue, setPendingValue] = useState("");
-  const [freeCount, setFreeCount] = useState<{ vehicles: number; drivers: number } | null>(null);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -228,27 +240,6 @@ export function RideDetailDrawer({
 
   const vehicle = vehicles.find((v) => v.id === ride.vehicleId);
   const driver = drivers.find((d) => d.id === ride.driverId);
-
-  useEffect(() => {
-    if (ride.vehicleId && ride.driverId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFreeCount(null);
-      return;
-    }
-    let cancelled = false;
-    const params = new URLSearchParams({ departureAt: ride.departureAt });
-    if (ride.isRoundTrip && ride.returnAt) params.set("returnAt", ride.returnAt);
-    fetch(`/api/carrier/availability/resources?${params}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled || !data) return;
-        setFreeCount({ vehicles: data.vehicles.length, drivers: data.drivers.length });
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [ride.id, ride.vehicleId, ride.driverId, ride.departureAt, ride.returnAt, ride.isRoundTrip]);
 
   const now = new Date();
   const departure = new Date(ride.departureAt);
@@ -754,20 +745,29 @@ export function RideDetailDrawer({
 
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
             <h3 className="mb-3 text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("assignmentSection")}</h3>
-            <div className="flex flex-col gap-3">
-              <div className="flex min-h-[44px] items-center gap-3">
+            <div className="flex flex-col gap-[18px]">
+              <div className="flex min-h-11 items-center gap-3">
                 {vehicle ? (
                   <>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-[var(--border-soft)]">
-                      <Bus size={19} strokeWidth={1.9} color="#3F3F46" />
+                    <div
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px]"
+                      style={{ background: "var(--bg-panel)" }}
+                    >
+                      <Bus size={20} strokeWidth={1.9} color="var(--ink-secondary)" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">
+                      <p className="truncate text-[15px] font-medium text-[var(--ink)]">
                         {tType(vehicle.type)} {vehicle.model}
                       </p>
-                      <p className="flex items-center gap-[6px] truncate text-[13px] text-[var(--ink-secondary)]">
-                        {vehicle.licensePlate ? <PlateChip plate={vehicle.licensePlate} /> : "—"}
-                        {`· ${vehicle.seats} ${t("carrier.fleetTable.seats")}`}
+                      <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">
+                        {vehicle.licensePlate ? (
+                          <span className="font-mono text-[12px] text-[var(--ink-secondary)]">
+                            {formatPlate(vehicle.licensePlate)}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                        {` · ${vehicle.seats} ${t("carrier.fleetTable.seats")}`}
                       </p>
                     </div>
                     <button type="button" onClick={() => startChanging("vehicle")} className={SECONDARY_BTN_CLASS}>
@@ -776,14 +776,14 @@ export function RideDetailDrawer({
                   </>
                 ) : (
                   <>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-[var(--border-strong)]">
-                      <Bus size={17} strokeWidth={1.9} color="var(--ink-disabled)" />
+                    <div className={`${UNASSIGNED_TILE_CLASS} rounded-[12px]`} style={UNASSIGNED_TILE_STYLE}>
+                      <Bus size={20} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[14px] font-medium text-[var(--ink-secondary)]">{tDetail("noVehicle")}</p>
-                      <p className="truncate text-[13px] text-[var(--ink-muted)]">
-                        {freeCount ? tDetail("vehiclesFree", { count: freeCount.vehicles }) : ""}
+                      <p className="truncate text-[15px] font-medium" style={UNASSIGNED_TITLE_STYLE}>
+                        {tDetail("vehicleMissing")}
                       </p>
+                      <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">{tDetail("assignPrompt")}</p>
                     </div>
                     <button type="button" onClick={() => startChanging("vehicle")} className={PRIMARY_SM_BTN_CLASS}>
                       {tDetail("assignVehicle")}
@@ -793,7 +793,7 @@ export function RideDetailDrawer({
               </div>
 
               {changingField === "vehicle" ? (
-                <div className="flex items-center gap-2 pl-12">
+                <div className="flex items-center gap-2 pl-14">
                   <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
                     <option value="">—</option>
                     {vehicles.map((v) => (
@@ -811,13 +811,24 @@ export function RideDetailDrawer({
                 </div>
               ) : null}
 
-              <div className="flex min-h-[44px] items-center gap-3">
+              <div className="flex min-h-11 items-center gap-3">
                 {driver ? (
                   <>
-                    <DriverAvatar driver={driver} size={32} decorative />
+                    <DriverAvatar driver={driver} size={44} decorative />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium text-[var(--ink-primary)]">{driver.name}</p>
-                      <p className="truncate text-[13px] text-[var(--ink-secondary)]">{driver.phone || "—"}</p>
+                      <p className="truncate text-[15px] font-medium text-[var(--ink)]">{driver.name}</p>
+                      {driver.phone ? (
+                        <a
+                          href={`tel:${driver.phone}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-[2px] flex items-center gap-[4px] truncate text-[13px] text-[var(--ink-muted)] hover:underline"
+                        >
+                          <Phone size={12} strokeWidth={1.9} className="shrink-0" />
+                          {formatPhone(driver.phone)}
+                        </a>
+                      ) : (
+                        <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">—</p>
+                      )}
                     </div>
                     <button type="button" onClick={() => startChanging("driver")} className={SECONDARY_BTN_CLASS}>
                       {tDetail("change")}
@@ -825,12 +836,14 @@ export function RideDetailDrawer({
                   </>
                 ) : (
                   <>
-                    <DriverAvatar driver={null} size={32} />
+                    <div className={`${UNASSIGNED_TILE_CLASS} rounded-full`} style={UNASSIGNED_TILE_STYLE}>
+                      <User size={20} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
+                    </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[14px] font-medium text-[var(--ink-secondary)]">{tDetail("noDriver")}</p>
-                      <p className="truncate text-[13px] text-[var(--ink-muted)]">
-                        {freeCount ? tDetail("driversFree", { count: freeCount.drivers }) : ""}
+                      <p className="truncate text-[15px] font-medium" style={UNASSIGNED_TITLE_STYLE}>
+                        {tDetail("driverMissing")}
                       </p>
+                      <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">{tDetail("assignPrompt")}</p>
                     </div>
                     <button type="button" onClick={() => startChanging("driver")} className={PRIMARY_SM_BTN_CLASS}>
                       {tDetail("assignDriver")}
@@ -840,7 +853,7 @@ export function RideDetailDrawer({
               </div>
 
               {changingField === "driver" ? (
-                <div className="flex items-center gap-2 pl-12">
+                <div className="flex items-center gap-2 pl-14">
                   <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
                     <option value="">—</option>
                     {drivers.map((d) => (
