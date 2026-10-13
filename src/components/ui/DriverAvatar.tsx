@@ -1,14 +1,14 @@
 import { DRIVER_COLORS, resolveDriverColor } from "@/lib/driver-colors";
 
-export type DriverAvatarSize = 20 | 24 | 26 | 32 | 40 | 44 | 56;
+export type DriverAvatarSize = 20 | 24 | 26 | 32 | 36 | 40 | 56;
 
 const SIZE_STYLE: Record<DriverAvatarSize, { fontSize: string; fontWeight: number }> = {
   20: { fontSize: "8.5px", fontWeight: 700 },
   24: { fontSize: "10px", fontWeight: 600 },
   26: { fontSize: "10.5px", fontWeight: 600 },
   32: { fontSize: "12.5px", fontWeight: 600 },
+  36: { fontSize: "13px", fontWeight: 600 },
   40: { fontSize: "15px", fontWeight: 600 },
-  44: { fontSize: "14px", fontWeight: 600 },
   56: { fontSize: "20px", fontWeight: 600 },
 };
 

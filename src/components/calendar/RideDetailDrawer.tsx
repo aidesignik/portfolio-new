@@ -56,10 +56,17 @@ const FOOTER_EDIT_BTN_CLASS =
 // Assignment section's unassigned-vehicle/driver placeholder — warm amber
 // "needs attention" treatment, distinct from the app's red destructive
 // color since nothing has gone wrong yet, it's just an open task.
-const UNASSIGNED_TILE_CLASS = "flex h-11 w-11 shrink-0 items-center justify-center border-[1.5px] border-dashed";
+const UNASSIGNED_TILE_CLASS = "flex h-9 w-9 shrink-0 items-center justify-center border-[1.5px] border-dashed";
 const UNASSIGNED_TILE_STYLE = { borderColor: "#C9B48A", background: "#FFF8EC" };
 const UNASSIGNED_ICON_COLOR = "#8A5A12";
 const UNASSIGNED_TITLE_STYLE = { color: "#9A5B0F" };
+// The Trip section's own row title/subtitle classes (stop name / stop
+// address) — reused as-is for the Assignment section's vehicle/driver
+// name and meta lines so the two sections share one typographic scale
+// instead of drifting apart. Single source of truth: change the Trip
+// section's look here and Assignment follows.
+const ROW_TITLE_CLASS = "truncate text-[14px] font-medium leading-5 text-[#18181B]";
+const ROW_SUBTITLE_CLASS = "truncate text-[13px] text-[#71717A]";
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -581,10 +588,8 @@ export function RideDetailDrawer({
                             </div>
                             <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="truncate text-[14px] font-medium leading-5 text-[#18181B]">{row.city}</p>
-                                {row.location ? (
-                                  <p className="truncate text-[13px] text-[#71717A]">{row.location}</p>
-                                ) : null}
+                                <p className={ROW_TITLE_CLASS}>{row.city}</p>
+                                {row.location ? <p className={ROW_SUBTITLE_CLASS}>{row.location}</p> : null}
                               </div>
                               {row.time ? (
                                 <span
@@ -745,21 +750,21 @@ export function RideDetailDrawer({
 
           <div className="border-b border-[var(--border-hairline)] px-6 py-5">
             <h3 className="mb-3 text-[14px] font-semibold text-[var(--ink-primary)]">{tDetail("assignmentSection")}</h3>
-            <div className="flex flex-col gap-[18px]">
-              <div className="flex min-h-11 items-center gap-3">
+            <div className="flex flex-col gap-4">
+              <div className="flex min-h-9 items-center gap-3">
                 {vehicle ? (
                   <>
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px]"
-                      style={{ background: "var(--bg-panel)" }}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]"
+                      style={{ background: "#EEF0F2" }}
                     >
-                      <Bus size={20} strokeWidth={1.9} color="var(--ink-secondary)" />
+                      <Bus size={18} strokeWidth={1.9} color="#3C4A5C" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[15px] font-medium text-[var(--ink)]">
+                      <p className={ROW_TITLE_CLASS}>
                         {tType(vehicle.type)} {vehicle.model}
                       </p>
-                      <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">
+                      <p className={ROW_SUBTITLE_CLASS}>
                         {vehicle.licensePlate ? (
                           <span className="font-mono text-[12px] text-[var(--ink-secondary)]">
                             {formatPlate(vehicle.licensePlate)}
@@ -776,8 +781,8 @@ export function RideDetailDrawer({
                   </>
                 ) : (
                   <>
-                    <div className={`${UNASSIGNED_TILE_CLASS} rounded-[12px]`} style={UNASSIGNED_TILE_STYLE}>
-                      <Bus size={20} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
+                    <div className={`${UNASSIGNED_TILE_CLASS} rounded-[10px]`} style={UNASSIGNED_TILE_STYLE}>
+                      <Bus size={18} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-medium" style={UNASSIGNED_TITLE_STYLE}>
@@ -793,7 +798,7 @@ export function RideDetailDrawer({
               </div>
 
               {changingField === "vehicle" ? (
-                <div className="flex items-center gap-2 pl-14">
+                <div className="flex items-center gap-2 pl-12">
                   <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
                     <option value="">—</option>
                     {vehicles.map((v) => (
@@ -811,23 +816,23 @@ export function RideDetailDrawer({
                 </div>
               ) : null}
 
-              <div className="flex min-h-11 items-center gap-3">
+              <div className="flex min-h-9 items-center gap-3">
                 {driver ? (
                   <>
-                    <DriverAvatar driver={driver} size={44} decorative />
+                    <DriverAvatar driver={driver} size={36} decorative />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[15px] font-medium text-[var(--ink)]">{driver.name}</p>
+                      <p className={ROW_TITLE_CLASS}>{driver.name}</p>
                       {driver.phone ? (
                         <a
                           href={`tel:${driver.phone}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="mt-[2px] flex items-center gap-[4px] truncate text-[13px] text-[var(--ink-muted)] hover:underline"
+                          className={`${ROW_SUBTITLE_CLASS} flex items-center gap-[4px] hover:underline`}
                         >
                           <Phone size={12} strokeWidth={1.9} className="shrink-0" />
                           {formatPhone(driver.phone)}
                         </a>
                       ) : (
-                        <p className="mt-[2px] truncate text-[13px] text-[var(--ink-muted)]">—</p>
+                        <p className={ROW_SUBTITLE_CLASS}>—</p>
                       )}
                     </div>
                     <button type="button" onClick={() => startChanging("driver")} className={SECONDARY_BTN_CLASS}>
@@ -837,7 +842,7 @@ export function RideDetailDrawer({
                 ) : (
                   <>
                     <div className={`${UNASSIGNED_TILE_CLASS} rounded-full`} style={UNASSIGNED_TILE_STYLE}>
-                      <User size={20} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
+                      <User size={18} strokeWidth={1.9} color={UNASSIGNED_ICON_COLOR} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-medium" style={UNASSIGNED_TITLE_STYLE}>
@@ -853,7 +858,7 @@ export function RideDetailDrawer({
               </div>
 
               {changingField === "driver" ? (
-                <div className="flex items-center gap-2 pl-14">
+                <div className="flex items-center gap-2 pl-12">
                   <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
                     <option value="">—</option>
                     {drivers.map((d) => (
