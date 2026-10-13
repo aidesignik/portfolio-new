@@ -86,6 +86,26 @@ const CARRIERS: CarrierSeed[] = [
     driverName: "Jack Parker",
     driverPhone: "+447700900459",
   },
+  {
+    // GoogleSignInButton always signs in with this exact fixed identity
+    // (see src/components/forms/GoogleSignInButton.tsx) — there's no real
+    // Google OAuth wired up, so "Sign in with Google" on the login page
+    // always lands on this one account. Needs its own seed entry so that
+    // demo path shows the same quality of content as the email/password
+    // logins instead of whatever got typed into it during earlier testing.
+    email: "google.demo.carrier@example.com",
+    password: "unused-google-mock-login",
+    ownerName: "Demo Carrier (Google)",
+    companyName: "Thameside Coach Travel",
+    taxId: "GB719642058",
+    city: "Birmingham",
+    phone: "+447700900561",
+    ratePerKm: 2.2,
+    fixedFee: 40,
+    vehicle: { type: "COACH", model: "Plaxton Elite", year: 2021, seats: 51, amenities: ["AC", "WIFI", "USB", "TOILET"] },
+    driverName: "William Carter",
+    driverPhone: "+447700900562",
+  },
 ];
 
 async function seedCarrier(spec: CarrierSeed) {
