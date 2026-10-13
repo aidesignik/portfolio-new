@@ -82,13 +82,16 @@ export function RideBlockCard({
   const titleColor = status === "CANCELLED" ? "var(--ink-muted)" : "var(--ink-primary)";
   const clientColor = RIDE_STATUS_TEXT[status];
 
+  const passengerLabel = seats ? `${ride.passengerCount}/${seats}` : `${ride.passengerCount}`;
+
   const bottomRow = (
     <div className="mt-auto flex min-w-0 items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
-      <span className="flex min-w-0 flex-1 items-center gap-[8px] overflow-hidden">
+      <span className="flex min-w-0 flex-1 items-center overflow-hidden">
         <span className="shrink-0 font-medium">{time}</span>
-        <span className="min-w-0 truncate font-medium">
-          {ride.passengerCount}
-          {seats ? `/${seats}` : ""}
+        {/* Hidden rather than truncated below the width "02:00 · 40/50"
+            needs — a clipped "40/…" is worse than no count at all. */}
+        <span className="ml-[8px] shrink-0 whitespace-nowrap font-medium @max-[129px]:hidden">
+          · {passengerLabel}
         </span>
       </span>
       {driver ? (

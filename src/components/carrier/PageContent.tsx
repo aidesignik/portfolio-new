@@ -6,10 +6,11 @@ import type { ReactNode } from "react";
 // centering with a large empty margin either side (see TopBar, which uses
 // the same px-6 so both rows share one consistent edge).
 //
-// pt-4 (16px) here is the gap between the top bar row and the title row.
-// gap-6 (24px) is the gap between the title row and whatever comes next
-// (the calendar card, a table, ...) — both values are the same on every
-// page using this pattern, by design.
+// pt-6 (24px) here is the gap between the top bar row and the title row,
+// measured bottom-of-topbar-buttons to top-of-title-row — same value as
+// gap-6 below (the gap between the title row and whatever comes next: the
+// calendar card, a table, ...) — both the same on every page using this
+// pattern, by design.
 export function PageContent({
   children,
   compactBottom = false,
@@ -28,7 +29,7 @@ export function PageContent({
     // instead of scrolling with this region's content.
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div
-        className={`flex h-full min-h-full w-full flex-col gap-6 px-6 pt-4 ${compactBottom ? "" : "pb-8"}`}
+        className={`flex h-full min-h-full w-full flex-col gap-6 px-6 pt-6 ${compactBottom ? "" : "pb-8"}`}
         style={compactBottom ? { paddingBottom: "var(--content-padding)" } : undefined}
       >
         {children}

@@ -215,7 +215,7 @@
     "setupDriverPrompt": "Dodajte vozača da biste počeli sa zakazivanjem vožnji.",
     "setupBothPrompt": "Dodajte svoje prvo vozilo i vozača da biste počeli sa zakazivanjem vožnji.",
     "expiry": {
-      "bannerTitle": "Zahteva pažnju",
+      "bannerTitle": "Potrebna pažnja",
       "expired": "Isteklo",
       "expiringSoon": "Uskoro ističe",
       "registration": "Registracija",

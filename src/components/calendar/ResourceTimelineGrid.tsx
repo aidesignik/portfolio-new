@@ -210,7 +210,10 @@ export function ResourceTimelineGrid({
                       />
                     ) : null}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14.5px] font-semibold" style={{ color: "#141413" }}>
+                      <p
+                        className="line-clamp-2 text-[14.5px] font-semibold"
+                        style={{ color: "#141413", lineHeight: 1.3 }}
+                      >
                         {resource.name}
                       </p>
                       {resource.plate || resource.seats ? (
