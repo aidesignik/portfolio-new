@@ -7,10 +7,11 @@ import type { ReactNode } from "react";
 // the same px-6 so both rows share one consistent edge).
 //
 // pt-6 (24px) here is the gap between the top bar row and the title row,
-// measured bottom-of-topbar-buttons to top-of-title-row — same value as
-// gap-6 below (the gap between the title row and whatever comes next: the
-// calendar card, a table, ...) — both the same on every page using this
-// pattern, by design.
+// measured bottom-of-topbar-buttons to top-of-title-row. gap-4 (16px)
+// below is the (smaller, intentionally different) gap from the title
+// row's own buttons down to whatever comes next: the calendar card, a
+// table, ... Every page using this pattern has exactly one child after
+// PageHeader, so gap-4 only ever applies to that one transition.
 export function PageContent({
   children,
   compactBottom = false,
@@ -29,7 +30,7 @@ export function PageContent({
     // instead of scrolling with this region's content.
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div
-        className={`flex h-full min-h-full w-full flex-col gap-6 px-6 pt-6 ${compactBottom ? "" : "pb-8"}`}
+        className={`flex h-full min-h-full w-full flex-col gap-4 px-6 pt-6 ${compactBottom ? "" : "pb-8"}`}
         style={compactBottom ? { paddingBottom: "var(--content-padding)" } : undefined}
       >
         {children}

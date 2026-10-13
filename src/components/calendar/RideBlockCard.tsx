@@ -88,10 +88,13 @@ export function RideBlockCard({
     <div className="mt-auto flex min-w-0 items-center gap-[8px] text-[12.5px]" style={{ color: "#55555C" }}>
       <span className="flex min-w-0 flex-1 items-center overflow-hidden">
         <span className="shrink-0 font-medium">{time}</span>
-        {/* Hidden rather than truncated below the width "02:00 · 40/50"
-            needs — a clipped "40/…" is worse than no count at all. */}
-        <span className="ml-[8px] shrink-0 whitespace-nowrap font-medium @max-[129px]:hidden">
-          · {passengerLabel}
+        {/* Separator + count hide together below ~170px container width —
+            a clipped "40/…" is worse than no count at all. */}
+        <span className="flex shrink-0 items-center whitespace-nowrap font-medium @max-[170px]:hidden">
+          <span aria-hidden className="shrink-0" style={{ margin: "0 4px" }}>
+            ·
+          </span>
+          {passengerLabel}
         </span>
       </span>
       {driver ? (
