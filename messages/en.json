@@ -303,7 +303,7 @@
       "overCapacity": "Over capacity",
       "noneAssigned": "Not assigned"
     },
-    "calendarTitle": "Availability calendar",
+    "calendarTitle": "Calendar",
     "calendar": {
       "today": "Today",
       "previousWeek": "Previous week",
