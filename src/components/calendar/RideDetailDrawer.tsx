@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban } from "lucide-react";
+import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
@@ -34,23 +34,19 @@ const SECONDARY_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-3 text-[13.5px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
 const PRIMARY_SM_BTN_CLASS =
   "flex h-8 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--action-bg)] px-3 text-[13.5px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--action-bg-hover)]";
-// Footer actions (§3): icon-only ghost buttons for Duplicate/Cancel —
-// no border/background at rest, 36×36 so their hit target matches a
-// normal button despite having no visible label (a Tooltip + aria-label
-// carry that instead).
+// Footer actions (§3): icon-only ghost buttons for Duplicate/Cancel/Remove
+// from calendar — no border/background at rest, 36×36 so their hit target
+// matches a normal button despite having no visible label (a Tooltip +
+// aria-label carry that instead).
 const FOOTER_ICON_GHOST_BTN_CLASS =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)] focus-visible:bg-[var(--border-soft)] focus-visible:outline-none";
-// Cancel ride's icon only turns danger-red on hover/focus, not at rest —
-// it's a muted ghost button like Duplicate until actively engaged.
+// Cancel ride and Remove from calendar's icons only turn danger-red on
+// hover/focus, not at rest — muted ghost buttons like Duplicate until
+// actively engaged.
 const FOOTER_ICON_GHOST_DANGER_BTN_CLASS =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[var(--ink-muted)] transition-colors duration-[.12s] ease-out hover:bg-[#FEF2F2] hover:text-[var(--ink-destructive)] focus-visible:bg-[#FEF2F2] focus-visible:text-[var(--ink-destructive)] focus-visible:outline-none";
 const FOOTER_EDIT_BTN_CLASS =
   "flex h-9 shrink-0 items-center gap-[6px] whitespace-nowrap rounded-[8px] border border-[var(--border-control)] px-[14px] text-[14px] font-medium text-[var(--ink-primary)] transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA]";
-// The status-conditional primary action (Remove from calendar) — filled
-// like a primary button, but danger-red rather than the app's blue
-// action color since it's a permanent delete, not a routine confirm.
-const FOOTER_PRIMARY_DANGER_BTN_CLASS =
-  "flex h-9 shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--ink-destructive)] px-[14px] text-[14px] font-medium text-white transition-colors duration-[.12s] ease-out hover:bg-[var(--ink-destructive-hover)] disabled:opacity-50";
 
 function toDateTimeInputValue(iso: string): string {
   const d = new Date(iso);
@@ -924,6 +920,18 @@ export function RideDetailDrawer({
                 </button>
               </Tooltip>
             ) : null}
+            {canRemoveFromCalendar ? (
+              <Tooltip label={tDetail("removeFromCalendar")}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmingRemove(true)}
+                  aria-label={tDetail("removeFromCalendar")}
+                  className={FOOTER_ICON_GHOST_DANGER_BTN_CLASS}
+                >
+                  <Trash2 size={18} strokeWidth={1.9} />
+                </button>
+              </Tooltip>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             {editable && !editing ? (
@@ -939,15 +947,6 @@ export function RideDetailDrawer({
               >
                 <Pencil size={16} strokeWidth={1.9} />
                 {tDetail("editRide")}
-              </button>
-            ) : null}
-            {canRemoveFromCalendar ? (
-              <button
-                type="button"
-                onClick={() => setConfirmingRemove(true)}
-                className={FOOTER_PRIMARY_DANGER_BTN_CLASS}
-              >
-                {tDetail("removeFromCalendar")}
               </button>
             ) : null}
           </div>
