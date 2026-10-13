@@ -4,12 +4,17 @@ import { X } from "lucide-react";
 export function PanelHeader({
   title,
   subtitle,
+  chips,
   onClose,
   closeLabel,
   actions,
 }: {
   title: string;
   subtitle?: string;
+  // Status chips (e.g. document expiry warnings) shown under the title —
+  // unlike `subtitle`, not truncated to one line, since chips wrap instead
+  // of clipping.
+  chips?: ReactNode;
   onClose: () => void;
   closeLabel: string;
   actions?: ReactNode;
@@ -19,6 +24,7 @@ export function PanelHeader({
       <div className="min-w-0">
         <h2 className="truncate text-[18px] font-bold text-[var(--ink-primary)]">{title}</h2>
         {subtitle ? <p className="mt-[2px] truncate text-[12.5px] text-[var(--ink-muted)]">{subtitle}</p> : null}
+        {chips ? <div className="mt-[8px] flex flex-wrap gap-[6px]">{chips}</div> : null}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {actions}

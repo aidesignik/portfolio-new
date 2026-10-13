@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useId, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
@@ -19,10 +19,11 @@ import { expiredDocMessageKey } from "@/lib/expiryStatus";
 
 // Same visual language as the fleet table's DocumentChipsRow — a vehicle
 // flagged there (e.g. "Inspection expired · 27d ago") shows the identical
-// chip next to the matching field here, so the warning that brought the
-// carrier into this panel is still visible and attached to the exact field
-// that needs fixing, not just a generic page-level banner.
-function FieldExpiryChip({ chip, t }: { chip: DocumentChipData; t: ReturnType<typeof useTranslations> }) {
+// chip in the panel header (see PanelHeader's `chips` prop in
+// EditVehiclePanel/AddVehiclePanel), so the warning that brought the
+// carrier into this panel is still visible. The matching field itself
+// (below) only gets a red border — no repeated chip next to it.
+export function FieldExpiryChip({ chip, t }: { chip: DocumentChipData; t: ReturnType<typeof useTranslations> }) {
   const label = t(`carrier.docChip.${chip.docKind}`);
   if (chip.status === "expiringSoon") {
     return (
@@ -80,6 +81,7 @@ export function VehicleForm({
   onSaved,
   onDelete,
   deleting,
+  onChipsChange,
 }: {
   vehicleId?: string;
   initial?: InitialVehicleValues;
@@ -91,6 +93,10 @@ export function VehicleForm({
   // bottom of the form, below Save, instead of in the panel header.
   onDelete?: () => void;
   deleting?: boolean;
+  // Reports the live (not just `initial`) registration/inspection expiry
+  // chips up to the panel, which renders them under its title — fixing a
+  // date here clears the matching header chip immediately, before saving.
+  onChipsChange?: (chips: DocumentChipData[]) => void;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -133,6 +139,12 @@ export function VehicleForm({
   const registrationChip =
     docChips.find((c) => c.docKind === "registration" && c.status !== "valid") ?? null;
   const inspectionChip = docChips.find((c) => c.docKind === "inspection" && c.status !== "valid") ?? null;
+  useEffect(() => {
+    onChipsChange?.([registrationChip, inspectionChip].filter((c): c is DocumentChipData => c !== null));
+    // onChipsChange intentionally omitted: parents pass an inline setState
+    // callback, which would otherwise re-run this effect every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registrationChip, inspectionChip]);
   const [error, setError] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -322,11 +334,6 @@ export function VehicleForm({
         </div>
         <div>
           <label htmlFor={`${uid}-reg-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastRegistrationDate")}</label>
-          {registrationChip ? (
-            <div className="mt-[4px]">
-              <FieldExpiryChip chip={registrationChip} t={t} />
-            </div>
-          ) : null}
           <Input
             id={`${uid}-reg-date`}
             unstyled
@@ -338,11 +345,6 @@ export function VehicleForm({
         </div>
         <div>
           <label htmlFor={`${uid}-insp-date`} className={SHEET_LABEL_CLASS}>{t("carrier.vehicleForm.lastInspectionDate")}</label>
-          {inspectionChip ? (
-            <div className="mt-[4px]">
-              <FieldExpiryChip chip={inspectionChip} t={t} />
-            </div>
-          ) : null}
           <Input
             id={`${uid}-insp-date`}
             unstyled

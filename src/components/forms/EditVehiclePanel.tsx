@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { PanelHeader } from "@/components/ui/PanelHeader";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { VehicleForm } from "@/components/forms/VehicleForm";
+import { VehicleForm, FieldExpiryChip } from "@/components/forms/VehicleForm";
+import type { DocumentChipData } from "@/lib/documentChips";
 
 interface VehicleRecord {
   id: string;
@@ -39,6 +40,7 @@ export function EditVehiclePanel({
   const [loadFailed, setLoadFailed] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [expiryChips, setExpiryChips] = useState<DocumentChipData[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,6 +78,11 @@ export function EditVehiclePanel({
     <SidePanel onClose={onClose} label={vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("common.loading")}>
       <PanelHeader
         title={vehicle ? `${tType(vehicle.type)} ${vehicle.model}` : t("common.loading")}
+        chips={
+          expiryChips.length > 0
+            ? expiryChips.map((chip) => <FieldExpiryChip key={chip.docKind} chip={chip} t={t} />)
+            : undefined
+        }
         onClose={onClose}
         closeLabel={t("common.close")}
       />
@@ -104,6 +111,7 @@ export function EditVehiclePanel({
             onSaved={onSaved}
             onDelete={() => setConfirmingDelete(true)}
             deleting={deleting}
+            onChipsChange={setExpiryChips}
           />
         )}
       </div>
