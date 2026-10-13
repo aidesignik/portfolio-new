@@ -1,6 +1,7 @@
 import { PrismaClient, type VehicleAmenity, type VehicleType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { leastUsedDriverColor } from "../src/lib/driverAvatarAssignment";
+import { regenerateRideDocuments } from "@/lib/documents/regenerate";
 
 const prisma = new PrismaClient();
 
@@ -86,26 +87,70 @@ const CARRIERS: CarrierSeed[] = [
     driverName: "Jack Parker",
     driverPhone: "+447700900459",
   },
-  {
-    // GoogleSignInButton always signs in with this exact fixed identity
-    // (see src/components/forms/GoogleSignInButton.tsx) — there's no real
-    // Google OAuth wired up, so "Sign in with Google" on the login page
-    // always lands on this one account. Needs its own seed entry so that
-    // demo path shows the same quality of content as the email/password
-    // logins instead of whatever got typed into it during earlier testing.
-    email: "google.demo.carrier@example.com",
-    password: "unused-google-mock-login",
-    ownerName: "Demo Carrier (Google)",
-    companyName: "Thameside Coach Travel",
-    taxId: "GB719642058",
-    city: "Birmingham",
-    phone: "+447700900561",
-    ratePerKm: 2.2,
-    fixedFee: 40,
-    vehicle: { type: "COACH", model: "Plaxton Elite", year: 2021, seats: 51, amenities: ["AC", "WIFI", "USB", "TOILET"] },
-    driverName: "William Carter",
-    driverPhone: "+447700900562",
-  },
+];
+
+// GoogleSignInButton always signs in with this exact fixed identity (see
+// src/components/forms/GoogleSignInButton.tsx) — there's no real Google
+// OAuth wired up, so "Sign in with Google" on the login page always lands
+// on this one account. It gets its own richer seed (multiple vehicles,
+// multiple drivers, a spread of rides across every status) rather than
+// the single-vehicle CarrierSeed shape the other four use, since this is
+// the account actually used for live client demonstrations — company
+// name kept as "Transport team" by request, everything else refreshed.
+const GOOGLE_DEMO_EMAIL = "google.demo.carrier@example.com";
+
+const GOOGLE_DEMO_VEHICLES: Array<{
+  type: VehicleType;
+  model: string;
+  year: number;
+  seats: number;
+  licensePlate: string;
+  amenities: VehicleAmenity[];
+}> = [
+  { type: "COACH", model: "Plaxton Elite", year: 2021, seats: 51, licensePlate: "BM21 PLX", amenities: ["AC", "WIFI", "USB", "TOILET"] },
+  { type: "MIDIBUS", model: "Alexander Dennis Enviro200", year: 2020, seats: 30, licensePlate: "BM20 ADE", amenities: ["AC", "WIFI"] },
+  { type: "MINIBUS", model: "Mercedes-Benz Sprinter", year: 2023, seats: 16, licensePlate: "BM23 MBS", amenities: ["AC", "WIFI", "USB"] },
+  { type: "VAN", model: "Ford Transit Custom", year: 2019, seats: 8, licensePlate: "BM19 FTC", amenities: ["AC"] },
+];
+
+const GOOGLE_DEMO_DRIVERS: Array<{ name: string; phone: string; licenseNumber: string }> = [
+  { name: "William Carter", phone: "+447700900562", licenseNumber: "CARTE912256WC9AB" },
+  { name: "Daniel Foster", phone: "+447700900563", licenseNumber: "FOSTE803127DF4CD" },
+  { name: "George Mitchell", phone: "+447700900564", licenseNumber: "MITCH705098GM2EF" },
+  { name: "Thomas Reid", phone: "+447700900565", licenseNumber: "REID9609014TR8GH" },
+];
+
+const GOOGLE_DEMO_CLIENTS: Array<{ email: string; name: string; companyName: string | null; phone: string }> = [
+  { email: "sophie.bennett.demo@example.com", name: "Sophie Bennett", companyName: "Bright Events Ltd", phone: "+447700900601" },
+  { email: "mark.ellison.demo@example.com", name: "Mark Ellison", companyName: "Oakwood Academy", phone: "+447700900602" },
+  { email: "rachel.green.demo@example.com", name: "Rachel Green", companyName: null, phone: "+447700900603" },
+];
+
+// dayOffset is relative to whenever the seed actually runs, so "completed"
+// rides always land in the past and "confirmed"/"cancelled" upcoming ones
+// in the future, regardless of when a demo happens. vehicle/driver indices
+// index into GOOGLE_DEMO_VEHICLES/GOOGLE_DEMO_DRIVERS, client into
+// GOOGLE_DEMO_CLIENTS.
+const GOOGLE_DEMO_RIDES: Array<{
+  pickupCity: string;
+  pickupLocation: string;
+  destinationCity: string;
+  destinationLocation: string;
+  dayOffset: number;
+  hour: number;
+  passengerCount: number;
+  price: number;
+  status: "COMPLETED" | "CONFIRMED" | "CANCELLED";
+  vehicle: number;
+  driver: number;
+  client: number;
+}> = [
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Manchester", destinationLocation: "Piccadilly Gardens", dayOffset: -3, hour: 8, passengerCount: 45, price: 320, status: "COMPLETED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Bullring", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: -6, hour: 7, passengerCount: 14, price: 180, status: "COMPLETED", vehicle: 2, driver: 2, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Bristol", destinationLocation: "Cabot Circus", dayOffset: 2, hour: 9, passengerCount: 28, price: 260, status: "CONFIRMED", vehicle: 1, driver: 1, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: 4, hour: 6, passengerCount: 48, price: 540, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: 1, hour: 10, passengerCount: 7, price: 95, status: "CANCELLED", vehicle: 3, driver: 3, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: -5, hour: 11, passengerCount: 12, price: 150, status: "CANCELLED", vehicle: 2, driver: 2, client: 1 },
 ];
 
 // Wipes everything under a carrier that the demo accounts above routinely
@@ -192,6 +237,133 @@ async function seedCarrier(spec: CarrierSeed) {
   console.log(`Carrier ready: ${spec.companyName} — ${spec.email} / ${spec.password}`);
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+async function seedGoogleDemoCarrier() {
+  const user = await prisma.user.upsert({
+    where: { email: GOOGLE_DEMO_EMAIL },
+    update: { name: "Demo Carrier (Google)" },
+    create: {
+      email: GOOGLE_DEMO_EMAIL,
+      passwordHash: await bcrypt.hash("unused-google-mock-login", 10),
+      name: "Demo Carrier (Google)",
+      role: "CARRIER",
+    },
+  });
+
+  const carrierData = {
+    companyName: "Transport team",
+    taxId: "GB719642058",
+    contactEmail: GOOGLE_DEMO_EMAIL,
+    contactPhone: "+447700900561",
+    city: "Birmingham",
+    description: "Demo carrier for local development (Transport team).",
+    status: "APPROVED" as const,
+    ratePerKm: 2.2,
+    fixedFee: 40,
+  };
+  const carrier = await prisma.carrier.upsert({
+    where: { userId: user.id },
+    update: carrierData,
+    create: { userId: user.id, ...carrierData },
+  });
+
+  await resetCarrierFleet(carrier.id);
+
+  const vehicles = [];
+  for (const spec of GOOGLE_DEMO_VEHICLES) {
+    vehicles.push(
+      await prisma.vehicle.create({
+        data: {
+          carrierId: carrier.id,
+          type: spec.type,
+          model: spec.model,
+          year: spec.year,
+          seats: spec.seats,
+          licensePlate: spec.licensePlate,
+          amenities: spec.amenities,
+          status: "ACTIVE",
+        },
+      }),
+    );
+  }
+
+  const drivers = [];
+  for (const spec of GOOGLE_DEMO_DRIVERS) {
+    const driver = await prisma.driver.create({
+      data: {
+        carrierId: carrier.id,
+        name: spec.name,
+        phone: spec.phone,
+        licenseNumber: spec.licenseNumber,
+        isAvailable: true,
+        avatarColor: await leastUsedDriverColor(prisma, carrier.id),
+      },
+    });
+    drivers.push(driver);
+  }
+  // Each driver is paired with the vehicle at the same index — a plain 1:1
+  // starting fleet, same as the other four demo carriers.
+  for (let i = 0; i < drivers.length; i++) {
+    await prisma.driverVehicle.create({ data: { driverId: drivers[i].id, vehicleId: vehicles[i].id } });
+  }
+
+  // Upserted (not reset) — these are shared "customer" identities, not
+  // part of this carrier's own fleet, so a re-seed shouldn't delete and
+  // recreate them (that would also orphan any rides already pointing at
+  // them via a required, non-cascading clientId).
+  const clients = [];
+  for (const spec of GOOGLE_DEMO_CLIENTS) {
+    clients.push(
+      await prisma.user.upsert({
+        where: { email: spec.email },
+        update: { name: spec.name, companyName: spec.companyName, phone: spec.phone },
+        create: {
+          email: spec.email,
+          passwordHash: await bcrypt.hash("demo-client-unused", 10),
+          name: spec.name,
+          companyName: spec.companyName,
+          phone: spec.phone,
+          role: "CLIENT",
+        },
+      }),
+    );
+  }
+
+  const now = new Date();
+  for (const spec of GOOGLE_DEMO_RIDES) {
+    const departureAt = new Date(now.getTime() + spec.dayOffset * DAY_MS);
+    departureAt.setHours(spec.hour, 0, 0, 0);
+
+    const ride = await prisma.ride.create({
+      data: {
+        clientId: clients[spec.client].id,
+        carrierId: carrier.id,
+        vehicleId: vehicles[spec.vehicle].id,
+        driverId: drivers[spec.driver].id,
+        pickupCity: spec.pickupCity,
+        pickupLocation: spec.pickupLocation,
+        destinationCity: spec.destinationCity,
+        destinationLocation: spec.destinationLocation,
+        departureAt,
+        passengerCount: spec.passengerCount,
+        price: spec.price,
+        currency: "GBP",
+        status: spec.status,
+      },
+    });
+    // Mirrors what the app itself does once a ride has vehicle + driver +
+    // price (see regenerateRideDocuments) — generates the actual
+    // CONFIRMATION/CONTRACT/INVOICE PDFs so the demo has real documents
+    // to open, not just rows claiming to have some.
+    await regenerateRideDocuments(ride.id);
+  }
+
+  console.log(
+    `Carrier ready: Transport team (Google sign-in) — ${GOOGLE_DEMO_EMAIL} — ${vehicles.length} vehicles, ${drivers.length} drivers, ${GOOGLE_DEMO_RIDES.length} rides`,
+  );
+}
+
 async function main() {
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@example.com";
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "admin1234";
@@ -211,6 +383,7 @@ async function main() {
   for (const spec of CARRIERS) {
     await seedCarrier(spec);
   }
+  await seedGoogleDemoCarrier();
 
   const clientEmail = "client@example.com";
   const clientPassword = "client123";
