@@ -1,18 +1,18 @@
-import { Bell } from "lucide-react";
-import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth/auth";
 import { prisma } from "@/lib/prisma";
-import { UserMenu } from "@/components/layout/UserMenu";
+import { NotificationsButton } from "@/components/carrier/NotificationsButton";
+import { CompanyMenu } from "@/components/carrier/CompanyMenu";
 import { TopBarSearch } from "./TopBarSearch";
 
-// Persistent, page-agnostic — search, notifications, avatar only. Never a
-// page title or a primary action; those live in each page's own title row.
+// Persistent, page-agnostic — search, notifications, company switcher only.
+// Never a page title or a primary action; those live in each page's own
+// title row.
 export async function TopBar() {
-  const [session, t] = await Promise.all([auth(), getTranslations("common")]);
+  const session = await auth();
   const carrier = session
-    ? await prisma.carrier.findUnique({ where: { userId: session.user.id }, select: { companyName: true } })
+    ? await prisma.carrier.findUnique({ where: { userId: session.user.id }, select: { companyName: true, logoUrl: true } })
     : null;
-  const displayName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
+  const companyName = carrier?.companyName ?? session?.user.name ?? session?.user.email ?? "";
 
   return (
     <div className="flex shrink-0">
@@ -23,21 +23,9 @@ export async function TopBar() {
           with this row. */}
       <div className="flex w-full items-center justify-between gap-4 pt-[var(--content-padding)] pr-[var(--content-padding)] pl-[var(--content-padding)]">
         <TopBarSearch />
-        <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-[9px] text-[var(--ink-secondary)] transition-colors duration-[.12s] ease-out hover:bg-[var(--border-soft)]"
-            aria-label={t("notifications")}
-          >
-            <Bell size={16} strokeWidth={1.9} />
-          </button>
-          <UserMenu
-            name={displayName}
-            email={session?.user.email ?? null}
-            image={session?.user.image}
-            profileHref="/carrier/onboarding"
-            size={34}
-          />
+        <div className="flex shrink-0 items-center gap-[8px]">
+          <NotificationsButton />
+          <CompanyMenu companyName={companyName} logoUrl={carrier?.logoUrl ?? null} email={session?.user.email ?? null} />
         </div>
       </div>
     </div>

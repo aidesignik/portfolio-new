@@ -36,6 +36,8 @@
     "searchVehicles": "Pretraga vozila",
     "searchDrivers": "Pretraga vozača",
     "notifications": "Obaveštenja",
+    "notificationsUnread": "Obaveštenja, {count} nepročitano",
+    "noNotifications": "Još nema obaveštenja",
     "saveFailed": "Nije uspelo čuvanje — proverite polja i pokušajte ponovo.",
     "loadFailed": "Učitavanje nije uspelo — pokušajte ponovo.",
     "all": "Sve",
@@ -205,6 +207,10 @@
   },
   "carrier": {
     "dashboardTitle": "Kontrolna tabla prevoznika",
+    "companyMenu": {
+      "companySettings": "Podešavanja kompanije",
+      "logout": "Odjava"
+    },
     "setupVehiclePrompt": "Dodajte svoje prvo vozilo da biste počeli sa zakazivanjem vožnji.",
     "setupDriverPrompt": "Dodajte vozača da biste počeli sa zakazivanjem vožnji.",
     "setupBothPrompt": "Dodajte svoje prvo vozilo i vozača da biste počeli sa zakazivanjem vožnji.",

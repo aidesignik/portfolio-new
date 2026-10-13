@@ -36,6 +36,8 @@
     "searchVehicles": "Search vehicles",
     "searchDrivers": "Search drivers",
     "notifications": "Notifications",
+    "notificationsUnread": "Notifications, {count} unread",
+    "noNotifications": "No notifications yet",
     "saveFailed": "Couldn't save — please check the fields and try again.",
     "loadFailed": "Couldn't load — try refreshing.",
     "all": "All",
@@ -205,6 +207,10 @@
   },
   "carrier": {
     "dashboardTitle": "Carrier dashboard",
+    "companyMenu": {
+      "companySettings": "Company settings",
+      "logout": "Log out"
+    },
     "setupVehiclePrompt": "Add your first vehicle to start scheduling rides.",
     "setupDriverPrompt": "Add a driver to start scheduling rides.",
     "setupBothPrompt": "Add your first vehicle and driver to start scheduling rides.",

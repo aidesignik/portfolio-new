@@ -64,6 +64,15 @@
   --plate-bg: #f4f4f1;
   --plate-ink: #4a4a46;
 
+  /* TopBar notifications/company-switcher pass. */
+  --topbar-icon: #3c4a5c;
+  --topbar-hover: #e9ecef;
+  --notif-dot: #d93a3a;
+  --company-mark-bg: #e6ecfd;
+  --company-mark-ink: #2448c7;
+  --menu-item-hover: #f4f5f6;
+  --ink-subtle: #8a8f98;
+
   --accent-scheduled: #2563eb;
   --accent-completed: #16a34a;
   --accent-pending: #f97316;
