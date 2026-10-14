@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { DriverAvatar } from "@/components/ui/DriverAvatar";
 import { VehicleAvatar } from "@/components/ui/VehicleAvatar";
 import { DocumentChipsRow } from "@/components/carrier/DocumentChipsRow";
-import { PlateChip } from "@/components/ui/PlateChip";
 import { RowActionsMenu } from "@/components/carrier/RowActionsMenu";
 import { ClickableRow } from "@/components/carrier/ClickableRow";
 import { StopClickPropagation } from "@/components/carrier/StopClickPropagation";
@@ -115,7 +114,6 @@ export function DriversTable({
                     <span className="truncate text-[13px] text-[#27272B]">
                       {t(`vehicleType.${firstVehicle.type}`)} {firstVehicle.model}
                     </span>
-                    {firstVehicle.licensePlate ? <PlateChip className="shrink-0" plate={firstVehicle.licensePlate} /> : null}
                     {extraCount > 0 ? (
                       <span
                         className="shrink-0 rounded-[6px] px-[6px] py-[2px] font-mono text-[11px] font-medium"
