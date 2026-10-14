@@ -309,6 +309,19 @@ async function seedGoogleDemoCarrier() {
 
   await resetCarrierFleet(carrier.id);
 
+  // Comfortably-valid baseline dates for every document the demo doesn't
+  // deliberately flag — far enough out (or recent enough) that none of
+  // them land within the 30-day expiringSoon window themselves, so the
+  // fleet/drivers "Documents" columns show real chips instead of "No
+  // documents" everywhere except the two seeded needs-attention cases
+  // (Ford Transit Custom's inspection, Thomas Reid's medical cert).
+  const VALID_REGISTRATION = new Date(now.getTime() - 120 * DAY_MS); // ~4 months ago
+  const VALID_INSPECTION = new Date(now.getTime() - 150 * DAY_MS); // ~5 months ago
+  const VALID_ID_CARD_EXPIRY = new Date(now.getTime() + 730 * DAY_MS); // ~2 years out
+  const VALID_LICENSE_EXPIRY = new Date(now.getTime() + 1095 * DAY_MS); // ~3 years out
+  const VALID_CPC_EXPIRY = new Date(now.getTime() + 548 * DAY_MS); // ~18 months out
+  const VALID_MEDICAL_CERT_EXPIRY = new Date(now.getTime() + 300 * DAY_MS); // ~10 months out
+
   const vehicles = [];
   for (const spec of GOOGLE_DEMO_VEHICLES) {
     // lastInspectionDate dated so today + VEHICLE_DOCUMENT_VALIDITY_MONTHS
@@ -322,7 +335,7 @@ async function seedGoogleDemoCarrier() {
             d.setFullYear(d.getFullYear() - 1);
             return d;
           })()
-        : undefined;
+        : VALID_INSPECTION;
     vehicles.push(
       await prisma.vehicle.create({
         data: {
@@ -334,6 +347,7 @@ async function seedGoogleDemoCarrier() {
           licensePlate: spec.licensePlate,
           amenities: spec.amenities,
           status: "ACTIVE",
+          lastRegistrationDate: VALID_REGISTRATION,
           lastInspectionDate,
         },
       }),
@@ -345,7 +359,7 @@ async function seedGoogleDemoCarrier() {
     const medicalCertExpiry =
       spec.medicalCertExpiredDaysAgo !== undefined
         ? new Date(now.getTime() - spec.medicalCertExpiredDaysAgo * DAY_MS)
-        : undefined;
+        : VALID_MEDICAL_CERT_EXPIRY;
     const driver = await prisma.driver.create({
       data: {
         carrierId: carrier.id,
@@ -354,6 +368,9 @@ async function seedGoogleDemoCarrier() {
         licenseNumber: spec.licenseNumber,
         isAvailable: true,
         avatarColor: await leastUsedDriverColor(prisma, carrier.id),
+        idCardExpiry: VALID_ID_CARD_EXPIRY,
+        licenseExpiry: VALID_LICENSE_EXPIRY,
+        cpcExpiry: VALID_CPC_EXPIRY,
         medicalCertExpiry,
       },
     });
