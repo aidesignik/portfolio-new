@@ -106,18 +106,32 @@ const GOOGLE_DEMO_VEHICLES: Array<{
   seats: number;
   licensePlate: string;
   amenities: VehicleAmenity[];
+  // One demo vehicle's last inspection dated so its 12-month validity
+  // (see VEHICLE_DOCUMENT_VALIDITY_MONTHS in src/lib/expiryStatus.ts)
+  // expires this many days from whenever the seed runs — gives the
+  // sidebar's "needs attention" list a real (amber, expiringSoon) example
+  // instead of sitting empty in the demo.
+  inspectionDueInDays?: number;
 }> = [
   { type: "COACH", model: "Plaxton Elite", year: 2021, seats: 51, licensePlate: "BM21 PLX", amenities: ["AC", "WIFI", "USB", "TOILET"] },
   { type: "MIDIBUS", model: "Alexander Dennis Enviro200", year: 2020, seats: 30, licensePlate: "BM20 ADE", amenities: ["AC", "WIFI"] },
   { type: "MINIBUS", model: "Mercedes-Benz Sprinter", year: 2023, seats: 16, licensePlate: "BM23 MBS", amenities: ["AC", "WIFI", "USB"] },
-  { type: "VAN", model: "Ford Transit Custom", year: 2019, seats: 8, licensePlate: "BM19 FTC", amenities: ["AC"] },
+  { type: "VAN", model: "Ford Transit Custom", year: 2019, seats: 8, licensePlate: "BM19 FTC", amenities: ["AC"], inspectionDueInDays: 15 },
 ];
 
-const GOOGLE_DEMO_DRIVERS: Array<{ name: string; phone: string; licenseNumber: string }> = [
+const GOOGLE_DEMO_DRIVERS: Array<{
+  name: string;
+  phone: string;
+  licenseNumber: string;
+  // One demo driver's medical certificate dated this many days in the
+  // past — an already-expired (red) example alongside the vehicle's
+  // expiringSoon one, so the sidebar shows both severities.
+  medicalCertExpiredDaysAgo?: number;
+}> = [
   { name: "William Carter", phone: "+447700900562", licenseNumber: "CARTE912256WC9AB" },
   { name: "Daniel Foster", phone: "+447700900563", licenseNumber: "FOSTE803127DF4CD" },
   { name: "George Mitchell", phone: "+447700900564", licenseNumber: "MITCH705098GM2EF" },
-  { name: "Thomas Reid", phone: "+447700900565", licenseNumber: "REID9609014TR8GH" },
+  { name: "Thomas Reid", phone: "+447700900565", licenseNumber: "REID9609014TR8GH", medicalCertExpiredDaysAgo: 10 },
 ];
 
 const GOOGLE_DEMO_CLIENTS: Array<{ email: string; name: string; companyName: string | null; phone: string }> = [
@@ -263,6 +277,8 @@ async function seedCarrier(spec: CarrierSeed) {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function seedGoogleDemoCarrier() {
+  const now = new Date();
+
   const user = await prisma.user.upsert({
     where: { email: GOOGLE_DEMO_EMAIL },
     update: { name: "Demo Carrier (Google)" },
@@ -295,6 +311,18 @@ async function seedGoogleDemoCarrier() {
 
   const vehicles = [];
   for (const spec of GOOGLE_DEMO_VEHICLES) {
+    // lastInspectionDate dated so today + VEHICLE_DOCUMENT_VALIDITY_MONTHS
+    // (12) lands inspectionDueInDays from now — see vehicleInspectionExpiry()
+    // in src/lib/expiryStatus.ts.
+    const lastInspectionDate =
+      spec.inspectionDueInDays !== undefined
+        ? (() => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + spec.inspectionDueInDays);
+            d.setFullYear(d.getFullYear() - 1);
+            return d;
+          })()
+        : undefined;
     vehicles.push(
       await prisma.vehicle.create({
         data: {
@@ -306,6 +334,7 @@ async function seedGoogleDemoCarrier() {
           licensePlate: spec.licensePlate,
           amenities: spec.amenities,
           status: "ACTIVE",
+          lastInspectionDate,
         },
       }),
     );
@@ -313,6 +342,10 @@ async function seedGoogleDemoCarrier() {
 
   const drivers = [];
   for (const spec of GOOGLE_DEMO_DRIVERS) {
+    const medicalCertExpiry =
+      spec.medicalCertExpiredDaysAgo !== undefined
+        ? new Date(now.getTime() - spec.medicalCertExpiredDaysAgo * DAY_MS)
+        : undefined;
     const driver = await prisma.driver.create({
       data: {
         carrierId: carrier.id,
@@ -321,6 +354,7 @@ async function seedGoogleDemoCarrier() {
         licenseNumber: spec.licenseNumber,
         isAvailable: true,
         avatarColor: await leastUsedDriverColor(prisma, carrier.id),
+        medicalCertExpiry,
       },
     });
     drivers.push(driver);
@@ -353,7 +387,6 @@ async function seedGoogleDemoCarrier() {
     );
   }
 
-  const now = new Date();
   for (const spec of GOOGLE_DEMO_RIDES) {
     const departureAt = new Date(now.getTime() + spec.dayOffset * DAY_MS);
     departureAt.setHours(spec.hour, 0, 0, 0);
