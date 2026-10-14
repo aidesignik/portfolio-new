@@ -1,27 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
 import {
   SHEET_SELECT_CLASS,
   SHEET_DROPDOWN_CLASS,
   SHEET_OPTION_CLASS,
   DEFAULT_DROPDOWN_CLASS,
   DEFAULT_OPTION_CLASS,
+  SheetChevronIcon,
 } from "./newRide/sheetFieldClasses";
 
 // Mirrors Select.tsx's own DEFAULT_CLASS (not exported from there) so the
-// "default" variant's trigger matches a plain <Select> exactly.
+// "default" variant's trigger matches a plain <Select> exactly — pr-9
+// reserves room for the absolutely-positioned chevron below, same as
+// SHEET_SELECT_CLASS does for SheetChevronIcon.
 const DEFAULT_TRIGGER_CLASS =
-  "flex h-[42px] w-full items-center justify-between gap-2 rounded-control border border-[var(--border-hairline)] bg-[var(--bg-panel)] px-3 text-left text-[14px] text-[var(--ink-primary)] transition-[border-color,box-shadow] duration-[.12s] ease-out focus:outline-none focus:border-[var(--action-bg)] focus:shadow-[var(--focus-ring)]";
+  "flex h-[42px] w-full items-center rounded-control border border-[var(--border-hairline)] bg-[var(--bg-panel)] pl-3 pr-9 text-left text-[14px] text-[var(--ink-primary)] transition-[border-color,box-shadow] duration-[.12s] ease-out focus:outline-none focus:border-[var(--action-bg)] focus:shadow-[var(--focus-ring)]";
+
+// Flipped-up variants of the shared dropdown-panel classes — swap in when
+// there isn't room below the trigger (see `openUpward` below).
+const SHEET_DROPDOWN_CLASS_UP = SHEET_DROPDOWN_CLASS.replace("top-full", "bottom-full").replace("mt-1", "mb-1");
+const DEFAULT_DROPDOWN_CLASS_UP = DEFAULT_DROPDOWN_CLASS.replace("top-full", "bottom-full").replace("mt-1", "mb-1");
+
+// Rough ceiling on the open panel's height — matches the shared dropdown
+// classes' max-h-56 (14rem) — used only to decide whether it should open
+// upward instead, not an exact measurement.
+const PANEL_MAX_HEIGHT_PX = 224;
 
 export interface AssignmentOption {
   id: string;
   label: string;
   // A vehicle/driver that already has an overlapping ride or block — still
-  // selectable, just flagged, since a carrier may deliberately double-book
-  // (a long trip plus a quick local run, a standby driver, etc.) and the
-  // server's availability check is advisory, not a hard block.
+  // selectable, just flagged (dimmed, with a muted "already booked" line),
+  // since a carrier may deliberately double-book (a long trip plus a quick
+  // local run, a standby driver, etc.) and the server's availability check
+  // is advisory, not a hard block.
   busy?: boolean;
   // Vehicle doesn't seat the ride's current passenger count — rendered in
   // the destructive color like the old native <option style>, still
@@ -31,7 +44,7 @@ export interface AssignmentOption {
 
 // Custom-styled replacement for a native <select> wherever the picked
 // resource (vehicle or driver) might already be booked: a browser's native
-// <option> list can't carry a per-row "Already booked" badge, so this
+// <option> list can't carry a per-row "Already booked" note, so this
 // renders the whole list itself instead, styled like the rest of the
 // design system's dropdowns (CityCombobox/ClientCombobox/FilterDropdown).
 export function AssignmentSelect({
@@ -52,6 +65,7 @@ export function AssignmentSelect({
   variant?: "default" | "sheet";
 }) {
   const [open, setOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const sheet = variant === "sheet";
@@ -59,6 +73,18 @@ export function AssignmentSelect({
   function closeAndRefocus() {
     setOpen(false);
     triggerRef.current?.focus();
+  }
+
+  function toggleOpen() {
+    if (!open) {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        setOpenUpward(spaceBelow < PANEL_MAX_HEIGHT_PX && spaceAbove > spaceBelow);
+      }
+    }
+    setOpen((v) => !v);
   }
 
   useEffect(() => {
@@ -78,6 +104,13 @@ export function AssignmentSelect({
   }, [open]);
 
   const selected = options.find((o) => o.id === value) ?? null;
+  const panelClass = sheet
+    ? openUpward
+      ? SHEET_DROPDOWN_CLASS_UP
+      : SHEET_DROPDOWN_CLASS
+    : openUpward
+      ? DEFAULT_DROPDOWN_CLASS_UP
+      : DEFAULT_DROPDOWN_CLASS;
 
   return (
     <div ref={containerRef} className="relative">
@@ -87,17 +120,30 @@ export function AssignmentSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
-        className={`${sheet ? SHEET_SELECT_CLASS : DEFAULT_TRIGGER_CLASS} ${sheet ? "flex items-center justify-between" : ""} disabled:cursor-not-allowed disabled:opacity-60`}
+        onClick={toggleOpen}
+        className={`${sheet ? SHEET_SELECT_CLASS : DEFAULT_TRIGGER_CLASS} disabled:cursor-not-allowed disabled:opacity-60`}
         style={selected?.warn ? { color: "var(--ink-destructive)" } : undefined}
       >
-        <span className={`truncate ${selected ? "" : "text-[var(--ink-muted)]"}`}>
+        <span className={`block truncate ${selected ? "" : "text-[var(--ink-muted)]"}`}>
           {selected ? selected.label : placeholder}
         </span>
-        <ChevronDown size={14} strokeWidth={1.9} className="shrink-0 text-[var(--ink-muted)]" />
       </button>
+      {sheet ? (
+        <SheetChevronIcon />
+      ) : (
+        <svg
+          viewBox="0 0 16 16"
+          width={14}
+          height={14}
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)]"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
       {open ? (
-        <ul role="listbox" className={sheet ? SHEET_DROPDOWN_CLASS : DEFAULT_DROPDOWN_CLASS}>
+        <ul role="listbox" className={panelClass}>
           <li>
             <button
               type="button"
@@ -124,13 +170,16 @@ export function AssignmentSelect({
                   onChange(opt.id);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between gap-2 ${sheet ? SHEET_OPTION_CLASS : DEFAULT_OPTION_CLASS}`}
+                className={`w-full ${opt.busy ? "opacity-50" : ""} ${sheet ? SHEET_OPTION_CLASS : DEFAULT_OPTION_CLASS}`}
               >
-                <span className="truncate" style={opt.warn ? { color: "var(--ink-destructive)" } : undefined}>
+                <span
+                  className={`block truncate ${sheet ? "text-[var(--ink-primary)]" : "text-zinc-900"}`}
+                  style={opt.warn ? { color: "var(--ink-destructive)" } : undefined}
+                >
                   {opt.label}
                 </span>
                 {opt.busy ? (
-                  <span className="shrink-0 rounded-[6px] bg-[#FFF8EC] px-[6px] py-[2px] text-[11px] font-medium text-[#9A5B0F]">
+                  <span className={`block truncate text-xs ${sheet ? "text-[var(--ink-muted)]" : "text-zinc-500"}`}>
                     {busyLabel}
                   </span>
                 ) : null}

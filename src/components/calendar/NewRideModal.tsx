@@ -568,6 +568,7 @@ export function NewRideModal({
                     value={Number(form.passengerCount) || 1}
                     onChange={(n) => setForm({ ...form, passengerCount: String(n) })}
                     min={1}
+                    aria-label={tn("brojPutnika")}
                   />
                 </div>
               </div>
