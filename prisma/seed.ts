@@ -142,6 +142,11 @@ const GOOGLE_DEMO_RIDES: Array<{
   hour: number;
   returnDayOffset?: number;
   returnHour?: number;
+  // Real road distance (one-way; doubled below for a round trip) — seeded
+  // directly rather than computed via estimateRouteDistance() at seed
+  // time, since that needs a live Nominatim/OSRM call per leg and seeding
+  // shouldn't depend on an external service being reachable.
+  distanceKm: number;
   passengerCount: number;
   price: number;
   // No literal "COMPLETED" here — displayRideStatus (src/lib/rideStatus.ts)
@@ -155,17 +160,20 @@ const GOOGLE_DEMO_RIDES: Array<{
   driver: number;
   client: number;
 }> = [
-  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Manchester", destinationLocation: "Piccadilly Gardens", dayOffset: -3, hour: 8, passengerCount: 45, price: 320, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
-  { pickupCity: "Birmingham", pickupLocation: "Bullring", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: -6, hour: 7, passengerCount: 14, price: 180, status: "CONFIRMED", vehicle: 2, driver: 2, client: 1 },
-  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Bristol", destinationLocation: "Cabot Circus", dayOffset: 2, hour: 9, passengerCount: 28, price: 260, status: "CONFIRMED", vehicle: 1, driver: 1, client: 2 },
-  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: 4, hour: 6, passengerCount: 48, price: 540, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
-  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: 1, hour: 10, passengerCount: 7, price: 95, status: "CANCELLED", vehicle: 3, driver: 3, client: 2 },
-  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: -5, hour: 11, passengerCount: 12, price: 150, status: "CANCELLED", vehicle: 2, driver: 2, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Manchester", destinationLocation: "Piccadilly Gardens", dayOffset: -3, hour: 8, distanceKm: 140, passengerCount: 45, price: 320, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Bullring", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: -6, hour: 7, distanceKm: 190, passengerCount: 14, price: 180, status: "CONFIRMED", vehicle: 2, driver: 2, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Bristol", destinationLocation: "Cabot Circus", dayOffset: 2, hour: 9, distanceKm: 140, passengerCount: 28, price: 260, status: "CONFIRMED", vehicle: 1, driver: 1, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: 4, hour: 6, distanceKm: 480, passengerCount: 48, price: 540, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: 1, hour: 10, distanceKm: 150, passengerCount: 7, price: 95, status: "CANCELLED", vehicle: 3, driver: 3, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: -5, hour: 11, distanceKm: 80, passengerCount: 12, price: 150, status: "CANCELLED", vehicle: 2, driver: 2, client: 1 },
   // Multi-day round trips — span several columns on the weekly calendar.
-  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: 0, hour: 7, returnDayOffset: 2, returnHour: 19, passengerCount: 42, price: 980, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
-  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: -1, hour: 6, returnDayOffset: 1, returnHour: 20, passengerCount: 47, price: 1150, status: "CONFIRMED", vehicle: 1, driver: 1, client: 1 },
-  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: -2, hour: 8, returnDayOffset: -1, returnHour: 18, passengerCount: 29, price: 420, status: "CONFIRMED", vehicle: 2, driver: 2, client: 2 },
-  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: 3, hour: 9, passengerCount: 15, price: 140, status: "CONFIRMED", vehicle: 3, driver: 3, client: 0 },
+  // distanceKm here is one-way; doubled below when building each ride
+  // (isRoundTrip, same route reversed, no custom return leg — matches what
+  // estimateTripDistance() would store: outbound + return).
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: 0, hour: 7, returnDayOffset: 2, returnHour: 19, distanceKm: 190, passengerCount: 42, price: 980, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: -1, hour: 6, returnDayOffset: 1, returnHour: 20, distanceKm: 480, passengerCount: 47, price: 1150, status: "CONFIRMED", vehicle: 1, driver: 1, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: -2, hour: 8, returnDayOffset: -1, returnHour: 18, distanceKm: 150, passengerCount: 29, price: 420, status: "CONFIRMED", vehicle: 2, driver: 2, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: 3, hour: 9, distanceKm: 80, passengerCount: 15, price: 140, status: "CONFIRMED", vehicle: 3, driver: 3, client: 0 },
 ];
 
 // Wipes everything under a carrier that the demo accounts above routinely
@@ -369,6 +377,7 @@ async function seedGoogleDemoCarrier() {
         departureAt,
         isRoundTrip: returnAt !== undefined,
         returnAt,
+        estimatedDistanceKm: returnAt !== undefined ? spec.distanceKm * 2 : spec.distanceKm,
         passengerCount: spec.passengerCount,
         price: spec.price,
         currency: "GBP",
