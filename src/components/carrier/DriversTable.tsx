@@ -84,6 +84,7 @@ export function DriversTable({
             <ClickableRow
               key={driver.id}
               onClick={() => setEditingDriverId(driver.id)}
+              selected={editingDriverId === driver.id}
               className={`grid items-center gap-3 px-4 py-3 transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA] ${
                 isLast ? "" : "border-b border-[#F3F3F3]"
               }`}

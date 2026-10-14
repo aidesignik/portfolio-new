@@ -78,6 +78,7 @@ export function FleetTable({
             <ClickableRow
               key={vehicle.id}
               onClick={() => setEditingVehicleId(vehicle.id)}
+              selected={editingVehicleId === vehicle.id}
               className={`grid items-center gap-3 px-4 py-3 transition-colors duration-[.12s] ease-out hover:bg-[#FAFAFA] ${
                 isLast ? "" : "border-b border-[#F3F3F3]"
               }`}
