@@ -5,13 +5,13 @@ import { effectiveRideEnd } from "@/lib/availability";
 
 const AVERAGE_TRIP_DURATION_HOURS = 4;
 
-// Which of this carrier's vehicles/drivers are free — used by the
-// "+ New Ride" form's vehicle/driver pickers. departureAt is optional: with
-// no date picked yet, this just returns the whole active fleet/roster
-// unfiltered (so the fields aren't empty before the carrier gets that far);
-// once a date is given, it's filtered to ones with no overlapping ride or
-// block, same padding-window convention as checkAvailability() in
-// lib/availability.ts.
+// Which of this carrier's vehicles/drivers are already busy — used by the
+// "+ New Ride" form's vehicle/driver pickers. Always returns the whole
+// active fleet/roster (a carrier can deliberately assign an already-booked
+// vehicle or driver, same as reassigning one on an existing ride); once a
+// date is given, each entry is tagged `busy` when it has an overlapping
+// ride or block, same padding-window convention as checkAvailability() in
+// lib/availability.ts, so the form can flag it instead of hiding it.
 export async function GET(request: Request) {
   const { session, error } = await requireApiRole("CARRIER");
   if (error) return error;
@@ -22,6 +22,10 @@ export async function GET(request: Request) {
   if (departureAtParam && Number.isNaN(departureAt!.getTime())) {
     return NextResponse.json({ error: "INVALID_DEPARTURE_AT" }, { status: 400 });
   }
+  // Set when checking availability for a ride that already exists (the
+  // calendar's "Change vehicle/driver" picker) — otherwise that ride's own
+  // current vehicle/driver would always show up busy against itself.
+  const excludeRideId = searchParams.get("excludeRideId");
 
   const carrier = await prisma.carrier.findUniqueOrThrow({ where: { userId: session.user.id } });
 
@@ -54,6 +58,7 @@ export async function GET(request: Request) {
       where: {
         carrierId: carrier.id,
         status: { in: ["PENDING", "CONFIRMED"] },
+        ...(excludeRideId ? { id: { not: excludeRideId } } : {}),
         // A ride's own end can be arbitrarily far past its departure (a
         // multi-day round trip) — this only filters the one bound cheap in
         // SQL, the exact overlap is checked below in JS.
@@ -80,7 +85,7 @@ export async function GET(request: Request) {
   );
 
   return NextResponse.json({
-    vehicles: vehicles.filter((v) => !busyVehicleIds.has(v.id)),
-    drivers: drivers.filter((d) => !busyDriverIds.has(d.id)),
+    vehicles: vehicles.map((v) => ({ ...v, busy: busyVehicleIds.has(v.id) })),
+    drivers: drivers.map((d) => ({ ...d, busy: busyDriverIds.has(d.id) })),
   });
 }

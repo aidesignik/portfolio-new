@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Field } from "@/components/ui/Field";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { useAvailabilityConfirmDialog } from "@/lib/useAvailabilityConfirmDialog";
 import { suggestPrice } from "@/lib/pricing";
 
 type Vehicle = { id: string; type: string; model: string; seats: number };
@@ -28,6 +29,7 @@ export function AssignRideForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const { confirm: confirmAvailability, dialog: availabilityDialog } = useAvailabilityConfirmDialog();
   const [vehicleId, setVehicleId] = useState(vehicles[0]?.id ?? "");
   const [driverId, setDriverId] = useState(drivers[0]?.id ?? "");
   const [distanceKm, setDistanceKm] = useState(initialDistanceKm ? String(initialDistanceKm) : "");
@@ -61,6 +63,7 @@ export function AssignRideForm({
         price: Number(price || suggested || 0) || undefined,
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+      confirmAvailability,
     );
 
     setLoading(false);
@@ -86,6 +89,7 @@ export function AssignRideForm({
   }
 
   return (
+    <>
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("carrier.offerForm.vehicle")}>
@@ -151,5 +155,7 @@ export function AssignRideForm({
         {loading ? t("common.loading") : t("carrier.offerForm.submit")}
       </Button>
     </form>
+    {availabilityDialog}
+    </>
   );
 }

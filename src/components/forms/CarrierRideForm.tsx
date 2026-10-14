@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { CityLocationFields } from "@/components/forms/CityLocationFields";
 import { EMPTY_RETURN_TRIP, returnTripPayload, ReturnTripFields } from "@/components/forms/ReturnTripFields";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { useAvailabilityConfirmDialog } from "@/lib/useAvailabilityConfirmDialog";
 import { suggestPrice } from "@/lib/pricing";
 import type { CityLocation } from "@/lib/location";
 
@@ -28,6 +29,7 @@ export function CarrierRideForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const { confirm: confirmAvailability, dialog: availabilityDialog } = useAvailabilityConfirmDialog();
   const [form, setForm] = useState({
     clientCompanyName: "",
     clientName: "",
@@ -142,6 +144,7 @@ export function CarrierRideForm({
         finalPrice: Number(form.finalPrice || suggested || 0),
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+      confirmAvailability,
     );
 
     setLoading(false);
@@ -172,6 +175,7 @@ export function CarrierRideForm({
   }
 
   return (
+    <>
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-4">
         <h2 className="text-sm font-semibold text-zinc-900">{t("carrier.rideForm.clientSection")}</h2>
@@ -417,5 +421,7 @@ export function CarrierRideForm({
         {loading ? t("common.loading") : t("carrier.rideForm.submit")}
       </Button>
     </form>
+    {availabilityDialog}
+    </>
   );
 }

@@ -6,7 +6,6 @@ import { Pencil, X, CircleAlert, Bus, ArrowRight, ArrowLeft, Copy, Ban, Trash2, 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
-import { Select } from "@/components/ui/Select";
 import { SidePanel } from "@/components/ui/SidePanel";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -19,6 +18,8 @@ import { NewRideModal, type NewRideInitialValues } from "./NewRideModal";
 import { RIDE_STATUS_ACCENT } from "./statusStyles";
 import { RingMarker, PinMarker, DotConnector } from "./newRide/timelineMarkers";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { useAvailabilityConfirmDialog } from "@/lib/useAvailabilityConfirmDialog";
+import { AssignmentSelect } from "./AssignmentSelect";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { formatPhone } from "@/lib/phoneDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
@@ -151,8 +152,16 @@ export function RideDetailDrawer({
   const tDetail = useTranslations("carrier.calendar.detail");
   const locale = useLocale();
 
+  const { confirm: confirmAvailability, dialog: availabilityDialog } = useAvailabilityConfirmDialog();
+
   const [changingField, setChangingField] = useState<"vehicle" | "driver" | null>(null);
   const [pendingValue, setPendingValue] = useState("");
+  // Which vehicles/drivers already have an overlapping ride or block for
+  // this ride's own departure/return window — fetched when the "Change"
+  // picker opens so it can flag them (not hide them; a carrier may still
+  // deliberately double-book).
+  const [busyVehicleIds, setBusyVehicleIds] = useState<Set<string>>(new Set());
+  const [busyDriverIds, setBusyDriverIds] = useState<Set<string>>(new Set());
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -369,6 +378,7 @@ export function RideDetailDrawer({
         distanceKm: editDistanceKm ?? undefined,
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+      confirmAvailability,
     );
     setBusy(null);
     if (!res.ok) {
@@ -383,6 +393,17 @@ export function RideDetailDrawer({
     setChangingField(field);
     setPendingValue(field === "vehicle" ? ride.vehicleId ?? "" : ride.driverId ?? "");
     setError(null);
+
+    const params = new URLSearchParams({ departureAt: ride.departureAt, excludeRideId: ride.id });
+    if (ride.returnAt) params.set("returnAt", ride.returnAt);
+    fetch(`/api/carrier/availability/resources?${params}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        setBusyVehicleIds(new Set(data.vehicles.filter((v: CalendarVehicle) => v.busy).map((v: CalendarVehicle) => v.id)));
+        setBusyDriverIds(new Set(data.drivers.filter((d: CalendarDriver) => d.busy).map((d: CalendarDriver) => d.id)));
+      })
+      .catch(() => {});
   }
 
   async function saveAssignment() {
@@ -395,6 +416,7 @@ export function RideDetailDrawer({
       "POST",
       body,
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+      confirmAvailability,
     );
     setBusy(null);
     if (!res.ok) {
@@ -799,14 +821,19 @@ export function RideDetailDrawer({
 
               {changingField === "vehicle" ? (
                 <div className="flex items-center gap-2 pl-12">
-                  <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
-                    <option value="">—</option>
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {tType(v.type)} {v.model}
-                      </option>
-                    ))}
-                  </Select>
+                  <div className="flex-1">
+                    <AssignmentSelect
+                      value={pendingValue}
+                      onChange={setPendingValue}
+                      placeholder="—"
+                      busyLabel={t("carrier.calendar.alreadyBooked")}
+                      options={vehicles.map((v) => ({
+                        id: v.id,
+                        label: `${tType(v.type)} ${v.model}`,
+                        busy: busyVehicleIds.has(v.id),
+                      }))}
+                    />
+                  </div>
                   <Button type="button" compact disabled={busy === "vehicle"} onClick={saveAssignment}>
                     {busy === "vehicle" ? t("common.loading") : t("common.save")}
                   </Button>
@@ -859,14 +886,15 @@ export function RideDetailDrawer({
 
               {changingField === "driver" ? (
                 <div className="flex items-center gap-2 pl-12">
-                  <Select value={pendingValue} onChange={(e) => setPendingValue(e.target.value)}>
-                    <option value="">—</option>
-                    {drivers.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </Select>
+                  <div className="flex-1">
+                    <AssignmentSelect
+                      value={pendingValue}
+                      onChange={setPendingValue}
+                      placeholder="—"
+                      busyLabel={t("carrier.calendar.alreadyBooked")}
+                      options={drivers.map((d) => ({ id: d.id, label: d.name, busy: busyDriverIds.has(d.id) }))}
+                    />
+                  </div>
                   <Button type="button" compact disabled={busy === "driver"} onClick={saveAssignment}>
                     {busy === "driver" ? t("common.loading") : t("common.save")}
                   </Button>
@@ -1005,6 +1033,8 @@ export function RideDetailDrawer({
           }}
         />
       ) : null}
+
+      {availabilityDialog}
     </>
   );
 }

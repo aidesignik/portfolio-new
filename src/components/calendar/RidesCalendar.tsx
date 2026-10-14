@@ -13,6 +13,7 @@ import { MultiSelectFilter, type MultiSelectOption } from "@/components/carrier/
 import { RIDE_STATUS_DOT } from "./statusStyles";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { useAvailabilityConfirmDialog } from "@/lib/useAvailabilityConfirmDialog";
 import { clientDisplayName } from "@/lib/clientDisplay";
 import { displayRideStatus } from "@/lib/rideStatus";
 import { parseStatusParam, serializeStatusParam } from "@/lib/statusFilterParam";
@@ -72,6 +73,7 @@ export function RidesCalendar() {
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
   const { showNewRide, closeNewRide } = useNewRide();
+  const { confirm: confirmAvailability, dialog: availabilityDialog } = useAvailabilityConfirmDialog();
   const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
   const [draggingRideId, setDraggingRideId] = useState<string | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<DragOverTarget | null>(null);
@@ -191,6 +193,7 @@ export function RidesCalendar() {
       "POST",
       body,
       (start, end) => t("availabilityWarning", { start, end }),
+      confirmAvailability,
     );
     if (response.ok) load();
   }
@@ -347,6 +350,8 @@ export function RidesCalendar() {
           }}
         />
       ) : null}
+
+      {availabilityDialog}
     </div>
   );
 }

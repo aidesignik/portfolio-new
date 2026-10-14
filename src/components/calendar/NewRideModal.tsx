@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { SidePanel } from "@/components/ui/SidePanel";
-import { Select } from "@/components/ui/Select";
+import { AssignmentSelect } from "./AssignmentSelect";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Stepper } from "@/components/ui/Stepper";
 import type { DatePickerHandle } from "@/components/ui/DatePicker";
@@ -14,14 +14,9 @@ import { LegCard, DateTimeRow } from "./newRide/RouteLegCard";
 import { RouteTimeline } from "./newRide/RouteTimeline";
 import { ReturnLegCard } from "./newRide/ReturnLegCard";
 import { DistanceCard } from "./newRide/DistanceCard";
-import {
-  SHEET_INPUT_CLASS,
-  SHEET_TEXTAREA_CLASS,
-  SHEET_SELECT_CLASS,
-  SHEET_LABEL_CLASS,
-  SheetChevronIcon,
-} from "./newRide/sheetFieldClasses";
+import { SHEET_INPUT_CLASS, SHEET_TEXTAREA_CLASS, SHEET_LABEL_CLASS } from "./newRide/sheetFieldClasses";
 import { fetchWithAvailabilityConfirm } from "@/lib/availabilityConfirm";
+import { useAvailabilityConfirmDialog } from "@/lib/useAvailabilityConfirmDialog";
 import { resolveReturnLeg } from "@/lib/rideReturnLeg";
 import { combineDateTimeLocal, splitDateTimeLocal } from "@/lib/pickerDateFormat";
 import type { CityLocation } from "@/lib/location";
@@ -82,6 +77,7 @@ export function NewRideModal({
 }) {
   const t = useTranslations();
   const tn = useTranslations("carrier.newRide");
+  const { confirm: confirmAvailability, dialog: availabilityDialog } = useAvailabilityConfirmDialog();
   const uid = useId();
   const tType = useTranslations("vehicleType");
   const { clientPhone: initialClientPhone, ...restInitialValues } = initialValues ?? {};
@@ -341,6 +337,7 @@ export function NewRideModal({
         distanceKm: distanceKm ?? undefined,
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
+      confirmAvailability,
     );
 
     setLoading(false);
@@ -355,6 +352,7 @@ export function NewRideModal({
     onCreated();
   }
 
+  const busyCount = availableVehicles.filter((v) => v.busy).length + availableDrivers.filter((d) => d.busy).length;
   const distanceVisible = Boolean(form.pickupCity && form.destinationCity);
   const breakdownText =
     form.isRoundTrip && outboundKm !== null && returnKm !== null
@@ -363,6 +361,7 @@ export function NewRideModal({
   const legKm = (km: number | null) => (calculatingDistance || distanceError || km === null ? "—" : `${Math.round(km)} km`);
 
   return (
+    <>
     <SidePanel onClose={onClose} label={tn("title")}>
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#F0F0F2] py-0 pl-6 pr-5">
         <h2 className="text-[18px] font-semibold tracking-[-0.015em] text-[#18181B]">{tn("title")}</h2>
@@ -598,53 +597,44 @@ export function NewRideModal({
               </div>
               <span
                 className={`shrink-0 text-right text-[12.5px] ${
-                  form.departureAt && (!form.isRoundTrip || form.returnAt) ? "text-[#16A34A]" : "text-[#A1A1AA]"
+                  form.departureAt && (!form.isRoundTrip || form.returnAt)
+                    ? busyCount > 0
+                      ? "text-[#9A5B0F]"
+                      : "text-[#16A34A]"
+                    : "text-[#A1A1AA]"
                 }`}
               >
                 {form.departureAt && (!form.isRoundTrip || form.returnAt)
-                  ? tn("freeCount", { vehicles: availableVehicles.length, drivers: availableDrivers.length })
+                  ? busyCount > 0
+                    ? tn("busyCount", { count: busyCount })
+                    : tn("allFreeAtThatTime")
                   : tn("pickDatesForFreeCount")}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <Select
-                  unstyled
-                  className={SHEET_SELECT_CLASS}
-                  value={form.vehicleId}
-                  onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
-                  disabled={loadingAvailability}
-                >
-                  <option value="">{tn("assignLater")}</option>
-                  {availableVehicles.map((v) => (
-                    <option
-                      key={v.id}
-                      value={v.id}
-                      style={v.seats < (Number(form.passengerCount) || 0) ? { color: "var(--ink-destructive)" } : undefined}
-                    >
-                      {tType(v.type)} {v.model} · {v.seats} {tn("mesta")}
-                    </option>
-                  ))}
-                </Select>
-                <SheetChevronIcon />
-              </div>
-              <div className="relative">
-                <Select
-                  unstyled
-                  className={SHEET_SELECT_CLASS}
-                  value={form.driverId}
-                  onChange={(e) => setForm({ ...form, driverId: e.target.value })}
-                  disabled={loadingAvailability}
-                >
-                  <option value="">{tn("assignLater")}</option>
-                  {availableDrivers.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </Select>
-                <SheetChevronIcon />
-              </div>
+              <AssignmentSelect
+                variant="sheet"
+                value={form.vehicleId}
+                onChange={(id) => setForm({ ...form, vehicleId: id })}
+                disabled={loadingAvailability}
+                placeholder={tn("assignLater")}
+                busyLabel={t("carrier.calendar.alreadyBooked")}
+                options={availableVehicles.map((v) => ({
+                  id: v.id,
+                  label: `${tType(v.type)} ${v.model} · ${v.seats} ${tn("mesta")}`,
+                  busy: v.busy,
+                  warn: v.seats < (Number(form.passengerCount) || 0),
+                }))}
+              />
+              <AssignmentSelect
+                variant="sheet"
+                value={form.driverId}
+                onChange={(id) => setForm({ ...form, driverId: id })}
+                disabled={loadingAvailability}
+                placeholder={tn("assignLater")}
+                busyLabel={t("carrier.calendar.alreadyBooked")}
+                options={availableDrivers.map((d) => ({ id: d.id, label: d.name, busy: d.busy }))}
+              />
             </div>
           </section>
 
@@ -681,5 +671,7 @@ export function NewRideModal({
         </div>
       </form>
     </SidePanel>
+    {availabilityDialog}
+    </>
   );
 }
