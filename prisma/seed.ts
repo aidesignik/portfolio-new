@@ -130,7 +130,9 @@ const GOOGLE_DEMO_CLIENTS: Array<{ email: string; name: string; companyName: str
 // rides always land in the past and "confirmed"/"cancelled" upcoming ones
 // in the future, regardless of when a demo happens. vehicle/driver indices
 // index into GOOGLE_DEMO_VEHICLES/GOOGLE_DEMO_DRIVERS, client into
-// GOOGLE_DEMO_CLIENTS.
+// GOOGLE_DEMO_CLIENTS. returnDayOffset/returnHour, when set, make the ride
+// a multi-day round trip (isRoundTrip + returnAt) — the calendar renders
+// those as a single block spanning from departure day to return day.
 const GOOGLE_DEMO_RIDES: Array<{
   pickupCity: string;
   pickupLocation: string;
@@ -138,6 +140,8 @@ const GOOGLE_DEMO_RIDES: Array<{
   destinationLocation: string;
   dayOffset: number;
   hour: number;
+  returnDayOffset?: number;
+  returnHour?: number;
   passengerCount: number;
   price: number;
   status: "COMPLETED" | "CONFIRMED" | "CANCELLED";
@@ -151,6 +155,11 @@ const GOOGLE_DEMO_RIDES: Array<{
   { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: 4, hour: 6, passengerCount: 48, price: 540, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
   { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: 1, hour: 10, passengerCount: 7, price: 95, status: "CANCELLED", vehicle: 3, driver: 3, client: 2 },
   { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: -5, hour: 11, passengerCount: 12, price: 150, status: "CANCELLED", vehicle: 2, driver: 2, client: 1 },
+  // Multi-day round trips — span several columns on the weekly calendar.
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: 0, hour: 7, returnDayOffset: 2, returnHour: 19, passengerCount: 42, price: 980, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: -1, hour: 6, returnDayOffset: 1, returnHour: 20, passengerCount: 47, price: 1150, status: "CONFIRMED", vehicle: 1, driver: 1, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: -2, hour: 8, returnDayOffset: -1, returnHour: 18, passengerCount: 29, price: 420, status: "COMPLETED", vehicle: 2, driver: 2, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: 3, hour: 9, passengerCount: 15, price: 140, status: "CONFIRMED", vehicle: 3, driver: 3, client: 0 },
 ];
 
 // Wipes everything under a carrier that the demo accounts above routinely
@@ -335,6 +344,12 @@ async function seedGoogleDemoCarrier() {
     const departureAt = new Date(now.getTime() + spec.dayOffset * DAY_MS);
     departureAt.setHours(spec.hour, 0, 0, 0);
 
+    let returnAt: Date | undefined;
+    if (spec.returnDayOffset !== undefined) {
+      returnAt = new Date(now.getTime() + spec.returnDayOffset * DAY_MS);
+      returnAt.setHours(spec.returnHour ?? spec.hour, 0, 0, 0);
+    }
+
     const ride = await prisma.ride.create({
       data: {
         clientId: clients[spec.client].id,
@@ -346,6 +361,8 @@ async function seedGoogleDemoCarrier() {
         destinationCity: spec.destinationCity,
         destinationLocation: spec.destinationLocation,
         departureAt,
+        isRoundTrip: returnAt !== undefined,
+        returnAt,
         passengerCount: spec.passengerCount,
         price: spec.price,
         currency: "GBP",
