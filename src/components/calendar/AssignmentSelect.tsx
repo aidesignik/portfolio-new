@@ -36,9 +36,10 @@ export interface AssignmentOption {
   // local run, a standby driver, etc.) and the server's availability check
   // is advisory, not a hard block.
   busy?: boolean;
-  // Vehicle doesn't seat the ride's current passenger count — rendered in
-  // the destructive color like the old native <option style>, still
-  // selectable.
+  // Vehicle doesn't seat the ride's current passenger count — only colors
+  // the trigger once this option is actually selected (a full list of
+  // mostly-red rows before the carrier has even settled on a headcount
+  // reads as broken, not helpful), still selectable either way.
   warn?: boolean;
 }
 
@@ -172,10 +173,7 @@ export function AssignmentSelect({
                 }}
                 className={`w-full ${opt.busy ? "opacity-50" : ""} ${sheet ? SHEET_OPTION_CLASS : DEFAULT_OPTION_CLASS}`}
               >
-                <span
-                  className={`block truncate ${sheet ? "text-[var(--ink-primary)]" : "text-zinc-900"}`}
-                  style={opt.warn ? { color: "var(--ink-destructive)" } : undefined}
-                >
+                <span className={`block truncate ${sheet ? "text-[var(--ink-primary)]" : "text-zinc-900"}`}>
                   {opt.label}
                 </span>
                 {opt.busy ? (
