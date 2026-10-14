@@ -48,9 +48,12 @@ export interface CalendarVehicle {
   photos: string[];
   // Only set by /api/carrier/availability/resources — whether this vehicle
   // already has an overlapping ride or block for the date/time being
-  // picked. Still assignable; the New Ride form flags it rather than
-  // hiding it.
+  // picked, and that conflict's window (for the "already booked from X to
+  // Y" confirmation shown as soon as it's picked). Still assignable; the
+  // New Ride form flags it rather than hiding it.
   busy?: boolean;
+  busyStart?: string;
+  busyEnd?: string;
 }
 
 export interface CalendarDriver {
@@ -59,8 +62,10 @@ export interface CalendarDriver {
   phone: string;
   isAvailable: boolean;
   avatarColor: string | null;
-  // Same as CalendarVehicle.busy, only set by the same endpoint.
+  // Same as CalendarVehicle.busy/busyStart/busyEnd, only set by the same endpoint.
   busy?: boolean;
+  busyStart?: string;
+  busyEnd?: string;
 }
 
 export interface CalendarData {

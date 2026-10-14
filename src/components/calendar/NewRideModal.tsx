@@ -119,6 +119,11 @@ export function NewRideModal({
   const [availableVehicles, setAvailableVehicles] = useState<CalendarVehicle[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<CalendarDriver[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+  // The vehicle/driver id the carrier already clicked "assign anyway" for
+  // when picking it (see pickVehicle/pickDriver below) — lets onSubmit skip
+  // asking the same question again if that's still the current selection.
+  const [confirmedVehicleId, setConfirmedVehicleId] = useState<string | null>(null);
+  const [confirmedDriverId, setConfirmedDriverId] = useState<string | null>(null);
 
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [outboundKm, setOutboundKm] = useState<number | null>(null);
@@ -338,6 +343,8 @@ export function NewRideModal({
       },
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
       confirmAvailability,
+      (form.vehicleId !== "" && form.vehicleId === confirmedVehicleId) ||
+        (form.driverId !== "" && form.driverId === confirmedDriverId),
     );
 
     setLoading(false);
@@ -350,6 +357,34 @@ export function NewRideModal({
     }
 
     onCreated();
+  }
+
+  // Confirms "already booked" the moment a busy vehicle/driver is picked
+  // (not only when the ride is actually created) — only commits the
+  // selection if the dispatcher confirms, same ConfirmDialog instance the
+  // submit path's fetchWithAvailabilityConfirm uses.
+  async function pickVehicle(id: string) {
+    const picked = availableVehicles.find((v) => v.id === id);
+    if (picked?.busy) {
+      const start = picked.busyStart ? new Date(picked.busyStart).toLocaleDateString() : "";
+      const end = picked.busyEnd ? new Date(picked.busyEnd).toLocaleDateString() : "";
+      const ok = await confirmAvailability(t("carrier.calendar.availabilityWarning", { start, end }));
+      if (!ok) return;
+      setConfirmedVehicleId(id);
+    }
+    setForm((prev) => ({ ...prev, vehicleId: id }));
+  }
+
+  async function pickDriver(id: string) {
+    const picked = availableDrivers.find((d) => d.id === id);
+    if (picked?.busy) {
+      const start = picked.busyStart ? new Date(picked.busyStart).toLocaleDateString() : "";
+      const end = picked.busyEnd ? new Date(picked.busyEnd).toLocaleDateString() : "";
+      const ok = await confirmAvailability(t("carrier.calendar.availabilityWarning", { start, end }));
+      if (!ok) return;
+      setConfirmedDriverId(id);
+    }
+    setForm((prev) => ({ ...prev, driverId: id }));
   }
 
   const busyCount = availableVehicles.filter((v) => v.busy).length + availableDrivers.filter((d) => d.busy).length;
@@ -616,7 +651,7 @@ export function NewRideModal({
               <AssignmentSelect
                 variant="sheet"
                 value={form.vehicleId}
-                onChange={(id) => setForm({ ...form, vehicleId: id })}
+                onChange={pickVehicle}
                 disabled={loadingAvailability}
                 placeholder={tn("assignLater")}
                 busyLabel={t("carrier.calendar.alreadyBooked")}
@@ -630,7 +665,7 @@ export function NewRideModal({
               <AssignmentSelect
                 variant="sheet"
                 value={form.driverId}
-                onChange={(id) => setForm({ ...form, driverId: id })}
+                onChange={pickDriver}
                 disabled={loadingAvailability}
                 placeholder={tn("assignLater")}
                 busyLabel={t("carrier.calendar.alreadyBooked")}

@@ -157,11 +157,16 @@ export function RideDetailDrawer({
   const [changingField, setChangingField] = useState<"vehicle" | "driver" | null>(null);
   const [pendingValue, setPendingValue] = useState("");
   // Which vehicles/drivers already have an overlapping ride or block for
-  // this ride's own departure/return window — fetched when the "Change"
-  // picker opens so it can flag them (not hide them; a carrier may still
-  // deliberately double-book).
-  const [busyVehicleIds, setBusyVehicleIds] = useState<Set<string>>(new Set());
-  const [busyDriverIds, setBusyDriverIds] = useState<Set<string>>(new Set());
+  // this ride's own departure/return window, and that conflict's window —
+  // fetched when the "Change" picker opens so it can flag them (not hide
+  // them; a carrier may still deliberately double-book) and confirm the
+  // moment a busy one is picked, same as the New Ride form.
+  const [vehicleConflicts, setVehicleConflicts] = useState<Map<string, { start: string; end: string }>>(new Map());
+  const [driverConflicts, setDriverConflicts] = useState<Map<string, { start: string; end: string }>>(new Map());
+  // The vehicle/driver id the carrier already clicked "assign anyway" for
+  // when picking it — lets saveAssignment skip asking the same question
+  // again if that's still the pending selection.
+  const [confirmedPendingValue, setConfirmedPendingValue] = useState<string | null>(null);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -392,6 +397,7 @@ export function RideDetailDrawer({
   function startChanging(field: "vehicle" | "driver") {
     setChangingField(field);
     setPendingValue(field === "vehicle" ? ride.vehicleId ?? "" : ride.driverId ?? "");
+    setConfirmedPendingValue(null);
     setError(null);
 
     const params = new URLSearchParams({ departureAt: ride.departureAt, excludeRideId: ride.id });
@@ -400,10 +406,34 @@ export function RideDetailDrawer({
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!data) return;
-        setBusyVehicleIds(new Set(data.vehicles.filter((v: CalendarVehicle) => v.busy).map((v: CalendarVehicle) => v.id)));
-        setBusyDriverIds(new Set(data.drivers.filter((d: CalendarDriver) => d.busy).map((d: CalendarDriver) => d.id)));
+        setVehicleConflicts(
+          new Map(
+            data.vehicles.filter((v: CalendarVehicle) => v.busy).map((v: CalendarVehicle) => [v.id, { start: v.busyStart, end: v.busyEnd }]),
+          ),
+        );
+        setDriverConflicts(
+          new Map(
+            data.drivers.filter((d: CalendarDriver) => d.busy).map((d: CalendarDriver) => [d.id, { start: d.busyStart, end: d.busyEnd }]),
+          ),
+        );
       })
       .catch(() => {});
+  }
+
+  // Confirms "already booked" the moment a busy vehicle/driver is picked in
+  // the "Change" dropdown (not only when Save is clicked) — only commits
+  // the pending selection if the dispatcher confirms.
+  async function pickPendingValue(id: string) {
+    const conflicts = changingField === "vehicle" ? vehicleConflicts : driverConflicts;
+    const conflict = conflicts.get(id);
+    if (conflict) {
+      const start = conflict.start ? new Date(conflict.start).toLocaleDateString() : "";
+      const end = conflict.end ? new Date(conflict.end).toLocaleDateString() : "";
+      const ok = await confirmAvailability(t("carrier.calendar.availabilityWarning", { start, end }));
+      if (!ok) return;
+      setConfirmedPendingValue(id);
+    }
+    setPendingValue(id);
   }
 
   async function saveAssignment() {
@@ -417,6 +447,7 @@ export function RideDetailDrawer({
       body,
       (start, end) => t("carrier.calendar.availabilityWarning", { start, end }),
       confirmAvailability,
+      pendingValue !== "" && pendingValue === confirmedPendingValue,
     );
     setBusy(null);
     if (!res.ok) {
@@ -824,13 +855,13 @@ export function RideDetailDrawer({
                   <div className="flex-1">
                     <AssignmentSelect
                       value={pendingValue}
-                      onChange={setPendingValue}
+                      onChange={pickPendingValue}
                       placeholder="—"
                       busyLabel={t("carrier.calendar.alreadyBooked")}
                       options={vehicles.map((v) => ({
                         id: v.id,
                         label: `${tType(v.type)} ${v.model}`,
-                        busy: busyVehicleIds.has(v.id),
+                        busy: vehicleConflicts.has(v.id),
                       }))}
                     />
                   </div>
@@ -889,10 +920,10 @@ export function RideDetailDrawer({
                   <div className="flex-1">
                     <AssignmentSelect
                       value={pendingValue}
-                      onChange={setPendingValue}
+                      onChange={pickPendingValue}
                       placeholder="—"
                       busyLabel={t("carrier.calendar.alreadyBooked")}
-                      options={drivers.map((d) => ({ id: d.id, label: d.name, busy: busyDriverIds.has(d.id) }))}
+                      options={drivers.map((d) => ({ id: d.id, label: d.name, busy: driverConflicts.has(d.id) }))}
                     />
                   </div>
                   <Button type="button" compact disabled={busy === "driver"} onClick={saveAssignment}>

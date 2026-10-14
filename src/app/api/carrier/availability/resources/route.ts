@@ -68,7 +68,7 @@ export async function GET(request: Request) {
     }),
     prisma.block.findMany({
       where: { carrierId: carrier.id, startAt: { lte: windowEnd }, endAt: { gte: windowStart } },
-      select: { vehicleId: true, driverId: true },
+      select: { vehicleId: true, driverId: true, startAt: true, endAt: true },
     }),
   ]);
 
@@ -77,15 +77,39 @@ export async function GET(request: Request) {
     return ride.departureAt <= windowEnd && windowStart <= rideEnd;
   });
 
-  const busyVehicleIds = new Set(
-    [...overlappingRides, ...overlappingBlocks].map((r) => r.vehicleId).filter((id): id is string => Boolean(id)),
-  );
-  const busyDriverIds = new Set(
-    [...overlappingRides, ...overlappingBlocks].map((r) => r.driverId).filter((id): id is string => Boolean(id)),
-  );
+  // One {start, end} per busy resource (the first conflict found is enough
+  // — this is just for the "already booked from X to Y" message, not a
+  // full conflict list) so the picker can show the confirmation dialog the
+  // moment a busy resource is picked instead of waiting for the save/create
+  // request to come back with the same conflict.
+  const conflictWindows = [
+    ...overlappingRides.map((r) => ({
+      vehicleId: r.vehicleId,
+      driverId: r.driverId,
+      start: r.departureAt,
+      end: effectiveRideEnd(r.departureAt, r.returnAt),
+    })),
+    ...overlappingBlocks.map((b) => ({ vehicleId: b.vehicleId, driverId: b.driverId, start: b.startAt, end: b.endAt })),
+  ];
+  const vehicleConflict = new Map<string, { start: Date; end: Date }>();
+  const driverConflict = new Map<string, { start: Date; end: Date }>();
+  for (const c of conflictWindows) {
+    if (c.vehicleId && !vehicleConflict.has(c.vehicleId)) vehicleConflict.set(c.vehicleId, { start: c.start, end: c.end });
+    if (c.driverId && !driverConflict.has(c.driverId)) driverConflict.set(c.driverId, { start: c.start, end: c.end });
+  }
 
   return NextResponse.json({
-    vehicles: vehicles.map((v) => ({ ...v, busy: busyVehicleIds.has(v.id) })),
-    drivers: drivers.map((d) => ({ ...d, busy: busyDriverIds.has(d.id) })),
+    vehicles: vehicles.map((v) => ({
+      ...v,
+      busy: vehicleConflict.has(v.id),
+      busyStart: vehicleConflict.get(v.id)?.start,
+      busyEnd: vehicleConflict.get(v.id)?.end,
+    })),
+    drivers: drivers.map((d) => ({
+      ...d,
+      busy: driverConflict.has(d.id),
+      busyStart: driverConflict.get(d.id)?.start,
+      busyEnd: driverConflict.get(d.id)?.end,
+    })),
   });
 }

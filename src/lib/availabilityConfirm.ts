@@ -22,6 +22,12 @@ export async function fetchWithAvailabilityConfirm(
   body: Record<string, unknown>,
   buildMessage: (start: string, end: string) => string,
   confirm: (message: string) => Promise<boolean>,
+  // Set when the caller already confirmed this exact assignment up front —
+  // e.g. the vehicle/driver picker itself warned "already booked" the
+  // moment it was selected (see AssignmentSelect's callers), so asking
+  // again here on submit would just repeat the same question. Skips
+  // straight to the forced request instead of trying unforced first.
+  preConfirmed = false,
 ): Promise<AvailabilityFetchResult> {
   const send = (force: boolean) =>
     fetch(url, {
@@ -30,8 +36,8 @@ export async function fetchWithAvailabilityConfirm(
       body: JSON.stringify({ ...body, force }),
     });
 
-  const response = await send(false);
-  if (response.status !== 409) return { response, declinedAvailability: false };
+  const response = await send(preConfirmed);
+  if (preConfirmed || response.status !== 409) return { response, declinedAvailability: false };
 
   const parsed = await response.clone().json().catch(() => null);
   const conflict = parsed?.error === "UNAVAILABLE" ? parsed.conflicts?.[0] : null;
