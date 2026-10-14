@@ -144,13 +144,19 @@ const GOOGLE_DEMO_RIDES: Array<{
   returnHour?: number;
   passengerCount: number;
   price: number;
-  status: "COMPLETED" | "CONFIRMED" | "CANCELLED";
+  // No literal "COMPLETED" here — displayRideStatus (src/lib/rideStatus.ts)
+  // derives that from a CONFIRMED ride whose trip window has already
+  // passed, exactly as the live app produces it. Writing COMPLETED
+  // directly would desync these demo rides from that invariant and hide
+  // UI that keys off the raw status, e.g. "Remove from calendar" in
+  // RideDetailDrawer.
+  status: "CONFIRMED" | "CANCELLED";
   vehicle: number;
   driver: number;
   client: number;
 }> = [
-  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Manchester", destinationLocation: "Piccadilly Gardens", dayOffset: -3, hour: 8, passengerCount: 45, price: 320, status: "COMPLETED", vehicle: 0, driver: 0, client: 0 },
-  { pickupCity: "Birmingham", pickupLocation: "Bullring", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: -6, hour: 7, passengerCount: 14, price: 180, status: "COMPLETED", vehicle: 2, driver: 2, client: 1 },
+  { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Manchester", destinationLocation: "Piccadilly Gardens", dayOffset: -3, hour: 8, passengerCount: 45, price: 320, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
+  { pickupCity: "Birmingham", pickupLocation: "Bullring", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: -6, hour: 7, passengerCount: 14, price: 180, status: "CONFIRMED", vehicle: 2, driver: 2, client: 1 },
   { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Bristol", destinationLocation: "Cabot Circus", dayOffset: 2, hour: 9, passengerCount: 28, price: 260, status: "CONFIRMED", vehicle: 1, driver: 1, client: 2 },
   { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: 4, hour: 6, passengerCount: 48, price: 540, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
   { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: 1, hour: 10, passengerCount: 7, price: 95, status: "CANCELLED", vehicle: 3, driver: 3, client: 2 },
@@ -158,7 +164,7 @@ const GOOGLE_DEMO_RIDES: Array<{
   // Multi-day round trips — span several columns on the weekly calendar.
   { pickupCity: "Birmingham", pickupLocation: "New Street Station", destinationCity: "London", destinationLocation: "Victoria Coach Station", dayOffset: 0, hour: 7, returnDayOffset: 2, returnHour: 19, passengerCount: 42, price: 980, status: "CONFIRMED", vehicle: 0, driver: 0, client: 0 },
   { pickupCity: "Birmingham", pickupLocation: "Grand Central", destinationCity: "Edinburgh", destinationLocation: "Waverley Bridge", dayOffset: -1, hour: 6, returnDayOffset: 1, returnHour: 20, passengerCount: 47, price: 1150, status: "CONFIRMED", vehicle: 1, driver: 1, client: 1 },
-  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: -2, hour: 8, returnDayOffset: -1, returnHour: 18, passengerCount: 29, price: 420, status: "COMPLETED", vehicle: 2, driver: 2, client: 2 },
+  { pickupCity: "Birmingham", pickupLocation: "Mailbox", destinationCity: "Liverpool", destinationLocation: "Albert Dock", dayOffset: -2, hour: 8, returnDayOffset: -1, returnHour: 18, passengerCount: 29, price: 420, status: "CONFIRMED", vehicle: 2, driver: 2, client: 2 },
   { pickupCity: "Birmingham", pickupLocation: "Selfridges", destinationCity: "Nottingham", destinationLocation: "Old Market Square", dayOffset: 3, hour: 9, passengerCount: 15, price: 140, status: "CONFIRMED", vehicle: 3, driver: 3, client: 0 },
 ];
 

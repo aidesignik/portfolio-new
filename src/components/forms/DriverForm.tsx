@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -441,22 +442,23 @@ export function DriverForm({
 
       {error ? <p className="text-[13.5px] text-[var(--ink-destructive)]">{error}</p> : null}
 
-      <Button type="submit" disabled={loading}>
-        {loading ? t("common.loading") : t("common.save")}
-      </Button>
-
-      {onDelete ? (
-        <div className="border-t border-[var(--border-soft)] pt-[18px]">
+      <div className="flex items-center gap-[10px]">
+        <Button type="submit" disabled={loading}>
+          {loading ? t("common.loading") : t("common.save")}
+        </Button>
+        {onDelete ? (
           <button
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="text-[13.5px] font-medium text-[var(--ink-destructive)] hover:underline disabled:opacity-50"
+            aria-label={t("carrier.driverForm.deleteDriver")}
+            title={t("carrier.driverForm.deleteDriver")}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control border border-[var(--border-strong)] text-[var(--ink-destructive)] transition-colors duration-[.12s] ease-out hover:bg-[var(--bg-subtle)] hover:border-[var(--ink-destructive)] disabled:opacity-50 disabled:pointer-events-none"
           >
-            {deleting ? t("common.loading") : t("carrier.driverForm.deleteDriver")}
+            <Trash2 size={17} strokeWidth={1.9} />
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </form>
   );
 }
