@@ -89,14 +89,15 @@ const CARRIERS: CarrierSeed[] = [
   },
 ];
 
-// GoogleSignInButton always signs in with this exact fixed identity (see
-// src/components/forms/GoogleSignInButton.tsx) — there's no real Google
-// OAuth wired up, so "Sign in with Google" on the login page always lands
-// on this one account. It gets its own richer seed (multiple vehicles,
-// multiple drivers, a spread of rides across every status) rather than
-// the single-vehicle CarrierSeed shape the other four use, since this is
-// the account actually used for live client demonstrations — company
-// name kept as "Transport team" by request, everything else refreshed.
+// The account GoogleSignInButton used to always land on back when
+// "Sign in with Google" was a fixed-identity mock (no real OAuth wired
+// up). Real Google OAuth is wired in now, so this account is reached via
+// email/password instead — see SEED_DEMO_CARRIER_PASSWORD below. It gets
+// its own richer seed (multiple vehicles, multiple drivers, a spread of
+// rides across every status) rather than the single-vehicle CarrierSeed
+// shape the other four use, since this is the account actually used for
+// live client demonstrations — company name kept as "Transport team" by
+// request, everything else refreshed.
 const GOOGLE_DEMO_EMAIL = "google.demo.carrier@example.com";
 
 const GOOGLE_DEMO_VEHICLES: Array<{
@@ -278,13 +279,14 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function seedGoogleDemoCarrier() {
   const now = new Date();
+  const demoPassword = process.env.SEED_DEMO_CARRIER_PASSWORD ?? "demo1234";
 
   const user = await prisma.user.upsert({
     where: { email: GOOGLE_DEMO_EMAIL },
-    update: { name: "Demo Carrier (Google)" },
+    update: { name: "Demo Carrier (Google)", passwordHash: await bcrypt.hash(demoPassword, 10) },
     create: {
       email: GOOGLE_DEMO_EMAIL,
-      passwordHash: await bcrypt.hash("unused-google-mock-login", 10),
+      passwordHash: await bcrypt.hash(demoPassword, 10),
       name: "Demo Carrier (Google)",
       role: "CARRIER",
     },
@@ -442,7 +444,7 @@ async function seedGoogleDemoCarrier() {
   }
 
   console.log(
-    `Carrier ready: Transport team (Google sign-in) — ${GOOGLE_DEMO_EMAIL} — ${vehicles.length} vehicles, ${drivers.length} drivers, ${GOOGLE_DEMO_RIDES.length} rides`,
+    `Carrier ready: Transport team — ${GOOGLE_DEMO_EMAIL} / ${demoPassword} — ${vehicles.length} vehicles, ${drivers.length} drivers, ${GOOGLE_DEMO_RIDES.length} rides`,
   );
 }
 
