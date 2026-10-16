@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
@@ -198,9 +198,16 @@ export function AuthCredentialsForm() {
             </button>
           </div>
           <div>
-            <label htmlFor="auth-password-input" className="mb-1.5 block text-[12px] font-semibold text-[var(--ink-2)]">
-              {t("common.password")}
-            </label>
+            <div className="mb-1.5 flex items-center justify-between gap-3">
+              <label htmlFor="auth-password-input" className="block text-[12px] font-semibold text-[var(--ink-2)]">
+                {t("common.password")}
+              </label>
+              {accountExists ? (
+                <Link href="/forgot-password" className="text-[12px] font-medium text-[var(--ink)] hover:underline">
+                  {t("auth.forgotPasswordLink")}
+                </Link>
+              ) : null}
+            </div>
             <Input
               id="auth-password-input"
               type="password"
@@ -234,7 +241,7 @@ export function AuthCredentialsForm() {
 
       <p className="mt-3 text-[12px] text-zinc-400">
         {t("auth.needHelpPrefix")}{" "}
-        <a href="mailto:support@travia.example" className="text-[var(--ink)] hover:underline">
+        <a href="mailto:support@travia.live" className="text-[var(--ink)] hover:underline">
           {t("auth.contactSupportLink")}
         </a>
       </p>

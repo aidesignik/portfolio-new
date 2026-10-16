@@ -21,3 +21,13 @@ export const registerSchema = z.discriminatedUnion("role", [
   clientRegisterSchema,
   carrierRegisterSchema,
 ]);
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+  locale: z.string().optional(),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8),
+});

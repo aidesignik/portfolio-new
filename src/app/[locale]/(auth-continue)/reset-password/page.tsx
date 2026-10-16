@@ -1,0 +1,32 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { AuthSplitScreen } from "@/components/layout/AuthSplitScreen";
+import { ResetPasswordForm } from "@/components/forms/ResetPasswordForm";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return { title: t("resetPasswordTitle") };
+}
+
+export default async function ResetPasswordPage() {
+  const t = await getTranslations("auth");
+
+  return (
+    <AuthSplitScreen>
+      <div className="flex w-full flex-col gap-10">
+        <div>
+          <h1
+            className="m-0 text-balance text-[clamp(28px,3.8vw,42px)] font-semibold leading-[1.05] tracking-[-0.03em] text-zinc-900"
+            style={{ fontFamily: "var(--font-sora)" }}
+          >
+            {t("resetPasswordTitle")}
+          </h1>
+          <p className="m-0 mt-3 text-balance text-[15px] leading-[1.5] text-zinc-600">
+            {t("resetPasswordSubtitle")}
+          </p>
+        </div>
+        <ResetPasswordForm />
+      </div>
+    </AuthSplitScreen>
+  );
+}

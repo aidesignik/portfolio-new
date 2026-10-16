@@ -104,6 +104,24 @@ model User {
 
   carrier Carrier?
   rides   Ride[]   @relation("ClientRides")
+
+  passwordResetTokens PasswordResetToken[]
+}
+
+// Holds the SHA-256 hash of the reset token, never the raw value — the raw
+// token only ever exists in the emailed link, so a database leak alone
+// can't be used to take over an account. One outstanding (unused) token
+// per user: requesting a new one invalidates the last.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model Carrier {
